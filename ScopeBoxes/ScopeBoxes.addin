@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <!--<AddIn Type="Command">
+    <Text>ScopeBoxes - Command 1</Text>
+    <Description>Some description for ScopeBoxes</Description>
+    <Assembly>ScopeBoxes.dll</Assembly>
+    <FullClassName>ScopeBoxes.Command1</FullClassName>
+    <ClientId>b10071a1-8b72-498c-b02f-6ab32ce14147</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+  <AddIn Type="Command">
+    <Text>ScopeBoxes - Command 2</Text>
+    <Description>Some description for ScopeBoxes</Description>
+    <Assembly>ScopeBoxes.dll</Assembly>
+    <FullClassName>ScopeBoxes.Command2</FullClassName>
+    <ClientId>a55ed872-7f30-4e4f-9463-ad152b3513ab</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>-->
+  <AddIn Type="Application">
+    <Name>ScopeBoxes</Name>
+    <Assembly>ScopeBoxes.dll</Assembly>
+    <FullClassName>ScopeBoxes.App</FullClassName>
+    <ClientId>8da60550-1513-4ee5-aca1-97cdf2f67dea</ClientId>
+    <VendorId>com.YOUR COMPANY NAME</VendorId>
+    <VendorDescription>YOUR COMPANY NAME, YOUR COMPANY URL</VendorDescription>
+  </AddIn>
+</RevitAddIns>
