@@ -50,6 +50,7 @@ namespace ScopeBoxes
                 // ================== Form data ===================
                 // Access the controls from the form
                 ScopeBoxGridForm form = new ScopeBoxGridForm();
+                form.txtBaseScopeBoxName.Text = userDrawnScopeBox.Name;
                 form.ShowDialog();
 
                 // Read values from textboxes
@@ -76,12 +77,13 @@ namespace ScopeBoxes
 
 
                 var listOfScopeBoxesCreated = new List<Element>();
+                listOfScopeBoxesCreated.Add(userDrawnScopeBox);
 
                 using (Transaction transaction = new Transaction(doc))
                 {
                     // Start the transaction to create inner scope boxes and delete the original one
                     transaction.Start("Create Grid Scope Boxes and Delete Original");
-                    userDrawnScopeBox.Name = scopeBoxBaseName + " 0";
+                    userDrawnScopeBox.Name = scopeBoxBaseName;
 
                     // Calculate the starting point for rows and columns
                     XYZ startingPoint = new XYZ(0, 0, 0);
@@ -91,6 +93,8 @@ namespace ScopeBoxes
                     {
                         for (int j = 0; j < columns; j++)
                         {
+                            if (i == 0 && j == 0) continue; // Skip first first copy to avoid copying over the existing ScopeBox
+
                             // Calculate the origin for the new scope box with overlaps
                             // Note: Adding j * (newScopeBoxX - HorizontalFeetOverlap) to move Horizontally
                             // Note: Subtracting i * (newScopeBoxY - VerticalFeetOverlap) to move vertically
@@ -120,12 +124,12 @@ namespace ScopeBoxes
                     }
 
                     // Delete the original user-drawn scope box
-                    doc.Delete(userDrawnScopeBox.Id);
+                    //doc.Delete(userDrawnScopeBox.Id);
 
                     // Commit the transaction
                     transaction.Commit();
                 }
-                TaskDialog.Show("Info", $"{listOfScopeBoxesCreated.Count} Scopeboxs Created");
+                TaskDialog.Show("Info", $"{listOfScopeBoxesCreated.Count} Total Scopeboxes");
 
             }
             catch (Exception e)
