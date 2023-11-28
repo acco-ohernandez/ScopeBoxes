@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Controls;
 
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
@@ -20,12 +21,89 @@ namespace ScopeBoxes
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // this is a variable for the Revit application
+            // Get the Revit application and document
             UIApplication uiapp = commandData.Application;
-
-            // this is a variable for the current Revit model
             Document doc = uiapp.ActiveUIDocument.Document;
 
+            // Get the outer scope box using the provided method
+            Element userDrawnScopeBox = GetSelectedScopeBox(doc, uiapp);
+
+            // Check if a valid outer scope box was selected
+            if (userDrawnScopeBox == null)
+            {
+                // Handle the case where a valid outer scope box was not selected
+                TaskDialog.Show("Error", "Please select a valid outer Scope Box.");
+                return Result.Failed;
+            }
+
+            // Get the dimensions of the userScopeBoxBoundingBox
+            BoundingBoxXYZ userScopeBoxBoundingBox = userDrawnScopeBox.get_BoundingBox(null);
+            double newScopeBoxX = userScopeBoxBoundingBox.Max.X - userScopeBoxBoundingBox.Min.X;
+            double newScopeBoxY = userScopeBoxBoundingBox.Max.Y - userScopeBoxBoundingBox.Min.Y;
+
+            // Define the number of rows and columns for inner scope boxes
+            int rows = 3; // Number of rows
+            int columns = 3; // Number of columns
+
+            double HorizontalFeetOverlap = 5;
+            double VerticalFeetOverlap = 5;
+
+            string scopeBoxBaseName = "My ScopeBox";
+            char nameChar = 'A';
+
+            using (Transaction transaction = new Transaction(doc))
+            {
+                // Start the transaction to create inner scope boxes and delete the original one
+                transaction.Start("Create Grid Scope Boxes and Delete Original");
+
+                // Calculate the starting point for rows and columns
+                XYZ startingPoint = new XYZ(0, 0, 0);
+
+                // Iterate through rows and columns to create the grid of scope boxes
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < columns; j++)
+                    {
+                        // Calculate the origin for the new inner scope box with overlaps
+                        XYZ origin = new XYZ(
+                            startingPoint.X + j * (newScopeBoxX - HorizontalFeetOverlap),
+                            startingPoint.Y - i * (newScopeBoxY - VerticalFeetOverlap),
+                            startingPoint.Z
+                        );
+
+                        // Use ElementTransformUtils.CopyElements to replicate the outer scope box
+                        ICollection<ElementId> copiedScopeBoxes = ElementTransformUtils.CopyElements(
+                            doc,
+                            new List<ElementId> { userDrawnScopeBox.Id },
+                            XYZ.Zero
+                        );
+
+
+                        // Iterate through the copied scope boxes to move them to their respective positions
+                        foreach (ElementId copiedScopeBoxId in copiedScopeBoxes)
+                        {
+                            Element copiedScopeBox = doc.GetElement(copiedScopeBoxId);
+                            copiedScopeBox.Name = $"{scopeBoxBaseName} {nameChar}";  // Rename New Scope Box
+                            nameChar++;
+                            ElementTransformUtils.MoveElement(doc, copiedScopeBoxId, origin); // Move the new Scope Box
+                        }
+
+                    }
+                }
+
+                // Delete the original user-drawn scope box
+                doc.Delete(userDrawnScopeBox.Id);
+
+                // Commit the transaction
+                transaction.Commit();
+            }
+
+            // Return the result indicating success
+            return Result.Succeeded;
+        }
+
+        private Element GetSelectedScopeBox(Document doc, UIApplication uiapp)
+        {
             // Get the current selection
             Selection selection = uiapp.ActiveUIDocument.Selection;
 
@@ -36,84 +114,26 @@ namespace ScopeBoxes
             if (selectedElementIds.Count != 1)
             {
                 TaskDialog.Show("Error", "Please select one and only one Scope Box.");
-                return Result.Cancelled;
+                return null;
             }
 
             // Get the selected Scope Box
-            Element selectedScopeBox = doc.GetElement(selectedElementIds.First());
+            var selectedElement = doc.GetElement(selectedElementIds.First());
 
             // Ensure that the selected element is a Scope Box
-            if (selectedScopeBox.Category.Name != "Scope Boxes")
+            if (selectedElement.Category.Name != "Scope Boxes")
             {
                 TaskDialog.Show("Error", "You did not select a Scope Box.");
-                return Result.Cancelled;
+                return null;
             }
-
-            // number of copies
-            var rowNum = 3;
-            var colNum = 3;
-
-            // Use a transaction to perform operations on the document
-            using (Transaction transaction = new Transaction(doc, "Copy Element"))
-            {
-                transaction.Start();
-
-                // Process the selected elements
-                foreach (ElementId elementId in selectedElementIds)
-                {
-                    Element selectedElement = doc.GetElement(elementId);
-
-                    // Now you can work with the selected element
-                    if (selectedElement != null)
-                    {
-                        // Do something with the selected element
-                        Debug.Print("Selected Element => Element Name: " + selectedElement.Name);
-
-                        // make a copy of the selected element
-                        ElementId copiedElementId = CopyElement(doc, selectedElement, new XYZ(0, 0, 0));
-
-                        if (copiedElementId != null)
-                        {
-                            Element copiedElement = doc.GetElement(copiedElementId);
-                            if (copiedElement != null)
-                            {
-                                // Do something with the copied element
-                                Debug.Print("Copied Element => Element Name: " + copiedElement.Name);
-                            }
-                        }
-                    }
-                }
-
-                // Commit the transaction
-                transaction.Commit();
-            }
-            return Result.Succeeded;
-        }
-
-        private ElementId CopyElement(Document document, Element elementToCopy, XYZ insertionPoint)
-        {
-            // Perform the copy operation using ElementTransformUtils.
-            ICollection<ElementId> copiedElementIds = ElementTransformUtils.CopyElement(document, elementToCopy.Id, insertionPoint);
-
-            // Check if the copy operation was successful and at least one element was copied.
-            if (copiedElementIds.Count > 0)
-            {
-                // Retrieve the first copied ElementId.
-                ElementId copiedElementId = copiedElementIds.First();
-
-                // Return the ElementId of the copied element.
-                return copiedElementId;
-            }
-
-            // If no elements were copied, return null to indicate failure.
-            return null;
+            return selectedElement;
         }
 
         internal static PushButtonData GetButtonData()
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btnCommand1";
-            string buttonTitle = "Scope Box";
+            string buttonTitle = "Scope Box Grid";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
