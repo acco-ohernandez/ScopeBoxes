@@ -25,15 +25,13 @@ namespace ScopeBoxes
             UIApplication uiapp = commandData.Application;
             Document doc = uiapp.ActiveUIDocument.Document;
 
-            // Get the outer scope box using the provided method
+            // Get the user's drawn scope box using the provided method
             Element userDrawnScopeBox = GetSelectedScopeBox(doc, uiapp);
 
-            // Check if a valid outer scope box was selected
+            // Check if a valid scope box was selected
             if (userDrawnScopeBox == null)
             {
-                // Handle the case where a valid outer scope box was not selected
-                TaskDialog.Show("Error", "Please select a valid outer Scope Box.");
-                return Result.Failed;
+                return Result.Failed; // If not no valid scope box selected, Teminate the command
             }
 
             // Get the dimensions of the userScopeBoxBoundingBox
@@ -45,9 +43,11 @@ namespace ScopeBoxes
             int rows = 3; // Number of rows
             int columns = 3; // Number of columns
 
+            // Define the Overlap of the scope boxes
             double HorizontalFeetOverlap = 5;
             double VerticalFeetOverlap = 5;
 
+            // Define the Name for the new Scope Box
             string scopeBoxBaseName = "My ScopeBox";
             char nameChar = 'A';
 
@@ -64,30 +64,30 @@ namespace ScopeBoxes
                 {
                     for (int j = 0; j < columns; j++)
                     {
-                        // Calculate the origin for the new inner scope box with overlaps
+                        // Calculate the origin for the new scope box with overlaps
+                        // Note: Adding j * (newScopeBoxX - HorizontalFeetOverlap) to move Horizontally
+                        // Note: Subtracting i * (newScopeBoxY - VerticalFeetOverlap) to move vertically
                         XYZ origin = new XYZ(
-                            startingPoint.X + j * (newScopeBoxX - HorizontalFeetOverlap),
-                            startingPoint.Y - i * (newScopeBoxY - VerticalFeetOverlap),
-                            startingPoint.Z
-                        );
+                                                startingPoint.X + j * (newScopeBoxX - HorizontalFeetOverlap),
+                                                startingPoint.Y - i * (newScopeBoxY - VerticalFeetOverlap),
+                                                startingPoint.Z
+                                            );
 
                         // Use ElementTransformUtils.CopyElements to replicate the outer scope box
                         ICollection<ElementId> copiedScopeBoxes = ElementTransformUtils.CopyElements(
-                            doc,
-                            new List<ElementId> { userDrawnScopeBox.Id },
-                            XYZ.Zero
-                        );
-
+                                                                        doc,
+                                                                        new List<ElementId> { userDrawnScopeBox.Id },
+                                                                        XYZ.Zero
+                                                                    );
 
                         // Iterate through the copied scope boxes to move them to their respective positions
                         foreach (ElementId copiedScopeBoxId in copiedScopeBoxes)
                         {
                             Element copiedScopeBox = doc.GetElement(copiedScopeBoxId);
                             copiedScopeBox.Name = $"{scopeBoxBaseName} {nameChar}";  // Rename New Scope Box
-                            nameChar++;
+                            nameChar++; // Increase the Char value for nameChar
                             ElementTransformUtils.MoveElement(doc, copiedScopeBoxId, origin); // Move the new Scope Box
                         }
-
                     }
                 }
 
