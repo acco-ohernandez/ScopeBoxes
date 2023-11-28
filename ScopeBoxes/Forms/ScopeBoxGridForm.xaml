@@ -1,0 +1,56 @@
+﻿<Window x:Class="ScopeBoxes.Forms.ScopeBoxGridForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScopeBoxes.Forms"
+        mc:Ignorable="d"
+        Title="ScopeBox Grid Maker" 
+        Height="250" 
+        Width="300"
+        MinHeight="250"
+        MinWidth="350"
+        WindowStartupLocation="CenterScreen" 
+        >
+    
+    <Grid Margin="10" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Center">
+            <Label Content="Number of Rows:" Width="160"/>
+            <TextBox x:Name="txtRows" Width="40" Margin="5,0,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Center">
+            <Label Content="Number of Columns:" Width="160"/>
+            <TextBox x:Name="txtColumns" Width="40" Margin="5,0,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Center">
+            <Label Content="Horizontal Overlap (Ft):" Width="160"/>
+            <TextBox x:Name="txtHorizontalOverlap" Width="40" Margin="5,0,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Center">
+            <Label Content="Vertical Overlap (Ft):" Width="160"/>
+            <TextBox x:Name="txtVerticalOverlap" Width="40" Margin="5,0,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Center">
+            <Label Content="Base Name:"/>
+            <TextBox x:Name="txtBaseScopeBoxName" Width="200" Margin="5,0,0,0"/>
+            <!--<Label Content="+:" Margin="5,0,0,0"/>
+            <TextBox x:Name="txtNameChar" Text="A" Width="16" Margin="5,0,0,0"/>-->
+        </StackPanel>
+
+        <Button Grid.Row="6" Content="Create Scope Box Grid" Click="BtnCreateScopeBoxGrid_Click" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+    </Grid>
+</Window>
