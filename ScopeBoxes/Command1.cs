@@ -93,7 +93,7 @@ namespace ScopeBoxes
                     {
                         for (int j = 0; j < columns; j++)
                         {
-                            if (i == 0 && j == 0) continue; // Skip first first copy to avoid copying over the existing ScopeBox
+                            if (i == 0 && j == 0) continue; // Skip first copy to avoid copying over the existing ScopeBox
 
                             // Calculate the origin for the new scope box with overlaps
                             // Note: Adding j * (newScopeBoxX - HorizontalFeetOverlap) to move Horizontally
