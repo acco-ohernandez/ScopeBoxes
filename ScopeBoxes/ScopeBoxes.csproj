@@ -166,6 +166,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="Command2 - Copy.cs" />
+    <Compile Include="ElementPicker.cs" />
+    <Compile Include="Forms\RenameScopeBoxesForm.xaml.cs">
+      <DependentUpon>RenameScopeBoxesForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\ScopeBoxGridForm.xaml.cs">
       <DependentUpon>ScopeBoxGridForm.xaml</DependentUpon>
     </Compile>
@@ -201,6 +206,10 @@
     <Content Include="ScopeBoxes.addin" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Forms\RenameScopeBoxesForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Forms\ScopeBoxGridForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

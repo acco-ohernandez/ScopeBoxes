@@ -1,0 +1,44 @@
+﻿<Window x:Class="ScopeBoxes.Forms.RenameScopeBoxesForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScopeBoxes.Forms"
+        mc:Ignorable="d"
+        Title="ScopeBox Grid Maker" 
+        Height="500" 
+        Width="700"
+        MinHeight="500"
+        MinWidth="700"
+        WindowStartupLocation="CenterScreen" 
+        >
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Column - Original Scope Box Names -->
+        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,10,0">
+            <Label Content="Original Names" HorizontalAlignment="Center"/>
+            <ListBox x:Name="lbOriginalNames" Width="200" Height="300" Margin="0,5,0,5"/>
+        </StackPanel>
+
+        <!-- Center Column - Input Fields -->
+        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,10,0">
+            <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+                <Label Content="First Item New Name:"/>
+                <TextBox x:Name="txtNewName" Width="200" Margin="5,0,0,0" TextChanged="txtNewName_TextChanged"/>
+            </StackPanel>
+            <Button x:Name="BtnRenameScopeBoxes" Content="Rename Scope Boxes" HorizontalAlignment="Center" Margin="0,10,0,0" Click="BtnRenameScopeBoxes_Click"/>
+        </StackPanel>
+
+        <!-- Right Column - New Scope Box Names -->
+        <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right" Margin="0,0,0,0">
+            <Label Content="New Names" HorizontalAlignment="Center"/>
+            <ListBox x:Name="lbNewNames" Width="200" Height="300" Margin="0,5,0,5"/>
+        </StackPanel>
+    </Grid>
+</Window>
