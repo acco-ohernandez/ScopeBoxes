@@ -102,16 +102,17 @@ namespace ScopeBoxes.Forms
         private void txbSuffix_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             var suffixText = txbSuffix.Text;
+            BtnRenameScopeBoxes.IsEnabled = true;
             SuffixList.Clear();
             StringBuilder input = new StringBuilder(suffixText);
-            SuffixList.Add($"{NewName} {input}");
+            SuffixList.Add($"{NewName}{input}");
             var listOfNames = lbOriginalNames.Items;
             if (suffixText != null)
             {
                 for (int i = 1; i < listOfNames.Count; i++)
                 {
                     IncrementLastCharacter(input);
-                    SuffixList.Add($"{NewName} {input}");
+                    SuffixList.Add($"{NewName}{input}");
                 }
 
                 // Update lbNewNames.ItemsSource with the updated SuffixList
@@ -120,35 +121,55 @@ namespace ScopeBoxes.Forms
                 // Refresh the lbNewNames ListBox to reflect changes
                 lbNewNames.Items.Refresh();
             }
+
+            if (suffixText == string.Empty)
+            {
+                BtnRenameScopeBoxes.IsEnabled = false;
+            }
         }
 
         private static void IncrementLastCharacter(StringBuilder str)
         {
+            // Check if the StringBuilder is empty
             if (str.Length == 0)
             {
-                return;
+                return; // do nothing
             }
 
+            // Get the last character in the StringBuilder
             char lastChar = str[str.Length - 1];
 
-            if (lastChar == 'z')
+            // If the last character is a digit, increment the numeric value
+            if (char.IsDigit(lastChar))
+            {
+                // Convert the StringBuilder content to an integer
+                int.TryParse(str.ToString(), out int result);
+
+                // Increment the numeric value
+                result += 1;
+
+                // Clear the StringBuilder and append the new numeric value
+                str.Clear();
+                str.Append(result);
+            }
+            // If the last character is 'z', wrap around to 'a'
+            else if (lastChar == 'z')
             {
                 str[str.Length - 1] = 'a';
             }
+            // If the last character is 'Z', wrap around to 'A'
             else if (lastChar == 'Z')
             {
                 str[str.Length - 1] = 'A';
             }
+            // If the last character is a letter, increment to the next letter
             else if (char.IsLetter(lastChar))
             {
                 str[str.Length - 1] = (char)(lastChar + 1);
             }
-            else if (char.IsDigit(lastChar))
-            {
-
-                str[str.Length - 1] = (char)(lastChar + 1);
-            }
+            // Add any additional conditions or handling as needed
         }
+
 
     }
 }
