@@ -45,9 +45,18 @@ namespace ScopeBoxes
                 // Send the selected elements to the form
                 var renameScopeBoxesForm1 = new RenameScopeBoxesForm(pickedElemsList);
                 renameScopeBoxesForm1.ShowDialog();
-                var newNamesList = renameScopeBoxesForm1.lbNewNames.Items.Cast<string>();
+                var newNamesList = renameScopeBoxesForm1.lbNewNames.Items.Cast<string>().ToList();
 
-                // Perform any final operations or processing if needed
+                // Rename the scope boxes
+                using (Transaction transaction = new Transaction(doc))
+                {
+                    transaction.Start("Rename Scopeboxes");
+                    for (int i = 0; i < pickedElemsList.Count; i++)
+                    {
+                        pickedElemsList[i].Name = newNamesList[i];
+                    }
+                    transaction.Commit();
+                }
 
                 return Result.Succeeded;
             }
