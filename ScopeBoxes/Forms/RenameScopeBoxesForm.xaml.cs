@@ -103,6 +103,7 @@ namespace ScopeBoxes.Forms
         {
             var suffixText = txbSuffix.Text;
             BtnRenameScopeBoxes.IsEnabled = true;
+
             SuffixList.Clear();
             StringBuilder input = new StringBuilder(suffixText);
             SuffixList.Add($"{NewName}{input}");
