@@ -19,7 +19,7 @@ namespace ScopeBoxes.Forms
             InitializeComponent();
             ElementsList = elements;
 
-            SuffixList = new List<string>();
+            UniqueCharList = new List<string>();
 
             // Call the method to bind ElementsList to lbOriginalNames ListBox
             BindElementsListToOriginalNamesListBox();
@@ -40,7 +40,7 @@ namespace ScopeBoxes.Forms
             // update the New Name text box
             txbNewName.Text = RemoveLastWord(ElementsList.Cast<Element>().Select(x => x.Name).FirstOrDefault());
             NewName = txbNewName.Text;
-            txbSuffix.Text = GetLastWord(ElementsList.Cast<Element>().Select(x => x.Name).FirstOrDefault());
+            txbFirstUnique.Text = GetLastWord(ElementsList.Cast<Element>().Select(x => x.Name).FirstOrDefault());
 
             // Optionally, set the DisplayMemberPath if you want to display a specific property of Element in the ListBox
             // lbOriginalNames.DisplayMemberPath = "Name";
@@ -49,7 +49,7 @@ namespace ScopeBoxes.Forms
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                // Handle empty or null sb_Suffix as needed
+                // Handle empty or null sb_UniqueChar as needed
                 return input;
             }
 
@@ -71,11 +71,11 @@ namespace ScopeBoxes.Forms
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                // Handle empty or null sb_Suffix as needed
+                // Handle empty or null sb_UniqueChar as needed
                 return input;
             }
 
-            // Split the sb_Suffix string into an array of words
+            // Split the sb_UniqueChar string into an array of words
             string[] words = input.Split(' ');
 
             // If there is at least one word, return the last one
@@ -90,7 +90,6 @@ namespace ScopeBoxes.Forms
             }
         }
 
-
         private void BtnRenameScopeBoxes_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
@@ -101,44 +100,14 @@ namespace ScopeBoxes.Forms
         private void txbNewName_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             NewName = txbNewName.Text;
-            txbSuffix_TextChanged(sender, e);
+            //txbSuffix_TextChanged(sender, e);
+            txbFirstUnique_TextChanged(sender, e);
+
         }
 
-        public List<string> SuffixList { get; set; }
+        public List<string> UniqueCharList { get; set; }
         public static StringBuilder OriginalSuffix { get; set; }
-        private void txbSuffix_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            var suffixText = txbSuffix.Text;
-            if (!string.IsNullOrEmpty(suffixText))
-                BtnRenameScopeBoxes.IsEnabled = true;  // If the Suffix field has text, enable the BtnRenameScopeBoxes Button
 
-            SuffixList.Clear();
-            StringBuilder sb_Suffix = new StringBuilder(suffixText);
-            //if (sb_Suffix[sb_Suffix.Length - 1] == 'z' || sb_Suffix[sb_Suffix.Length - 1] == 'Z')
-            OriginalSuffix = sb_Suffix; // update the global variable
-
-            SuffixList.Add($"{NewName}{sb_Suffix}"); // Add the first name to the SuffixList
-            var listOfNames = lbOriginalNames.Items;
-            if (suffixText != null)
-            {
-                for (int i = 1; i < listOfNames.Count; i++)
-                {
-                    IncrementLastCharacter(sb_Suffix);
-                    SuffixList.Add($"{NewName}{sb_Suffix}"); // Add the new name to the SuffixList
-                }
-
-                // Update lbNewNames.ItemsSource with the updated SuffixList
-                lbNewNames.ItemsSource = SuffixList;
-
-                // Refresh the lbNewNames ListBox to reflect changes
-                lbNewNames.Items.Refresh();
-            }
-
-            if (suffixText == string.Empty)
-            {
-                BtnRenameScopeBoxes.IsEnabled = false;
-            }
-        }
         private static void IncrementLastCharacter(StringBuilder inputString)
         {
             // Check if the StringBuilder is empty
@@ -215,5 +184,78 @@ namespace ScopeBoxes.Forms
             }
         }
 
+        private void txbFirstUnique_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            // Get the text from the first unique TextBox and trim any leading or trailing spaces
+            var FirstUniqueText = txbFirstUnique.Text;
+            FirstUniqueText = FirstUniqueText.Trim(); // Corrected: Assign the trimmed value back to the variable
+
+            // Enable the Rename button if the first unique text is not empty
+            if (!string.IsNullOrEmpty(FirstUniqueText))
+                BtnRenameScopeBoxes.IsEnabled = true;
+
+            // Get the text from the suffix TextBox and trim any leading or trailing spaces
+            var suffixText = txbSuffix.Text;
+            suffixText = suffixText.Trim(); // Corrected: Assign the trimmed value back to the variable
+
+            // Clear the list of unique characters
+            UniqueCharList.Clear();
+
+            // Create a StringBuilder with the first unique text
+            StringBuilder sb_UniqueChar = new StringBuilder(FirstUniqueText);
+
+            // Update the global variable with the first unique text
+            OriginalSuffix = sb_UniqueChar;
+
+            // Add the first item to the UniqueCharList based on the presence of a suffix
+            if (string.IsNullOrEmpty(suffixText))
+            {
+                UniqueCharList.Add($"{NewName} {sb_UniqueChar}");
+            }
+            else
+            {
+                UniqueCharList.Add($"{NewName} {sb_UniqueChar} {suffixText}");
+            }
+
+            // Get the list of original names from the ListBox
+            var listOfNames = lbOriginalNames.Items;
+
+            // Process additional items in the list
+            if (FirstUniqueText != null)
+            {
+                for (int i = 1; i < listOfNames.Count; i++)
+                {
+                    // Increment the last character in the StringBuilder
+                    IncrementLastCharacter(sb_UniqueChar);
+
+                    // Add items to the UniqueCharList based on the presence of a suffix
+                    if (string.IsNullOrEmpty(suffixText))
+                    {
+                        UniqueCharList.Add($"{NewName} {sb_UniqueChar}");
+                    }
+                    else
+                    {
+                        UniqueCharList.Add($"{NewName} {sb_UniqueChar} {suffixText}");
+                    }
+                }
+
+                // Update lbNewNames.ItemsSource with the updated UniqueCharList
+                lbNewNames.ItemsSource = UniqueCharList;
+
+                // Refresh the lbNewNames ListBox to reflect changes
+                lbNewNames.Items.Refresh();
+            }
+
+            // Disable the Rename button if the first unique text is empty
+            if (FirstUniqueText == string.Empty)
+            {
+                BtnRenameScopeBoxes.IsEnabled = false;
+            }
+        }
+
+        private void txbSuffix_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            txbFirstUnique_TextChanged(sender, e);
+        }
     }
 }

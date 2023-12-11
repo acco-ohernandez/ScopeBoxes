@@ -29,15 +29,10 @@ namespace ScopeBoxes
                 UIDocument uidoc = uiapp.ActiveUIDocument;
                 Document doc = uidoc.Document;
 
-                // Create a new list to store the picked references in order
-                //List<Element> pickedElemsList = new List<Element>();
-                //HashSet<ElementId> uniqueElementIds = new HashSet<ElementId>();
-
                 // Show info message to the user
                 ShowInfoDialog("Pick scope boxes in the desired order. Press ESC to stop picking.");
 
                 // Pick scope boxes
-                //var pickedElemsList = PickScopeBoxes(uidoc, doc, uniqueElementIds);
                 var pickedElemsList = PickScopeBoxes(uidoc, doc);
                 if (pickedElemsList == null)
                     return Result.Cancelled; // if no selected elements, Cancel this command
@@ -152,84 +147,6 @@ namespace ScopeBoxes
             TaskDialog.Show("Warning", message);
         }
 
-        //public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
-        //{
-        //    try
-        //    {
-        //        // Get the Revit application and document
-        //        UIApplication uiapp = commandData.Application;
-        //        UIDocument uidoc = uiapp.ActiveUIDocument;
-        //        Document doc = uidoc.Document;
-
-        //        // Create a new list to store the picked references in order
-        //        List<Element> pickedElemsList = new List<Element>();
-
-        //        // Create a HashSet to check for duplicates based on ElementId
-        //        HashSet<ElementId> uniqueElementIds = new HashSet<ElementId>();
-
-        //        bool flag = true;
-        //        int c = 0;
-        //        var infoMessage = "Pick scope boxes in the desired order. Press ESC to stop picking.";
-
-        //        TaskDialog.Show("Info", infoMessage);
-        //        while (flag)
-        //        {
-        //            try
-        //            {
-        //                // Prompt user to pick a scope box
-        //                Reference reference = uidoc.Selection.PickObject(
-        //                    ObjectType.Element, infoMessage);
-
-        //                // Access the element using reference.ElementId
-        //                Element element = doc.GetElement(reference.ElementId);
-
-        //                if (element.Category.Name == "Scope Boxes")
-        //                {
-        //                    // Check for duplicates using HashSet
-        //                    if (uniqueElementIds.Add(reference.ElementId))
-        //                    {
-        //                        // If ElementId is not a duplicate, add the reference to the list
-        //                        pickedElemsList.Add(element);
-        //                        c++;
-        //                        // Do something with the picked element
-        //                        Debug.Print($"========>{c}: {element.Name}");
-        //                    }
-        //                    else
-        //                    {
-        //                        TaskDialog.Show("Warning", "Duplicate scope box selected. Ignoring the duplicate.");
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    TaskDialog.Show("Error", "That was not a scope box\nTry again");
-        //                    throw new Exception();
-        //                }
-        //            }
-        //            catch (Autodesk.Revit.Exceptions.OperationCanceledException)
-        //            {
-        //                // User pressed ESC or canceled the operation
-        //                flag = false;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                // Handle specific exceptions or log errors
-        //                TaskDialog.Show("Error", $"An error occurred: {ex.Message}");
-        //                return Result.Failed;
-        //            }
-        //        }
-
-        //        // Perform any final operations or processing if needed
-
-        //        return Result.Succeeded;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Handle exceptions or log errors
-        //        TaskDialog.Show("Error", $"An unexpected error occurred: {ex.Message}");
-        //        return Result.Failed;
-        //    }
-
-        //}
 
         internal static PushButtonData GetButtonData()
         {

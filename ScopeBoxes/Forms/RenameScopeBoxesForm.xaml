@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="ScopeBox Renamer" 
         Height="500" 
-        Width="750"
+        Width="860"
         MinHeight="500"
         MinWidth="700"
         WindowStartupLocation="CenterScreen" 
@@ -26,7 +26,7 @@
         </Style>
     </Window.Resources>
     
-    <Grid Margin="10" VerticalAlignment="Center">
+    <Grid Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
@@ -50,8 +50,12 @@
                 <TextBox x:Name="txbNewName" Width="200" TextChanged="txbNewName_TextChanged"/>
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="0,0,0,0">
+                <Label Content="First Unique:"/>
+                <TextBox x:Name="txbFirstUnique" Width="25" Margin="0" TextChanged="txbFirstUnique_TextChanged"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="0,0,0,0">
                 <Label Content="Suffix:"/>
-                <TextBox x:Name="txbSuffix" Width="25" Margin="0" TextChanged="txbSuffix_TextChanged"/>
+                <TextBox x:Name="txbSuffix" Width="100" Margin="0" TextChanged="txbSuffix_TextChanged"/>
             </StackPanel>
         </StackPanel>
         
