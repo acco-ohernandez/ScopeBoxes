@@ -7,12 +7,25 @@
         mc:Ignorable="d"
         Title="ScopeBox Renamer" 
         Height="500" 
-        Width="700"
+        Width="750"
         MinHeight="500"
         MinWidth="700"
         WindowStartupLocation="CenterScreen" 
         >
-
+    
+    <Window.Resources>
+        <Style TargetType="ListBoxItem">
+            <Style.Triggers>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                    <Setter Property="Background" Value="#F0F0F0"/>
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
     <Grid Margin="10" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -21,29 +34,33 @@
         </Grid.ColumnDefinitions>
 
         <!-- Left Column - Original Scope Box Names -->
-        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,10,0">
+        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,5,0">
             <Label Content="Original Names" HorizontalAlignment="Center"/>
-            <ListBox x:Name="lbOriginalNames" Width="200" Height="300" Margin="0,5,0,5"/>
+            <ListBox x:Name="lbOriginalNames" Width="200" Height="300" Margin="0,5,0,5" ItemsSource="{Binding ElementsList}" DisplayMemberPath="Name" AlternationCount="2"/>
         </StackPanel>
-
+        
         <!-- Center Column - Input Fields -->
         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
-            <StackPanel Orientation="Vertical" Margin="0,0,0,5">
-                <Label Content="First Item New Name:"/>
-                <TextBox x:Name="txbNewName" Width="200" Margin="5,0,0,0" TextChanged="txbNewName_TextChanged"/>
+            <StackPanel>
+                <Button x:Name="btnUp" x:FieldModifier="private" FontSize="20" Margin="0,0,0,5" Content="▲" Width="20" Height="40" Click="btnUp_Click" />
+                <Button x:Name="btnDown" x:FieldModifier="private" FontSize="20" Margin="0,0,0,5" Content="▼" Width="20" Height="40" Click="btnDown_Click" />
             </StackPanel>
-            <StackPanel Orientation="Vertical" Margin="0,0,0,5">
+            <StackPanel Orientation="Vertical" Margin="5,0,0,0">
+                <Label Content="First Item New Name:"/>
+                <TextBox x:Name="txbNewName" Width="200" TextChanged="txbNewName_TextChanged"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="0,0,0,0">
                 <Label Content="Suffix:"/>
-                <TextBox x:Name="txbSuffix" Width="20" Margin="5,0,0,0" TextChanged="txbSuffix_TextChanged"/>
+                <TextBox x:Name="txbSuffix" Width="25" Margin="0" TextChanged="txbSuffix_TextChanged"/>
             </StackPanel>
         </StackPanel>
         
-            <Button Grid.Column="1" x:Name="BtnRenameScopeBoxes" Content="Rename Scope Boxes" HorizontalAlignment="Center" Width="200" Height="30" Margin="0,100,0,0" Click="BtnRenameScopeBoxes_Click"/>
+        <Button Grid.Column="1" x:Name="BtnRenameScopeBoxes" Content="Rename Scope Boxes" HorizontalAlignment="Center" Width="200" Height="30" Margin="0,120,0,0" Click="BtnRenameScopeBoxes_Click"/>
         
         <!-- Right Column - New Scope Box Names -->
         <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right" Margin="0,0,0,0">
             <Label Content="New Names" HorizontalAlignment="Center"/>
-            <ListBox x:Name="lbNewNames" Width="200" Height="300" Margin="0,5,0,5"/>
+            <ListBox x:Name="lbNewNames" Width="200" Height="300" Margin="0,5,0,5" AlternationCount="2"/>
         </StackPanel>
     </Grid>
 </Window>

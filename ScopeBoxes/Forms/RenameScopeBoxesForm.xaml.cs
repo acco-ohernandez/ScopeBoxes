@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Windows;
 
@@ -27,8 +28,13 @@ namespace ScopeBoxes.Forms
         private void BindElementsListToOriginalNamesListBox()
         {
             // Set the ItemsSource of lbOriginalNames ListBox to ElementsList
-            lbOriginalNames.ItemsSource = ElementsList.Cast<Element>().Select(x => x.Name);
-            lbNewNames.ItemsSource = ElementsList.Cast<Element>().Select(x => x.Name);
+            //lbOriginalNames.ItemsSource = ElementsList.Cast<Element>().Select(x => x.Name);
+            lbOriginalNames.ItemsSource = ElementsList;
+
+
+            var scopeBoxesSelected = ElementsList.Cast<Element>().Select(x => x.Name);
+            lbNewNames.ItemsSource = lbOriginalNames.Items;
+
 
 
             // update the New Name text box
@@ -43,7 +49,7 @@ namespace ScopeBoxes.Forms
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                // Handle empty or null input as needed
+                // Handle empty or null sb_Suffix as needed
                 return input;
             }
 
@@ -65,11 +71,11 @@ namespace ScopeBoxes.Forms
         {
             if (string.IsNullOrWhiteSpace(input))
             {
-                // Handle empty or null input as needed
+                // Handle empty or null sb_Suffix as needed
                 return input;
             }
 
-            // Split the input string into an array of words
+            // Split the sb_Suffix string into an array of words
             string[] words = input.Split(' ');
 
             // If there is at least one word, return the last one
@@ -99,21 +105,26 @@ namespace ScopeBoxes.Forms
         }
 
         public List<string> SuffixList { get; set; }
+        public static StringBuilder OriginalSuffix { get; set; }
         private void txbSuffix_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             var suffixText = txbSuffix.Text;
-            BtnRenameScopeBoxes.IsEnabled = true;
+            if (!string.IsNullOrEmpty(suffixText))
+                BtnRenameScopeBoxes.IsEnabled = true;  // If the Suffix field has text, enable the BtnRenameScopeBoxes Button
 
             SuffixList.Clear();
-            StringBuilder input = new StringBuilder(suffixText);
-            SuffixList.Add($"{NewName}{input}");
+            StringBuilder sb_Suffix = new StringBuilder(suffixText);
+            //if (sb_Suffix[sb_Suffix.Length - 1] == 'z' || sb_Suffix[sb_Suffix.Length - 1] == 'Z')
+            OriginalSuffix = sb_Suffix; // update the global variable
+
+            SuffixList.Add($"{NewName}{sb_Suffix}"); // Add the first name to the SuffixList
             var listOfNames = lbOriginalNames.Items;
             if (suffixText != null)
             {
                 for (int i = 1; i < listOfNames.Count; i++)
                 {
-                    IncrementLastCharacter(input);
-                    SuffixList.Add($"{NewName}{input}");
+                    IncrementLastCharacter(sb_Suffix);
+                    SuffixList.Add($"{NewName}{sb_Suffix}"); // Add the new name to the SuffixList
                 }
 
                 // Update lbNewNames.ItemsSource with the updated SuffixList
@@ -128,49 +139,81 @@ namespace ScopeBoxes.Forms
                 BtnRenameScopeBoxes.IsEnabled = false;
             }
         }
-
-        private static void IncrementLastCharacter(StringBuilder str)
+        private static void IncrementLastCharacter(StringBuilder inputString)
         {
             // Check if the StringBuilder is empty
-            if (str.Length == 0)
+            if (inputString.Length == 0)
             {
                 return; // do nothing
             }
 
             // Get the last character in the StringBuilder
-            char lastChar = str[str.Length - 1];
+            char lastChar = inputString[inputString.Length - 1];
 
             // If the last character is a digit, increment the numeric value
             if (char.IsDigit(lastChar))
             {
                 // Convert the StringBuilder content to an integer
-                int.TryParse(str.ToString(), out int result);
+                int.TryParse(inputString.ToString(), out int result);
 
                 // Increment the numeric value
                 result += 1;
 
                 // Clear the StringBuilder and append the new numeric value
-                str.Clear();
-                str.Append(result);
+                inputString.Clear();
+                inputString.Append(result);
             }
             // If the last character is 'z', wrap around to 'a'
             else if (lastChar == 'z')
             {
-                str[str.Length - 1] = 'a';
+                OriginalSuffix.Append('a');
+                inputString = OriginalSuffix;
+                OriginalSuffix = inputString;
+                //inputString[inputString.Length - 1] = 'a';
             }
             // If the last character is 'Z', wrap around to 'A'
             else if (lastChar == 'Z')
             {
-                str[str.Length - 1] = 'A';
+                OriginalSuffix.Append('A');
+                inputString = OriginalSuffix;
+                OriginalSuffix = inputString;
+                //inputString[inputString.Length - 1] = 'A';
             }
             // If the last character is a letter, increment to the next letter
             else if (char.IsLetter(lastChar))
             {
-                str[str.Length - 1] = (char)(lastChar + 1);
+                inputString[inputString.Length - 1] = (char)(lastChar + 1);
             }
             // Add any additional conditions or handling as needed
         }
 
+        private void btnUp_Click(object sender, RoutedEventArgs e)
+        {
+            MoveSelectedItem(-1);
+        }
+
+        private void btnDown_Click(object sender, RoutedEventArgs e)
+        {
+            MoveSelectedItem(1);
+        }
+
+        private void MoveSelectedItem(int direction)
+        {
+            var selectedIndex = lbOriginalNames.SelectedIndex;
+
+            // Check if an item is selected and it's not the first or last item
+            if (selectedIndex >= 0 && selectedIndex + direction >= 0 && selectedIndex + direction < ElementsList.Count)
+            {
+                // Swap the selected item with the item in the desired direction
+                var temp = ElementsList[selectedIndex];
+                ElementsList[selectedIndex] = ElementsList[selectedIndex + direction];
+                ElementsList[selectedIndex + direction] = temp;
+
+                // Update the ListBox and reselect the moved item
+                lbOriginalNames.Items.Refresh();
+                lbOriginalNames.SelectedIndex = selectedIndex + direction;
+            }
+        }
 
     }
 }
