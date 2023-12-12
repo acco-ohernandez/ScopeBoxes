@@ -46,8 +46,8 @@
                 <Button x:Name="btnDown" x:FieldModifier="private" FontSize="20" Margin="0,0,0,5" Content="▼" Width="20" Height="40" Click="btnDown_Click" />
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="5,0,0,0">
-                <Label Content="First Item New Name:"/>
-                <TextBox x:Name="txbNewName" Width="200" TextChanged="txbNewName_TextChanged"/>
+                <Label Content="Prefix:"/>
+                <TextBox x:Name="txbNewName" Width="150" TextChanged="txbNewName_TextChanged"/>
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="0,0,0,0">
                 <Label Content="First Unique:"/>
@@ -55,7 +55,7 @@
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="0,0,0,0">
                 <Label Content="Suffix:"/>
-                <TextBox x:Name="txbSuffix" Width="100" Margin="0" TextChanged="txbSuffix_TextChanged"/>
+                <TextBox x:Name="txbSuffix" Width="150" Margin="0" TextChanged="txbSuffix_TextChanged"/>
             </StackPanel>
         </StackPanel>
         

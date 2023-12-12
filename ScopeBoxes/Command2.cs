@@ -12,6 +12,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 
+
 using ScopeBoxes.Forms;
 #endregion
 
@@ -29,32 +30,49 @@ namespace ScopeBoxes
                 UIDocument uidoc = uiapp.ActiveUIDocument;
                 Document doc = uidoc.Document;
 
-                // Show info message to the user
-                ShowInfoDialog("Pick scope boxes in the desired order. Press ESC to stop picking.");
+                // Lists to store selected and preselected elements
+                var pickedElemsList = new List<Element>();
+                var preselectedElemsList = GetSelectedScopeBoxes(doc);
 
-                // Pick scope boxes
-                var pickedElemsList = PickScopeBoxes(uidoc, doc);
+                // Check if there are preselected elements; if not, allow the user to pick
+                if (preselectedElemsList.Count != 0)
+                    pickedElemsList = preselectedElemsList;
+                else
+                {
+                    // Show info message to the user
+                    ShowInfoDialog("Pick scope boxes in the desired order. Press ESC to stop picking.");
+                    pickedElemsList = PickScopeBoxes(uidoc, doc);
+                }
+
+                // Check if there are selected elements; if not, cancel the command
                 if (pickedElemsList == null)
-                    return Result.Cancelled; // if no selected elements, Cancel this command
+                    return Result.Cancelled;
 
-                // Send the selected elements to the form
-                var renameScopeBoxesForm1 = new RenameScopeBoxesForm(pickedElemsList);
-                renameScopeBoxesForm1.ShowDialog();
-                if (renameScopeBoxesForm1.DialogResult != true) return Result.Cancelled; // Cancel the process if the rename button in not clicked.
+                // Display the RenameScopeBoxesForm to the user
+                var renameScopeBoxesForm = new RenameScopeBoxesForm(pickedElemsList);
+                renameScopeBoxesForm.ShowDialog();
+
+                // Check if the user clicked the Rename button; if not, cancel the process
+                if (renameScopeBoxesForm.DialogResult != true)
+                    return Result.Cancelled;
 
                 // Get the list of new names as a string list
-                var newNamesList = renameScopeBoxesForm1.lbNewNames.Items.Cast<string>().ToList();
-                // Get the list of elements from the form with any new list order that could have been done on the form.
-                var returnedNewNamesElementList = renameScopeBoxesForm1.lbOriginalNames.Items.Cast<Element>().ToList();
+                var newNamesList = renameScopeBoxesForm.lbNewNames.Items.Cast<string>().ToList();
 
-                // Rename the scope boxes
+                // Get the list of elements from the form with any new list order
+                var returnedNewNamesElementList = renameScopeBoxesForm.lbOriginalNames.Items.Cast<Element>().ToList();
+
+                // Rename the scope boxes using a transaction
                 using (Transaction transaction = new Transaction(doc))
                 {
                     transaction.Start("Rename Scopeboxes");
+
+                    // Iterate through the selected elements and update their names
                     for (int i = 0; i < pickedElemsList.Count; i++)
                     {
                         returnedNewNamesElementList[i].Name = newNamesList[i];
                     }
+
                     transaction.Commit();
                 }
 
@@ -145,6 +163,29 @@ namespace ScopeBoxes
         private void ShowWarningDialog(string message)
         {
             TaskDialog.Show("Warning", message);
+        }
+
+        public List<Element> GetSelectedScopeBoxes(Document doc)
+        {
+            List<Element> scopeBoxes = new List<Element>();
+
+            // Get the handle of current document.
+            UIDocument uidoc = new UIDocument(doc);
+
+            // Get the element selection of the current document.
+            ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
+
+            // Iterate through the selected element IDs and add scope boxes to the list
+            foreach (ElementId id in selectedIds)
+            {
+                Element element = doc.GetElement(id);
+                if (IsScopeBox(element))
+                {
+                    scopeBoxes.Add(element);
+                }
+            }
+
+            return scopeBoxes;
         }
 
 

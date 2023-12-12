@@ -108,6 +108,7 @@ namespace ScopeBoxes.Forms
         public List<string> UniqueCharList { get; set; }
         public static StringBuilder OriginalSuffix { get; set; }
 
+
         private static void IncrementLastCharacter(StringBuilder inputString)
         {
             // Check if the StringBuilder is empty
@@ -196,7 +197,7 @@ namespace ScopeBoxes.Forms
 
             // Get the text from the suffix TextBox and trim any leading or trailing spaces
             var suffixText = txbSuffix.Text;
-            suffixText = suffixText.Trim(); // Corrected: Assign the trimmed value back to the variable
+            //suffixText = suffixText.Trim(); // Corrected: Assign the trimmed value back to the variable
 
             // Clear the list of unique characters
             UniqueCharList.Clear();
@@ -210,11 +211,11 @@ namespace ScopeBoxes.Forms
             // Add the first item to the UniqueCharList based on the presence of a suffix
             if (string.IsNullOrEmpty(suffixText))
             {
-                UniqueCharList.Add($"{NewName} {sb_UniqueChar}");
+                UniqueCharList.Add($"{NewName}{sb_UniqueChar}");
             }
             else
             {
-                UniqueCharList.Add($"{NewName} {sb_UniqueChar} {suffixText}");
+                UniqueCharList.Add($"{NewName}{sb_UniqueChar}{suffixText}");
             }
 
             // Get the list of original names from the ListBox
@@ -231,11 +232,11 @@ namespace ScopeBoxes.Forms
                     // Add items to the UniqueCharList based on the presence of a suffix
                     if (string.IsNullOrEmpty(suffixText))
                     {
-                        UniqueCharList.Add($"{NewName} {sb_UniqueChar}");
+                        UniqueCharList.Add($"{NewName}{sb_UniqueChar}");
                     }
                     else
                     {
-                        UniqueCharList.Add($"{NewName} {sb_UniqueChar} {suffixText}");
+                        UniqueCharList.Add($"{NewName}{sb_UniqueChar}{suffixText}");
                     }
                 }
 
