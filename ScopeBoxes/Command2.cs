@@ -40,7 +40,7 @@ namespace ScopeBoxes
                 else
                 {
                     // Show info message to the user
-                    ShowInfoDialog("Pick scope boxes in the desired order. Press ESC to stop picking.");
+                    ShowInfoDialog("Pick scope boxes in the desired order. \nPress ESC to stop picking.");
                     pickedElemsList = PickScopeBoxes(uidoc, doc);
                 }
 
