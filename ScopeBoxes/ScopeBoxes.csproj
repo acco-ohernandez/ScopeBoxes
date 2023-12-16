@@ -166,7 +166,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Command2 - Copy.cs" />
+    <Compile Include="Cmd_GridDimensions.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\RenameScopeBoxesForm.xaml.cs">
       <DependentUpon>RenameScopeBoxesForm.xaml</DependentUpon>
