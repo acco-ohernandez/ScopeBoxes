@@ -161,7 +161,11 @@ namespace ScopeBoxes
 
             var vertDimensionsList = new List<Dimension>();
 
-            Line line = Line.CreateBound(p1.Subtract(offsetVert), p2.Subtract(offsetVert));
+            //Line line = Line.CreateBound(p1.Subtract(offsetVert), p2.Subtract(offsetVert));
+
+            Line line = Line.CreateBound(new XYZ(p1.X, offsetVert.Y, 0), new XYZ(p2.X, offsetVert.Y, 0));
+
+
             Dimension dim = doc.Create.NewDimension(curView, line, referenceArrayVertical);
 
             if (dim != null)
@@ -211,7 +215,9 @@ namespace ScopeBoxes
             var horizDimensionsList = new List<Dimension>();
 
             // Create horizontal dimension line
-            Line lineHoriz = Line.CreateBound(p1h.Subtract(offsetHoriz), p2h.Subtract(offsetHoriz));
+            //Line lineHoriz = Line.CreateBound(p1h.Subtract(offsetHoriz), p2h.Subtract(offsetHoriz));
+            Line lineHoriz = Line.CreateBound(new XYZ(offsetHoriz.X, p1h.Y, 0), new XYZ(offsetHoriz.X, p2h.Y, 0));
+
             Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal);
 
             // Add the created dimension to the list
