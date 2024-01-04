@@ -47,19 +47,20 @@ namespace ScopeBoxes
                 {
                     var firstRowXMax = GetTheFirstRowOfScopeBoxesMax(selectedScopeBoxes);
                     var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
+                    double offSetFeet = 2.5;
 
                     // Create Horizontal dimension lines at MaxX of each scope box
                     foreach (var xyzPointX in firstColumnYMax)
                     {
                         var newXPoint = new XYZ(0, xyzPointX.Y, 0);
-                        CreateHorizontalDimensions(doc, gridsCollector, newXPoint, 0, doc.ActiveView);
+                        CreateHorizontalDimensions(doc, gridsCollector, newXPoint, offSetFeet, doc.ActiveView);
                     }
 
                     // Create Vertical dimension lines at MaxY of each scope box
                     foreach (var xyzPointY in firstRowXMax)
                     {
                         var newXPoint = new XYZ(xyzPointY.X, 0, 0);
-                        CreateVerticalDimensions(doc, gridsCollector, newXPoint, 0, doc.ActiveView);
+                        CreateVerticalDimensions(doc, gridsCollector, newXPoint, offSetFeet, doc.ActiveView);
                     }
                 }
                 else
@@ -139,7 +140,7 @@ namespace ScopeBoxes
         }
 
 
-        List<Dimension> CreateHorizontalDimensions(Document doc, List<Element> gridsCollector, XYZ vertPoint, int verticalFeetOffSet, View curView)
+        List<Dimension> CreateHorizontalDimensions(Document doc, List<Element> gridsCollector, XYZ vertPoint, double verticalFeetOffSet, View curView)
         {
             var referenceArrayVertical = new ReferenceArray();
             var xyzPointListVert = new List<XYZ>();
@@ -174,7 +175,7 @@ namespace ScopeBoxes
             return vertDimensionsList;
         }
 
-        public List<Dimension> CreateVerticalDimensions(Document doc, List<Element> gridsList, XYZ horizPoint, int horizontalFeetOffSet, View curView)
+        public List<Dimension> CreateVerticalDimensions(Document doc, List<Element> gridsList, XYZ horizPoint, double horizontalFeetOffSet, View curView)
         {
             // Method to create vertical dimensions for grids
             // Parameters:
