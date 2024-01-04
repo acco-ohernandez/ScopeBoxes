@@ -48,20 +48,18 @@ namespace ScopeBoxes
                     var firstRowXMax = GetTheFirstRowOfScopeBoxesMax(selectedScopeBoxes);
                     var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
 
-                    // Create vertical dimension lines at MaxX of each scope box
-                    //foreach (var xyzPointX in firstRowXMax)
+                    // Create Horizontal dimension lines at MaxX of each scope box
                     foreach (var xyzPointX in firstColumnYMax)
                     {
                         var newXPoint = new XYZ(0, xyzPointX.Y, 0);
                         CreateHorizontalDimensions(doc, gridsCollector, newXPoint, 0, doc.ActiveView);
                     }
 
-                    // Create horizontal dimension lines at MaxY of each scope box
+                    // Create Vertical dimension lines at MaxY of each scope box
                     foreach (var xyzPointY in firstRowXMax)
                     {
                         var newXPoint = new XYZ(xyzPointY.X, 0, 0);
                         CreateVerticalDimensions(doc, gridsCollector, newXPoint, 0, doc.ActiveView);
-                        //CreateVerticalDimensions(doc, gridsCollector, xyzPointY, 0, doc.ActiveView);
                     }
                 }
                 else
