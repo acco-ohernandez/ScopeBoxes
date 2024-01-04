@@ -154,7 +154,7 @@ namespace ScopeBoxes
             return null;
         }
 
-        private bool IsScopeBox(Element element)
+        public static bool IsScopeBox(Element element)
         {
             // Check if the element is a scope box
             return element != null && element.Category != null && element.Category.Name == "Scope Boxes";
@@ -165,7 +165,7 @@ namespace ScopeBoxes
             TaskDialog.Show("Warning", message);
         }
 
-        public List<Element> GetSelectedScopeBoxes(Document doc)
+        public static List<Element> GetSelectedScopeBoxes(Document doc)
         {
             List<Element> scopeBoxes = new List<Element>();
 

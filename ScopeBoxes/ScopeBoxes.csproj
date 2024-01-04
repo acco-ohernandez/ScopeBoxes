@@ -166,7 +166,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="Cmd_GridDimensions - 02 TestingNotWorking.cs" />
+    <Compile Include="Cmd_GridDimensions - 01 single dim line.cs" />
     <Compile Include="Cmd_GridDimensions.cs" />
+    <Compile Include="Cmd_GridDimensions - individual dim lines.cs" />
+    <Compile Include="Cmd_GridDimensions_Last.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\RenameScopeBoxesForm.xaml.cs">
       <DependentUpon>RenameScopeBoxesForm.xaml</DependentUpon>

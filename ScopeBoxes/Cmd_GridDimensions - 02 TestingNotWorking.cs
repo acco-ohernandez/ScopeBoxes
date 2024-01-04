@@ -21,7 +21,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_GridDimensions : IExternalCommand
+    public class Cmd_GridDimensions4 : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -29,49 +29,81 @@ namespace ScopeBoxes
             UIApplication uiapp = commandData.Application;
             Document doc = uiapp.ActiveUIDocument.Document;
 
-            // Get all grids in the active view
-            var gridsCollector = new FilteredElementCollector(doc, doc.ActiveView.Id)
-                .OfCategory(BuiltInCategory.OST_Grids)
-                .WhereElementIsNotElementType()
-                .ToList();
+            var gridsCollector = new List<Element>();
+            gridsCollector = new FilteredElementCollector(doc, doc.ActiveView.Id)
+                                    .OfCategory(BuiltInCategory.OST_Grids).WhereElementIsNotElementType()
+                                    .ToList();
 
-            // Get selected scope boxes
             var selectedScopeBoxes = Command2.GetSelectedScopeBoxes(doc);
-
-            using (Transaction t = new Transaction(doc))
+            //  Get all grids
+            if (selectedScopeBoxes.Count != 0)
             {
-                t.Start("Create grid dimension");
+                List<XYZ> FirstRowOfScopeBoxesOnSameHorizontalLine = GetTheFirstRowOfScopeBoxesXMax(selectedScopeBoxes);
 
-                // Check if there are selected scope boxes
-                if (selectedScopeBoxes.Count != 0)
+                List<XYZ> FirstRowOfScopeBoxesOnSameVerticalLine = GetTheFirstRowOfScopeBoxesYMax(selectedScopeBoxes);
+
+
+                View curView = doc.ActiveView;
+                var HorizotalAndVerticalDimensionsList = new List<List<Dimension>>();
+                // Create dimension strings
+                using (Transaction t = new Transaction(doc))
                 {
-                    var firstRowXMax = GetTheFirstRowOfScopeBoxesMax(selectedScopeBoxes);
-                    var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
+                    t.Start("Create grid dimensions");
 
-                    // Create vertical dimension lines at MaxX of each scope box
-                    //foreach (var xyzPointX in firstRowXMax)
-                    foreach (var xyzPointX in firstColumnYMax)
+                    foreach (var xyzPoint in FirstRowOfScopeBoxesOnSameHorizontalLine)
                     {
-                        var newXPoint = new XYZ(0, xyzPointX.Y, 0);
-                        CreateHorizontalDimensions(doc, gridsCollector, newXPoint, 0, doc.ActiveView);
-                    }
 
-                    // Create horizontal dimension lines at MaxY of each scope box
-                    foreach (var xyzPointY in firstRowXMax)
-                    {
-                        var newXPoint = new XYZ(xyzPointY.X, 0, 0);
-                        CreateVerticalDimensions(doc, gridsCollector, newXPoint, 0, doc.ActiveView);
-                        //CreateVerticalDimensions(doc, gridsCollector, xyzPointY, 0, doc.ActiveView);
-                    }
-                }
-                else
-                {
-                    CreateDimensions(doc, gridsCollector, new XYZ(0, 0, 0), new XYZ(0, 0, 0), 2, -2, doc.ActiveView);
-                }
+                        int horizontalFeetOffSet = 2;
+                        int verticalFeetOffSet = -2;
 
-                t.Commit();
+
+                        HorizotalAndVerticalDimensionsList = CreateDimensions(doc,
+                                                                              gridsCollector,
+                                                                              xyzPoint,
+                                                                              new XYZ(0, 0, 0),
+                                                                              horizontalFeetOffSet,
+                                                                              verticalFeetOffSet,
+                                                                              curView);
+                    }
+                    t.Commit();
+                }
+                var r = HorizotalAndVerticalDimensionsList;
+                Debug.Print($" ================ Grid Dimensioned =================\n" +
+                            $"Horizontal Grids: {HorizotalAndVerticalDimensionsList[0].Count()}\n" +
+                            $"Vertical Grids: {HorizotalAndVerticalDimensionsList[1].Count()}");
+                gridsCollector = null;
             }
+            else
+            {
+                //gridsCollector = new FilteredElementCollector(doc, doc.ActiveView.Id)
+                //                    .OfCategory(BuiltInCategory.OST_Grids).WhereElementIsNotElementType()
+                //                    .ToList();
 
+
+
+
+                View curView = doc.ActiveView;
+
+                int horizontalFeetOffSet = 2;
+                int verticalFeetOffSet = -2;
+
+                var HorizotalAndVerticalDimensionsList = new List<List<Dimension>>();
+                // Create dimension strings
+                using (Transaction t = new Transaction(doc))
+                {
+                    t.Start("Create grid dimensions");
+                    HorizotalAndVerticalDimensionsList = CreateDimensions(doc,
+                                                                          gridsCollector,
+                                                                          horizontalFeetOffSet,
+                                                                          verticalFeetOffSet,
+                                                                          curView);
+                    t.Commit();
+                }
+                var r = HorizotalAndVerticalDimensionsList;
+                Debug.Print($" ================ Grid Dimensioned =================\n" +
+                            $"Horizontal Grids: {HorizotalAndVerticalDimensionsList[0].Count()}\n" +
+                            $"Vertical Grids: {HorizotalAndVerticalDimensionsList[1].Count()}");
+            }
             return Result.Succeeded;
         }
 
@@ -135,134 +167,15 @@ namespace ScopeBoxes
             if (dimHoriz != null)
                 horzDimensionsList.Add(dimHoriz);
 
+
             HorizatalAndVerticalDimensionsList.Add(horzDimensionsList);
             HorizatalAndVerticalDimensionsList.Add(vertDimensionsList);
             return HorizatalAndVerticalDimensionsList;
+
         }
-
-
-        List<Dimension> CreateHorizontalDimensions(Document doc, List<Element> gridsCollector, XYZ vertPoint, int verticalFeetOffSet, View curView)
+        List<List<Dimension>> CreateDimensions(Document doc, List<Element> gridsCollector, XYZ vertPont, XYZ horizPoint, int horizontalFeetOffSet, int verticalFeetOffSet, View curView)
         {
-            var referenceArrayVertical = new ReferenceArray();
-            var xyzPointListVert = new List<XYZ>();
-
-            foreach (Autodesk.Revit.DB.Grid curGrid in gridsCollector)
-            {
-                Line gridLine = curGrid.Curve as Line;
-
-                if (IsLineVertical(gridLine))
-                {
-                    referenceArrayVertical.Append(new Reference(curGrid));
-                    xyzPointListVert.Add(gridLine.GetEndPoint(1));
-                }
-            }
-
-            XYZ p1 = xyzPointListVert.OrderBy(p => p.X).ThenBy(p => p.Y).First();
-            XYZ p2 = xyzPointListVert.OrderByDescending(p => p.X).ThenByDescending(p => p.Y).First();
-            XYZ offsetVert = vertPoint + new XYZ(0, verticalFeetOffSet, 0);
-
-            var vertDimensionsList = new List<Dimension>();
-
-            Line line = Line.CreateBound(p1.Subtract(offsetVert), p2.Subtract(offsetVert));
-            Dimension dim = doc.Create.NewDimension(curView, line, referenceArrayVertical);
-
-            if (dim != null)
-                vertDimensionsList.Add(dim);
-
-            return vertDimensionsList;
-        }
-
-        public List<Dimension> CreateVerticalDimensions(Document doc, List<Element> gridsList, XYZ horizPoint, int horizontalFeetOffSet, View curView)
-        {
-            // Method to create vertical dimensions for grids
-            // Parameters:
-            // - doc: The Revit document
-            // - gridsList: List of grid elements
-            // - horizPoint: Reference point for horizontal offset
-            // - horizontalFeetOffSet: Offset value for horizontal dimension lines
-            // - curView: Current view in which dimensions are created
-
-            // Initialize a reference array for horizontal dimensions and a list to store horizontal points
-            var referenceArrayHorizontal = new ReferenceArray();
-            var xyzPointListHoriz = new List<XYZ>();
-
-            // Loop through the grid elements
-            foreach (Autodesk.Revit.DB.Grid curGrid in gridsList)
-            {
-                Line gridLine = curGrid.Curve as Line;
-
-                // Check if the grid line is not vertical
-                if (!IsLineVertical(gridLine))
-                {
-                    // Append the grid reference to the horizontal reference array
-                    referenceArrayHorizontal.Append(new Reference(curGrid));
-
-                    // Add the endpoint to the horizontal point list
-                    xyzPointListHoriz.Add(gridLine.GetEndPoint(0));
-                }
-            }
-
-            // Order the horizontal point list
-            XYZ p1h = xyzPointListHoriz.OrderBy(p => p.Y).ThenBy(p => p.X).First();
-            XYZ p2h = xyzPointListHoriz.OrderByDescending(p => p.Y).ThenByDescending(p => p.X).First();
-
-            // Calculate the offset for horizontal dimensions
-            XYZ offsetHoriz = horizPoint + new XYZ(horizontalFeetOffSet, 0, 0);
-
-            // Initialize a list to store horizontal dimensions
-            var horizDimensionsList = new List<Dimension>();
-
-            // Create horizontal dimension line
-            Line lineHoriz = Line.CreateBound(p1h.Subtract(offsetHoriz), p2h.Subtract(offsetHoriz));
-            Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal);
-
-            // Add the created dimension to the list
-            if (dimHoriz != null)
-                horizDimensionsList.Add(dimHoriz);
-
-            // Return the list of horizontal dimensions
-            return horizDimensionsList;
-        }
-
-        List<Dimension> CreateVerticalDimensions2(Document doc, List<Element> gridsList, XYZ horizPoint, int horizontalFeetOffSet, View curView)
-        {
-            var referenceArrayHorizontal = new ReferenceArray();
-            var xyzPointListHoriz = new List<XYZ>();
-
-            foreach (Autodesk.Revit.DB.Grid curGrid in gridsList)
-            {
-                Line gridLine = curGrid.Curve as Line;
-
-                if (!IsLineVertical(gridLine))
-                {
-                    referenceArrayHorizontal.Append(new Reference(curGrid));
-                    xyzPointListHoriz.Add(gridLine.GetEndPoint(0));
-                    //xyzPointListHoriz.Add(gridLine.GetEndPoint(1));
-                }
-            }
-
-            XYZ p1h = xyzPointListHoriz.OrderBy(p => p.Y).ThenBy(p => p.X).First();
-            XYZ p2h = xyzPointListHoriz.OrderByDescending(p => p.Y).ThenByDescending(p => p.X).First();
-            XYZ offsetHoriz = horizPoint + new XYZ(horizontalFeetOffSet, 0, 0);
-
-            var horizDimensionsList = new List<Dimension>();
-
-            Line lineHoriz = Line.CreateBound(p1h.Subtract(offsetHoriz), p2h.Subtract(offsetHoriz));
-            Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal);
-
-            if (dimHoriz != null)
-                horizDimensionsList.Add(dimHoriz);
-
-            return horizDimensionsList;
-        }
-
-
-
-
-        List<List<Dimension>> CreateDimensions(Document doc, List<Element> gridsCollector, XYZ vertPoint, XYZ horizPoint, int horizontalFeetOffSet, int verticalFeetOffSet, View curView)
-        {
-            var horizAndVerticalDimensionsList = new List<List<Dimension>>();
-
+            var HorizatalAndVerticalDimensionsList = new List<List<Dimension>>();
             // Create reference arrays and point lists
             var referenceArrayVertical = new ReferenceArray();
             var referenceArrayHorizontal = new ReferenceArray();
@@ -296,17 +209,20 @@ namespace ScopeBoxes
             // Order point lists
             XYZ p1 = xyzPointListVert.OrderBy(p => p.X).ThenBy(p => p.Y).First();
             XYZ p2 = xyzPointListVert.OrderByDescending(p => p.X).ThenByDescending(p => p.Y).First();
-            XYZ offsetVert = new XYZ(0, verticalFeetOffSet, 0) + vertPoint;
+            XYZ offsetVert = new XYZ(0, verticalFeetOffSet, 0);
 
             XYZ p1h = xyzPointListHoriz.OrderBy(p => p.Y).ThenBy(p => p.X).First();
             XYZ p2h = xyzPointListHoriz.OrderByDescending(p => p.Y).ThenByDescending(p => p.X).First();
-            XYZ offsetHoriz = new XYZ(horizontalFeetOffSet, 0, 0) + horizPoint;
+            XYZ offsetHoriz = new XYZ(horizontalFeetOffSet, 0, 0);
 
             var vertDimensionsList = new List<Dimension>();
-            var horizDimensionsList = new List<Dimension>();
+            var horzDimensionsList = new List<Dimension>();
+
+            var t = new XYZ(0, p2.GetLength(), 0);
 
             // Create vertical dimension line
             Line line = Line.CreateBound(p1.Subtract(offsetVert), p2.Subtract(offsetVert));
+            //Line line = Line.CreateBound(p1.Subtract(offsetVert), t);
             Dimension dim = doc.Create.NewDimension(curView, line, referenceArrayVertical);
             if (dim != null)
                 vertDimensionsList.Add(dim);
@@ -315,35 +231,24 @@ namespace ScopeBoxes
             Line lineHoriz = Line.CreateBound(p1h.Subtract(offsetHoriz), p2h.Subtract(offsetHoriz));
             Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal);
             if (dimHoriz != null)
-                horizDimensionsList.Add(dimHoriz);
+                horzDimensionsList.Add(dimHoriz);
 
-            horizAndVerticalDimensionsList.Add(horizDimensionsList);
-            horizAndVerticalDimensionsList.Add(vertDimensionsList);
 
-            return horizAndVerticalDimensionsList;
+            HorizatalAndVerticalDimensionsList.Add(horzDimensionsList);
+            HorizatalAndVerticalDimensionsList.Add(vertDimensionsList);
+            return HorizatalAndVerticalDimensionsList;
+
         }
 
-        public static bool IsLineVertical(Line curLine)
+        private bool IsLineVertical(Line curLine)
         {
-            // Method to determine if a line is vertical based on its endpoints
-
-            // Get the start and end points of the line
             XYZ p1 = curLine.GetEndPoint(0);
             XYZ p2 = curLine.GetEndPoint(1);
 
-            // Calculate the difference in X and Y coordinates
-            var x = Math.Abs(p1.X - p2.X);
-            var y = Math.Abs(p1.Y - p2.Y);
-
-            // Compare the differences to determine if the line is more vertical than horizontal
-            var result = x < y;
-
-            // Return true if the difference in X coordinates is less than the difference in Y coordinates
-            return result;
+            return Math.Abs(p1.X - p2.X) < Math.Abs(p1.Y - p2.Y);
         }
 
-
-        public List<XYZ> GetTheFirstRowOfScopeBoxesMax(List<Element> scopeBoxes)
+        public List<XYZ> GetTheFirstRowOfScopeBoxesXMax(List<Element> scopeBoxes)
         {
             // Filter out scope boxes with the maximum X-coordinate (leftmost on the same horizontal line)
             var firstRowScopeBoxes = scopeBoxes
@@ -354,16 +259,13 @@ namespace ScopeBoxes
 
             if (firstRowScopeBoxes != null)
             {
-                //return firstRowScopeBoxes.Select(box => GetScopeBoxLocation(box)).ToList();
-                return firstRowScopeBoxes.Select(box => GetScopeBoxBoundingBoxMax(box)).ToList();
-                //return firstRowScopeBoxes.Select(box => GetScopeBoxLocation(box) + GetScopeBoxBoundingBoxMax(box)).ToList();
-
+                return firstRowScopeBoxes.Select(box => GetScopeBoxLocation(box)).ToList();
             }
 
             return new List<XYZ>();
         }
 
-        public List<XYZ> GetTheFirstColumnOfScopeBoxesMax(List<Element> scopeBoxes)
+        public List<XYZ> GetTheFirstRowOfScopeBoxesYMax(List<Element> scopeBoxes)
         {
             // Filter out scope boxes with the maximum Y-coordinate (topmost on the same vertical line)
             var firstRowScopeBoxes = scopeBoxes
@@ -374,19 +276,12 @@ namespace ScopeBoxes
 
             if (firstRowScopeBoxes != null)
             {
-                //return firstRowScopeBoxes.Select(box => GetScopeBoxLocation(box)).ToList();
-                return firstRowScopeBoxes.Select(box => GetScopeBoxBoundingBoxMax(box)).ToList();
-                //return firstRowScopeBoxes.Select(box => GetScopeBoxLocation(box) + GetScopeBoxBoundingBoxMax(box)).ToList();
-
+                return firstRowScopeBoxes.Select(box => GetScopeBoxLocation(box)).ToList();
             }
 
             return new List<XYZ>();
         }
-        public static XYZ GetScopeBoxBoundingBoxMax(Element scopeBox)
-        {
-            BoundingBoxXYZ boundingBox = scopeBox.get_BoundingBox(null);
-            return boundingBox.Max;
-        }
+
         // Helper method to get the location of the scope box
         private XYZ GetScopeBoxLocation(Element scopeBox)
         {
