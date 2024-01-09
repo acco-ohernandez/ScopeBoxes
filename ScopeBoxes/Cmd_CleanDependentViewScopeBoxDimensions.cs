@@ -37,24 +37,31 @@ namespace ScopeBoxes
 
                 string noCropBoxFoundList = "";
 
-                // Step 2: Process Each View
-                foreach (var curView in selectedViews)
-                {
-                    // Step 3: Check if the current view has the CropBoxActive
-                    if (curView.CropBoxActive == true)
-                    {
-                        var cb = curView.CropBox;
-                        // Step 4: Get Dimensions Inside Crop Box in Parent View
-                        var dimensionsInsideCropBox = GetDimensionsInsideCropBox(curView);
 
-                        // Step 5: Hide Dimensions in Dependent View
-                        HideDimensionsInDependentView(doc, curView, dimensionsInsideCropBox);
-                    }
-                    else
+                using (Transaction transaction = new Transaction(doc, "Hide Dimensions in Dependent View"))
+                {
+                    transaction.Start();
+                    // Step 2: Process Each View
+                    foreach (var curView in selectedViews)
                     {
-                        noCropBoxFoundList += $"{curView.Name}\n";
+                        // Step 3: Check if the current view has the CropBoxActive
+                        if (curView.CropBoxActive == true)
+                        {
+                            var cb = curView.CropBox;
+                            // Step 4: Get Dimensions Inside Crop Box in Parent View
+                            var dimensionsInsideCropBox = GetDimensionsInsideCropBox(curView);
+
+                            // Step 5: Hide Dimensions in Dependent View
+                            HideDimensionsInDependentView(doc, curView, dimensionsInsideCropBox);
+                        }
+                        else
+                        {
+                            noCropBoxFoundList += $"{curView.Name}\n";
+                        }
                     }
+                    transaction.Commit();
                 }
+
                 if (!string.IsNullOrEmpty(noCropBoxFoundList))
                     TaskDialog.Show("Info", $"CropBox is no active in view(s):\n {noCropBoxFoundList}");
 
@@ -132,18 +139,18 @@ namespace ScopeBoxes
                 return;
             }
 
-            using (Transaction transaction = new Transaction(doc, "Hide Dimensions in Dependent View"))
+            //using (Transaction transaction = new Transaction(doc, "Hide Dimensions in Dependent View"))
+            //{
+            //    transaction.Start();
+
+            // Iterate through each dimension element and hide it in the dependent view
+            foreach (Element dimension in dimensions)
             {
-                transaction.Start();
-
-                // Iterate through each dimension element and hide it in the dependent view
-                foreach (Element dimension in dimensions)
-                {
-                    dependentView.HideElements(new List<ElementId> { dimension.Id });
-                }
-
-                transaction.Commit();
+                dependentView.HideElements(new List<ElementId> { dimension.Id });
             }
+
+            //    transaction.Commit();
+            //}
         }
 
         internal static PushButtonData GetButtonData()
