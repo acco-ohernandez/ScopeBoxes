@@ -36,11 +36,13 @@ namespace ScopeBoxes
             PushButtonData btnData1 = Command1.GetButtonData();
             PushButtonData btnData2 = Command2.GetButtonData();
             PushButtonData btnData3 = Cmd_GridDimensions.GetButtonData();
+            PushButtonData btnData4 = Cmd_CleanDependentViewScopeBoxDimensions.GetButtonData();
 
             // 4. Create buttons
             PushButton myButton1 = panel.AddItem(btnData1) as PushButton;
             PushButton myButton2 = panel.AddItem(btnData2) as PushButton;
             PushButton myButton3 = panel.AddItem(btnData3) as PushButton;
+            PushButton myButton4 = panel.AddItem(btnData4) as PushButton;
 
 
             // NOTE:
