@@ -47,7 +47,7 @@ namespace ScopeBoxes
                         // Step 3: Check if the current view has the CropBoxActive
                         if (curView.CropBoxActive == true)
                         {
-                            var cb = curView.CropBox;
+                            // var cb = curView.CropBox;
                             // Step 4: Get Dimensions Inside Crop Box in Parent View
                             var dimensionsInsideCropBox = GetDimensionsInsideCropBox(curView);
 
@@ -165,7 +165,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This Add-in will hide any dimension inside a scopebox");
+                "This Add-in will hide any dimension inside a cropbox");
 
             return myButtonData1.Data;
         }

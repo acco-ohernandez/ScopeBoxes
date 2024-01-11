@@ -7,12 +7,13 @@
         mc:Ignorable="d"
         Title="Dimension OffSet" 
         Height="150" 
-        Width="400">
+        Width="400"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <StackPanel x:Name="sp_Group1" Orientation="Vertical" VerticalAlignment="Center">
             <Label x:Name="lbl_Info" Content="Enter the OffSet you want on the right and on the top of the CropBox:" />
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBox x:Name="tb_OffSetFeet" Text="test" Width="40" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <TextBox x:Name="tb_OffSetFeet" Text="0.0" Width="40" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 <Label Content="Ft." FontWeight="Bold"/>
             </StackPanel>
             

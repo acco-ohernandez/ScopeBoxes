@@ -21,7 +21,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_GridDimensions : IExternalCommand
+    public class Cmd_GridDimensions_Working : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -31,26 +31,10 @@ namespace ScopeBoxes
 
             // Get all grids in the active view
             var gridsCollector = new FilteredElementCollector(doc, doc.ActiveView.Id)
-                                    .OfCategory(BuiltInCategory.OST_Grids)
-                                    .WhereElementIsNotElementType()
-                                    .ToList();
+                .OfCategory(BuiltInCategory.OST_Grids)
+                .WhereElementIsNotElementType()
+                .ToList();
 
-            var horizontalAndVerticalGrids = new List<Element>();
-
-            foreach (var grid in gridsCollector)
-            {
-                var gridCurve = (grid as Autodesk.Revit.DB.Grid)?.Curve;
-
-                // Check if the grid is horizontal or vertical (not diagonal)
-                if (IsHorizontalOrVerticalCurve(gridCurve))
-                {
-                    horizontalAndVerticalGrids.Add(grid);
-                }
-            }
-            gridsCollector = horizontalAndVerticalGrids;
-            // Now, horizontalAndVerticalGrids contains only horizontal and vertical grids.
-
-            //////////////
             // Get selected scope boxes
             var selectedScopeBoxes = Command2.GetSelectedScopeBoxes(doc);
 
@@ -81,7 +65,7 @@ namespace ScopeBoxes
                         CreateVerticalDimensions(doc, gridsCollector, newXPoint, offSetFeet, doc.ActiveView);
                     }
                 }
-                else // if selectedScopeBoxes.Count == 0, the user did not preselect any scopeboxes
+                else
                 {
                     CreateDimensions(doc, gridsCollector, new XYZ(0, 0, 0), new XYZ(0, 0, 0), 2, -2, doc.ActiveView);
                 }
@@ -90,25 +74,6 @@ namespace ScopeBoxes
             }
 
             return Result.Succeeded;
-        }
-        // Helper function to check if a curve is horizontal or vertical
-        private bool IsHorizontalOrVerticalCurve(Curve curve)
-        {
-            // Obtain the start and end points of the curve
-            XYZ startPoint = curve.GetEndPoint(0);
-            XYZ endPoint = curve.GetEndPoint(1);
-
-            // Calculate the absolute differences in X and Y coordinates
-            double deltaX = Math.Abs(endPoint.X - startPoint.X);
-            double deltaY = Math.Abs(endPoint.Y - startPoint.Y);
-
-            // Define a tolerance value to handle small variations due to numerical precision
-            double tolerance = 0.001;
-
-            // Check if the curve is approximately horizontal or vertical
-            // If the difference in X coordinates is less than the tolerance, it's considered vertical.
-            // If the difference in Y coordinates is less than the tolerance, it's considered horizontal.
-            return deltaX < tolerance || deltaY < tolerance;
         }
         public static double GetFeetOffSet()
         {

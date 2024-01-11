@@ -167,6 +167,7 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Cmd_GridDimensions.cs" />
+    <Compile Include="Cmd_GridDimensions_Working.cs" />
     <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\DimOffSet_Form.xaml.cs">
