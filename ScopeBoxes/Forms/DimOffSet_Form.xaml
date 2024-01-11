@@ -1,0 +1,22 @@
+﻿<Window x:Class="ScopeBoxes.Forms.DimOffSet_Form"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScopeBoxes.Forms"
+        mc:Ignorable="d"
+        Title="Dimension OffSet" 
+        Height="150" 
+        Width="400">
+    <Grid>
+        <StackPanel x:Name="sp_Group1" Orientation="Vertical" VerticalAlignment="Center">
+            <Label x:Name="lbl_Info" Content="Enter the OffSet you want on the right and on the top of the CropBox:" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBox x:Name="tb_OffSetFeet" Text="test" Width="40" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                <Label Content="Ft." FontWeight="Bold"/>
+            </StackPanel>
+            
+            <Button x:Name="btn_Ok" Content="OK" Click="btn_Ok_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

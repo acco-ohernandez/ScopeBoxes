@@ -45,9 +45,11 @@ namespace ScopeBoxes
                 // Check if there are selected scope boxes
                 if (selectedScopeBoxes.Count != 0)
                 {
+
                     var firstRowXMax = GetTheFirstRowOfScopeBoxesMax(selectedScopeBoxes);
                     var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
-                    double offSetFeet = 2.5;
+                    //double offSetFeet = 2.5;
+                    double offSetFeet = GetFeetOffSet(); // get the OffSet from the form
 
                     // Create Horizontal dimension lines at MaxX of each scope box
                     foreach (var xyzPointX in firstColumnYMax)
@@ -73,6 +75,25 @@ namespace ScopeBoxes
 
             return Result.Succeeded;
         }
+        public static double GetFeetOffSet()
+        {
+            var offSetForm = new DimOffSet_Form();
+            offSetForm.ShowDialog();
+            var offSetText = offSetForm.tb_OffSetFeet.Text;
+
+            if (double.TryParse(offSetText, out double doubleResult))
+            {
+                return doubleResult;
+            }
+            else
+            {
+                // Handle parsing error, provide a default value, or throw an exception
+                // For example, you can return a default value like 0.0 or show a message to the user.
+                // Modify this part based on your application's requirements.
+                return 0.0;
+            }
+        }
+
 
         List<Dimension> CreateHorizontalDimensions(Document doc, List<Element> gridsCollector, XYZ vertPoint, double verticalFeetOffSet, View curView)
         {
@@ -323,7 +344,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This is a tooltip for Button 1");
+                "This command will create dimentions for horizontal and vertical grid lines. If you pre-select the scopeboxes, it will place the dimension on top and to the right of the scopeboxes");
 
             return myButtonData1.Data;
         }

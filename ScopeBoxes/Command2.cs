@@ -40,7 +40,7 @@ namespace ScopeBoxes
                 else
                 {
                     // Show info message to the user
-                    ShowInfoDialog("Pick scope boxes in the desired order. \nPress ESC to stop picking.");
+                    ShowInfoDialog("Pick scope boxes in the desired order. \nPress ESC to stop picking.\n\n each clicked scopebox will be added to the list.");
                     pickedElemsList = PickScopeBoxes(uidoc, doc);
                 }
 
@@ -201,7 +201,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This is a tooltip for Button 2");
+                "This will rename all the selected ScopeBoxes. You can pre-select a group of scopeboxes before clicking the button Or Click the button first and select the individual scopeboxes then hit ESC to continue ");
 
             return myButtonData1.Data;
         }

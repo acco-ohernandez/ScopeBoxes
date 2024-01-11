@@ -19,7 +19,7 @@ namespace ScopeBoxes
         public Result OnStartup(UIControlledApplication app)
         {
             // 1. Create ribbon tab
-            string tabName = "Revit Testing";
+            string tabName = "Add-in Testing";
             try
             {
                 app.CreateRibbonTab(tabName);
@@ -30,7 +30,7 @@ namespace ScopeBoxes
             }
 
             // 2. Create ribbon panel 
-            RibbonPanel panel = Utils.CreateRibbonPanel(app, tabName, "Revit Tools");
+            RibbonPanel panel = Utils.CreateRibbonPanel(app, tabName, "Revit Tools Testing");
 
             // 3. Create button data instances
             PushButtonData btnData1 = Command1.GetButtonData();
@@ -44,7 +44,6 @@ namespace ScopeBoxes
             PushButton myButton3 = panel.AddItem(btnData3) as PushButton;
             PushButton myButton4 = panel.AddItem(btnData4) as PushButton;
 
-
             // NOTE:
             // To create a new tool, copy lines 35 and 39 and rename the variables to "btnData3" and "myButton3". 
             // Change the name of the tool in the arguments of line 
@@ -56,7 +55,5 @@ namespace ScopeBoxes
         {
             return Result.Succeeded;
         }
-
-
     }
 }

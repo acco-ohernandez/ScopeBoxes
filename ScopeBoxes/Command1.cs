@@ -44,9 +44,6 @@ namespace ScopeBoxes
                 double newScopeBoxX = userScopeBoxBoundingBox.Max.X - userScopeBoxBoundingBox.Min.X;
                 double newScopeBoxY = userScopeBoxBoundingBox.Max.Y - userScopeBoxBoundingBox.Min.Y;
 
-
-
-
                 // ================== Form data ===================
                 // Access the controls from the form
                 ScopeBoxGridForm form = new ScopeBoxGridForm();
@@ -181,7 +178,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This is a tooltip for Button 1");
+                "Select an already created ScopeBox and create a Grid of ScopeBoxes");
 
             return myButtonData1.Data;
         }
