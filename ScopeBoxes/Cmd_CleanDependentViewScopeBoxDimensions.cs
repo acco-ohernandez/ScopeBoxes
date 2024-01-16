@@ -22,6 +22,7 @@ namespace ScopeBoxes
     [Transaction(TransactionMode.Manual)]
     public class Cmd_CleanDependentViewScopeBoxDimensions : IExternalCommand
     {
+        public int DimensionsHiden { get; set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             try
@@ -146,7 +147,10 @@ namespace ScopeBoxes
             // Iterate through each dimension element and hide it in the dependent view
             foreach (Element dimension in dimensions)
             {
-                dependentView.HideElements(new List<ElementId> { dimension.Id });
+                // 		FamilyName	"Linear Dimension Style"	string
+                //if (dimension.Name == "Linear - 3/32\" Arial")
+                if (dimension.Name == "Linear - 3/32\" Arial - Grids")
+                    dependentView.HideElements(new List<ElementId> { dimension.Id });
             }
 
             //    transaction.Commit();

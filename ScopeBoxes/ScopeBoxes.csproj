@@ -169,6 +169,7 @@
     <Compile Include="Cmd_GridDimensions.cs" />
     <Compile Include="Cmd_GridDimensions_Working.cs" />
     <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions.cs" />
+    <Compile Include="Cmd_CalculateScopeBoxSize.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\DimOffSet_Form.xaml.cs">
       <DependentUpon>DimOffSet_Form.xaml</DependentUpon>
@@ -178,6 +179,9 @@
     </Compile>
     <Compile Include="Forms\ScopeBoxGridForm.xaml.cs">
       <DependentUpon>ScopeBoxGridForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ScopeBoxSizeCalculator.xaml.cs">
+      <DependentUpon>ScopeBoxSizeCalculator.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\ButtonDataClass.cs" />
     <Compile Include="Command2.cs" />
@@ -220,6 +224,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Forms\ScopeBoxGridForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\ScopeBoxSizeCalculator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

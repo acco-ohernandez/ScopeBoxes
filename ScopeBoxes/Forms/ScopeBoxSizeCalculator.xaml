@@ -1,0 +1,74 @@
+﻿<Window x:Class="ScopeBoxes.Forms.ScopeBoxSizeCalculator"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScopeBoxes.Forms"
+        mc:Ignorable="d"
+        Title="ScopeBoxSizeCalculator" Height="200" Width="400"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Horizontal Fields -->
+                <StackPanel x:Name="sp_HorizontalFields" Orientation="Vertical" Grid.Row="0" Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label Content="Width Total" Width="100"/>
+                            <TextBox x:Name="txt_WidthTotal" Width="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label Content="Columns Total" Width="100"/>
+                            <TextBox x:Name="txt_ColumnsTotal" Width="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label Content="Overlap" Width="100"/>
+                            <TextBox x:Name="txt_Overlap" Width="30"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Vertical Fields -->
+                <StackPanel x:Name="sp_VerticalFields" Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label Content="Height Total" Width="100"/>
+                            <TextBox x:Name="txt_HeightTotal" Width="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label Content="Rows Total" Width="100"/>
+                            <TextBox x:Name="txt_RowsTotal" Width="30"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Label Content="Overlap" Width="100"/>
+                            <TextBox x:Name="txt_VerticalOverlap" Width="30"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+    
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <!-- Results and Button -->
+                <StackPanel x:Name="sp_Results" Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Center">
+                    <Label Content="Size of scopebox needed:" />
+                        <Label x:Name="lbl_XSize" Content="0"/>
+                        <Label x:Name="lbl_XByY" Content="x"/>
+                    <Label x:Name="lbl_YSize" Content="0"/>
+                </StackPanel>
+
+            </Grid>
+            <Button x:Name="btn_Ok" Content="OK" Grid.Row="2" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>

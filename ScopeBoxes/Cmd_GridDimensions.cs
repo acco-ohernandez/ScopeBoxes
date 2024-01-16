@@ -91,6 +91,7 @@ namespace ScopeBoxes
 
             return Result.Succeeded;
         }
+
         // Helper function to check if a curve is horizontal or vertical
         private bool IsHorizontalOrVerticalCurve(Curve curve)
         {
