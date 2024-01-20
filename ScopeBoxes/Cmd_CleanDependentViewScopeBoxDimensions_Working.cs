@@ -20,7 +20,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_CleanDependentViewScopeBoxDimensions : IExternalCommand
+    public class Cmd_CleanDependentViewScopeBoxDimensions_Working : IExternalCommand
     {
         public int DimensionsHiden { get; set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -32,12 +32,9 @@ namespace ScopeBoxes
                 UIDocument uidoc = uiapp.ActiveUIDocument;
                 Document doc = uidoc.Document;
 
-                // All dependenet views
-                List<View> selectedViews = GetAllDependentVies(doc);
-
-                //// Step 1: Get Selected Views
-                //ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
-                //var selectedViews = GetSelectedViews(doc, selectedIds);
+                // Step 1: Get Selected Views
+                ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
+                var selectedViews = GetSelectedViews(doc, selectedIds);
 
                 string noCropBoxFoundList = "";
 
@@ -78,25 +75,6 @@ namespace ScopeBoxes
                 TaskDialog.Show("Info", $"An unexpected error occurred: {ex.Message}");
                 return Result.Failed;
             }
-        }
-        private List<View> GetAllDependentVies(global::Autodesk.Revit.DB.Document doc)
-        {
-            var views = new FilteredElementCollector(doc).OfClass(typeof(View));
-            var DependentViews = new List<View>();
-            foreach (View view in views)
-            {
-                ElementId paretnId = view.GetPrimaryViewId();
-                if (paretnId.IntegerValue == -1 && !view.IsTemplate)
-                {
-                    // View is Not a dependent
-                }
-                else if (paretnId.IntegerValue != -1 && !view.IsTemplate)
-                {
-                    // View is dependent
-                    DependentViews.Add(view);
-                }
-            }
-            return DependentViews;
         }
 
         private List<View> GetSelectedViews(Document doc, ICollection<ElementId> selectedIds)
@@ -171,7 +149,7 @@ namespace ScopeBoxes
             {
                 // 		FamilyName	"Linear Dimension Style"	string
                 //if (dimension.Name == "Linear - 3/32\" Arial")
-                if (dimension.Name == "GRID DIMENSIONS")
+                if (dimension.Name == "Linear - 3/32\" Arial - Grids")
                     dependentView.HideElements(new List<ElementId> { dimension.Id });
             }
 

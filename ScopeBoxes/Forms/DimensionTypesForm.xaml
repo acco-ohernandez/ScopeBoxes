@@ -1,0 +1,44 @@
+﻿<Window x:Class="ScopeBoxes.Forms.DimensionTypesForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScopeBoxes.Forms"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="Select Dimension Types" Height="450" Width="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <!-- Description Header Label -->
+        <TextBlock Grid.Row="0" Text="Select Dimension Types" HorizontalAlignment="Center" VerticalAlignment="Top"
+                   Margin="0,20,0,0" FontSize="18" FontWeight="Bold"/>
+        
+        
+        <!-- List to Display Dimension Types -->
+        <ListBox Grid.Row="1" Name="lb_DimensionTypes" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                 Margin="20,60,20,80" BorderThickness="1">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock
+           HorizontalAlignment="Center" TextWrapping="Wrap" Width="500" Height="50" VerticalAlignment="Center" FontSize="8" >
+                <Run Text="You are seeing this window because you did not have a Family with Dimension Type called 'Linear - 3/32&quot; Arial' or 'GRID DIMENSIONS'."/><LineBreak/><Run Text="This adding uses the "/><Run Text="'Linear - 3/32&quot; Arial' from the ACCO Default Family to create the GRID DIMENSIONS."/><LineBreak/><Run/>
+            </TextBlock>
+        </StackPanel>
+        
+        <!-- OK and Cancel Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <Button Name="btn_OK" Content="OK" Width="100" Height="30" Margin="10" Click="btn_OK_Click"/>
+            <Button Name="btn_Cancel" Content="Cancel" Width="100" Height="30" VerticalAlignment="Top" Margin="10" Click="btn_Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

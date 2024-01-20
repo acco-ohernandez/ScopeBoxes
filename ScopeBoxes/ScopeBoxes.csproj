@@ -121,6 +121,9 @@
     <StartProgram>$(ProgramW6432)\Autodesk\Revit 2021\Revit.exe</StartProgram>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <!-- REVIT 2024 -->
@@ -166,11 +169,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Cmd_GridDimensions.cs" />
-    <Compile Include="Cmd_GridDimensions_Working.cs" />
     <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions.cs" />
+    <Compile Include="Cmd_GridDimensions.cs" />
+    <Compile Include="Cmd_GridDimensions_Working2.cs" />
+    <Compile Include="Cmd_GridDimensions_Working.cs" />
+    <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions_Working.cs" />
     <Compile Include="Cmd_CalculateScopeBoxSize.cs" />
     <Compile Include="ElementPicker.cs" />
+    <Compile Include="Forms\DimensionTypesForm.xaml.cs">
+      <DependentUpon>DimensionTypesForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\DimOffSet_Form.xaml.cs">
       <DependentUpon>DimOffSet_Form.xaml</DependentUpon>
     </Compile>
@@ -215,6 +223,10 @@
     <Content Include="ScopeBoxes.addin" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Forms\DimensionTypesForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Forms\DimOffSet_Form.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -231,6 +243,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

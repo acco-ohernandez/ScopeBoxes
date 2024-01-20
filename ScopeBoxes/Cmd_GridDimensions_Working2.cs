@@ -23,11 +23,8 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_GridDimensions : IExternalCommand
+    public class Cmd_GridDimensions_Working2 : IExternalCommand
     {
-
-        public DimensionType RequiredGridsDimensionType { get; set; }
-        public List<DimensionType> existingDimensionTypesList { get; set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             // Get the Revit application and document
@@ -47,12 +44,6 @@ namespace ScopeBoxes
             {
                 t.Start("Create grid dimension");
 
-                if (!SetRequiredGridsDimentionType(doc))
-                {
-                    TaskDialog.Show("Info", "No Dimention Type Template selected");
-                    return Result.Cancelled;
-                }
-
                 // Check if there are selected scope boxes
                 if (selectedScopeBoxes.Count != 0)
                 {
@@ -60,13 +51,7 @@ namespace ScopeBoxes
                     var firstRowXMax = GetTheFirstRowOfScopeBoxesMax(selectedScopeBoxes);
                     var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
 
-                    double? offSet = GetFeetOffSet(); // get the OffSet from the form
-                    double offSetFeet; ;
-                    if (offSet == null)
-                    {
-                        return Result.Cancelled;
-                    }
-                    else { offSetFeet = offSet.Value; }
+                    double offSetFeet = GetFeetOffSet(); // get the OffSet from the form
 
                     // Create Horizontal dimension lines at MaxX of each scope box
                     foreach (var xyzPointX in firstColumnYMax)
@@ -92,62 +77,6 @@ namespace ScopeBoxes
 
             return Result.Succeeded;
         }
-
-        public bool SetRequiredGridsDimentionType(Document doc)
-        {
-            // Constants for grid dimension type name and template name
-            const string gridDimensionTypeName = "GRID DIMENSIONS";
-            const string dimensionTypeTemplateName = "Linear - 3/32\" Arial2";
-
-            // Check if the required dimension type is already set and matches the desired name
-            if (RequiredGridsDimensionType != null && RequiredGridsDimensionType.Name == gridDimensionTypeName)
-            {
-                // Required dimension type is already set correctly
-                return true;
-            }
-
-            // Try to find the dimension type by name in the document
-            var existingDimensionType = GetDimensionTypeByName(doc, dimensionTypeTemplateName);
-
-            // If the hard coded dimension type doesn't exit, allow the user to use a different one to duplicate it as "GRID DIMENSIONS"
-            string selectedDimensionName = null;
-            if (existingDimensionType == null)
-            {
-                // Get a list of existing dimension types in the document
-                var existingDimensionTypesList = GetExistingDimensionTypeList(doc);
-
-                // Create and show the form to select a dimension type
-                var dimensionsTypesForm = new DimensionTypesForm();
-                dimensionsTypesForm.lb_DimensionTypes.ItemsSource = existingDimensionTypesList;
-                bool? dialogResult = dimensionsTypesForm.ShowDialog();
-
-                // Check the result of the dialog; proceed only if the user made a selection
-                if (dialogResult != true)
-                {
-                    // User did not make a selection or canceled the dialog
-                    // Consider logging this event for future debugging
-                    return false;
-                }
-
-                //Retrieve the selected dimension name from the form
-                var SelectedDimensionName = dimensionsTypesForm.lb_DimensionTypes.SelectedItem as DimensionType;
-                if (SelectedDimensionName == null)
-                    return false;
-
-                selectedDimensionName = SelectedDimensionName.Name;
-
-            }
-            else
-            {
-                selectedDimensionName = existingDimensionType.Name;
-            }
-            // Create the new grid dimension type using the selected name
-            RequiredGridsDimensionType = CreateGridDimensionType(doc, selectedDimensionName);
-
-            // Return true as the required dimension type has been successfully set
-            return true;
-        }
-
 
         private List<Element> GetHorizontalAndVerticalGrids(List<Element> gridsCollector)
         {
@@ -195,13 +124,10 @@ namespace ScopeBoxes
             // If the difference in Y coordinates is less than the tolerance, it's considered horizontal.
             return deltaX < tolerance || deltaY < tolerance;
         }
-        public static double? GetFeetOffSet()
+        public static double GetFeetOffSet()
         {
             var offSetForm = new DimOffSet_Form();
             offSetForm.ShowDialog();
-            if (offSetForm.DialogResult != true)
-                return null;
-
             var offSetText = offSetForm.tb_OffSetFeet.Text;
 
             if (double.TryParse(offSetText, out double doubleResult))
@@ -244,12 +170,8 @@ namespace ScopeBoxes
             Line line = Line.CreateBound(new XYZ(p1.X, offsetVert.Y, 0), new XYZ(p2.X, offsetVert.Y, 0));
 
             // Create the new 'GRID DIMENSIONS' type
-            //DimensionType newDimensionType = CreateGridDimensionType(doc);
-            //Dimension dim = doc.Create.NewDimension(curView, line, referenceArrayVertical, newDimensionType);
-
-            Dimension dim = doc.Create.NewDimension(curView, line, referenceArrayVertical, RequiredGridsDimensionType); // This uses the RequiredGridsDimentionType global property
-
-            // If no dimensionType is provided, this line will use the last selected dimension type
+            DimensionType newDimensionType = CreateGridDimensionType(doc);
+            Dimension dim = doc.Create.NewDimension(curView, line, referenceArrayVertical, newDimensionType);
             //Dimension dim = doc.Create.NewDimension(curView, line, referenceArrayVertical);
 
             if (dim != null)
@@ -302,11 +224,8 @@ namespace ScopeBoxes
             //Line lineHoriz = Line.CreateBound(p1h.Subtract(offsetHoriz), p2h.Subtract(offsetHoriz));
             Line lineHoriz = Line.CreateBound(new XYZ(offsetHoriz.X, p1h.Y, 0), new XYZ(offsetHoriz.X, p2h.Y, 0));
             // Create the new 'GRID DIMENSIONS' type
-            //DimensionType newDimensionType = CreateGridDimensionType(doc);
-            //Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal, newDimensionType);
-
-            Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal, RequiredGridsDimensionType); // This uses the RequiredGridsDimentionType global property
-
+            DimensionType newDimensionType = CreateGridDimensionType(doc);
+            Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal, newDimensionType);
             //Dimension dimHoriz = doc.Create.NewDimension(curView, lineHoriz, referenceArrayHorizontal);
 
             // Add the created dimension to the list
@@ -316,44 +235,9 @@ namespace ScopeBoxes
             // Return the list of horizontal dimensions
             return horizDimensionsList;
         }
-        public DimensionType CreateGridDimensionType(Document doc, string dimensionTypeName)
-        {
-            string gridDimensionTypeName = "GRID DIMENSIONS";
 
-            // Check if the 'GRID DIMENSIONS' type already exists
-            DimensionType newGridDimensionType = GetDimensionTypeByName(doc, gridDimensionTypeName);
 
-            if (newGridDimensionType == null)
-            {
-                // Create the 'GRID DIMENSIONS' type if it doesn't exist
-                var existingDimensionType = GetDimensionTypeByName(doc, dimensionTypeName);
-
-                if (existingDimensionType == null)
-                {
-                    return null;
-                }
-
-                // Duplicate the existing dimension type to create the new 'GRID DIMENSIONS' type
-                DimensionType newDimensionType = existingDimensionType.Duplicate(gridDimensionTypeName) as DimensionType;
-
-                if (newDimensionType != null)
-                {
-                    // Optionally, modify additional properties of the new dimension type if needed
-                    // For example, you can set newDimensionType.Units to a different unit type
-
-                    // Return the new 'GRID DIMENSIONS' type directly
-                    return newDimensionType;
-                }
-
-                // Handle the case where duplicating the dimension type was unsuccessful
-                // You may want to throw an exception or log a message
-                return null;
-            }
-
-            // Return the existing 'GRID DIMENSIONS' type if it already exists
-            return newGridDimensionType;
-        }
-        public DimensionType CreateGridDimensionType2(Document doc)
+        public DimensionType CreateGridDimensionType(Document doc)
         {
             string gridDimensionTypeName = "GRID DIMENSIONS";
 
@@ -403,16 +287,7 @@ namespace ScopeBoxes
 
             return null;
         }
-        public List<DimensionType> GetExistingDimensionTypeList(Document doc)
-        {
-            var dimCollector = new FilteredElementCollector(doc);
-            var ExistingDimensionTypeList = dimCollector
-                .OfClass(typeof(DimensionType))
-                .Cast<DimensionType>()
-                .ToList();
 
-            return ExistingDimensionTypeList;
-        }
         List<List<Dimension>> CreateDimensions(Document doc, List<Element> gridsCollector, XYZ vertPoint, XYZ horizPoint, int horizontalFeetOffSet, int verticalFeetOffSet, View curView)
         {
             var horizAndVerticalDimensionsList = new List<List<Dimension>>();
