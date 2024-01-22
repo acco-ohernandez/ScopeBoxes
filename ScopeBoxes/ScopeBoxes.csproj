@@ -121,9 +121,6 @@
     <StartProgram>$(ProgramW6432)\Autodesk\Revit 2021\Revit.exe</StartProgram>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <!-- REVIT 2024 -->
@@ -191,6 +188,9 @@
     <Compile Include="Forms\ScopeBoxSizeCalculator.xaml.cs">
       <DependentUpon>ScopeBoxSizeCalculator.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ViewsTreeForm.xaml.cs">
+      <DependentUpon>ViewsTreeForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\ButtonDataClass.cs" />
     <Compile Include="Command2.cs" />
     <Compile Include="Command1.cs" />
@@ -240,6 +240,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Forms\ScopeBoxSizeCalculator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\ViewsTreeForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

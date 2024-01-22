@@ -21,7 +21,7 @@
         
         <!-- List to Display Dimension Types -->
         <ListBox Grid.Row="1" Name="lb_DimensionTypes" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                 Margin="20,60,20,80" BorderThickness="1">
+                 Margin="20,5,20,5" BorderThickness="1">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}" />
@@ -30,7 +30,7 @@
         </ListBox>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <TextBlock
-           HorizontalAlignment="Center" TextWrapping="Wrap" Width="500" Height="50" VerticalAlignment="Center" FontSize="8" >
+           HorizontalAlignment="Center" TextWrapping="Wrap" Width="500" Height="50" VerticalAlignment="Center" FontSize="10" >
                 <Run Text="You are seeing this window because you did not have a Family with Dimension Type called 'Linear - 3/32&quot; Arial' or 'GRID DIMENSIONS'."/><LineBreak/><Run Text="This adding uses the "/><Run Text="'Linear - 3/32&quot; Arial' from the ACCO Default Family to create the GRID DIMENSIONS."/><LineBreak/><Run/>
             </TextBlock>
         </StackPanel>

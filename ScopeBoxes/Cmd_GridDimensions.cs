@@ -15,8 +15,6 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 
-using Newtonsoft.Json;
-
 using ScopeBoxes.Forms;
 #endregion
 
@@ -353,43 +351,6 @@ namespace ScopeBoxes
             // Return the existing 'GRID DIMENSIONS' type if it already exists
             return newGridDimensionType;
         }
-        public DimensionType CreateGridDimensionType2(Document doc)
-        {
-            string gridDimensionTypeName = "GRID DIMENSIONS";
-
-            // Check if the 'GRID DIMENSIONS' type already exists
-            DimensionType newGridDimensionType = GetDimensionTypeByName(doc, gridDimensionTypeName);
-
-            if (newGridDimensionType == null)
-            {
-                // Create the 'GRID DIMENSIONS' type if it doesn't exist
-                var existingDimensionType = GetDimensionTypeByName(doc, "Linear - 3/32\" Arial");
-
-                if (existingDimensionType == null)
-                {
-                    return null;
-                }
-
-                // Duplicate the existing dimension type to create the new 'GRID DIMENSIONS' type
-                DimensionType newDimensionType = existingDimensionType.Duplicate(gridDimensionTypeName) as DimensionType;
-
-                if (newDimensionType != null)
-                {
-                    // Optionally, modify additional properties of the new dimension type if needed
-                    // For example, you can set newDimensionType.Units to a different unit type
-
-                    // Return the new 'GRID DIMENSIONS' type directly
-                    return newDimensionType;
-                }
-
-                // Handle the case where duplicating the dimension type was unsuccessful
-                // You may want to throw an exception or log a message
-                return null;
-            }
-
-            // Return the existing 'GRID DIMENSIONS' type if it already exists
-            return newGridDimensionType;
-        }
 
         public DimensionType GetDimensionTypeByName(Document doc, string dimensionName)
         {
@@ -409,6 +370,7 @@ namespace ScopeBoxes
             var ExistingDimensionTypeList = dimCollector
                 .OfClass(typeof(DimensionType))
                 .Cast<DimensionType>()
+                .Where(dt => dt.StyleType == DimensionStyleType.Linear) // Filter for linear dimension types
                 .ToList();
 
             return ExistingDimensionTypeList;
