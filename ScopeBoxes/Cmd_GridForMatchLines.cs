@@ -38,6 +38,7 @@ namespace ScopeBoxes
                 {
                     trans.Start();
 
+                    // This ensures that there is a Cyan DottedPattern Line Type in the current model. It's refference 
                     if (!_isThickDottedLineCreated)
                     {
                         CreateAndTrackThickDottedLine(doc);
