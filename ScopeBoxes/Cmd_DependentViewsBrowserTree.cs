@@ -22,7 +22,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_CalculateScopeBoxSize : IExternalCommand
+    public class Cmd_DependentViewsBrowserTree : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -68,7 +68,7 @@ namespace ScopeBoxes
             }
         }
 
-        private static List<View> GetDependentViews(List<View> views)
+        public static List<View> GetDependentViews(List<View> views)
         {
             var dependentViews = views.Where(view => view.GetPrimaryViewId()
                                                          .IntegerValue != -1 && !view.IsTemplate)
@@ -76,7 +76,7 @@ namespace ScopeBoxes
             return dependentViews;
         }
 
-        public List<View> GetSelectedViews(Document doc, IEnumerable<TreeNode> nodes)
+        public static List<View> GetSelectedViews(Document doc, IEnumerable<TreeNode> nodes)
         {
             var selectedViews = new List<View>();
 
@@ -100,7 +100,7 @@ namespace ScopeBoxes
 
             return selectedViews;
         }
-        public List<TreeNode> GetDependentsViewsTree(Document doc)
+        public static List<TreeNode> GetDependentsViewsTree(Document doc)
         {
             var treeNodes = new List<TreeNode>();
 
@@ -255,7 +255,7 @@ namespace ScopeBoxes
             return treeNodes;
         }
 
-        public List<TreeNode> PopulateTreeView(Document doc)
+        public static List<TreeNode> PopulateTreeView(Document doc)
         {
             var treeNodes = new List<TreeNode>();
 
@@ -288,7 +288,7 @@ namespace ScopeBoxes
         internal static PushButtonData GetButtonData()
         {
             // use this method to define the properties for this command in the Revit ribbon
-            string buttonInternalName = "btnCalculateScopeBoxSize";
+            string buttonInternalName = "btnDependentViewsBrowserTree";
             string buttonTitle = "Calculate ScopeBox Size";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(

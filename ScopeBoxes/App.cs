@@ -37,7 +37,10 @@ namespace ScopeBoxes
             PushButtonData btnData2 = Command2.GetButtonData();
             PushButtonData btnData3 = Cmd_GridDimensions.GetButtonData();
             PushButtonData btnData4 = Cmd_CleanDependentViewScopeBoxDimensions.GetButtonData();
-            PushButtonData btnData5 = Cmd_CalculateScopeBoxSize.GetButtonData();
+            //PushButtonData btnData5 = Cmd_CreateThickDottedLine.GetButtonData();
+            PushButtonData btnData5 = Cmd_GridForMatchLines.GetButtonData();
+
+            //PushButtonData btnData6 = Cmd_DependentViewsBrowserTree.GetButtonData();
 
             // 4. Create buttons
             PushButton myButton1 = panel.AddItem(btnData1) as PushButton;
@@ -45,6 +48,7 @@ namespace ScopeBoxes
             PushButton myButton3 = panel.AddItem(btnData3) as PushButton;
             PushButton myButton4 = panel.AddItem(btnData4) as PushButton;
             PushButton myButton5 = panel.AddItem(btnData5) as PushButton;
+            //PushButton myButton6 = panel.AddItem(btnData5) as PushButton;
 
             // NOTE:
             // To create a new tool, copy lines 35 and 39 and rename the variables to "btnData3" and "myButton3". 

@@ -29,5 +29,32 @@ namespace ScopeBoxes.Forms
             this.DialogResult = true;
             this.Close();
         }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is RadioButton radioButton)) return;
+
+            // Check if tb_OffSetFeet is initialized
+            if (tb_OffSetFeet == null) return;
+
+            switch (radioButton.Content.ToString())
+            {
+                case "1/8 Scale":
+                    tb_OffSetFeet.Text = "4.0";
+                    tb_OffSetFeet.IsEnabled = false;
+                    break;
+                case "1/4 Scale":
+                    tb_OffSetFeet.Text = "2.0";
+                    tb_OffSetFeet.IsEnabled = false;
+                    break;
+                case "Custom Scale":
+                    tb_OffSetFeet.IsEnabled = true;
+                    tb_OffSetFeet.Text = "";
+                    tb_OffSetFeet.Focus();
+                    break;
+            }
+        }
+
+
     }
 }

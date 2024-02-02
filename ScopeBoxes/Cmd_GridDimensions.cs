@@ -59,7 +59,7 @@ namespace ScopeBoxes
                     var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
 
                     double? offSet = GetFeetOffSet(); // get the OffSet from the form
-                    double offSetFeet; ;
+                    double offSetFeet;
                     if (offSet == null)
                     {
                         return Result.Cancelled;
@@ -95,7 +95,7 @@ namespace ScopeBoxes
         {
             // Constants for grid dimension type name and template name
             const string gridDimensionTypeName = "GRID DIMENSIONS";
-            const string dimensionTypeTemplateName = "Linear - 3/32\" Arial2";
+            const string dimensionTypeTemplateName = "Linear - 3/32\" Arial";
 
             // Check if the required dimension type is already set and matches the desired name
             if (RequiredGridsDimensionType != null && RequiredGridsDimensionType.Name == gridDimensionTypeName)

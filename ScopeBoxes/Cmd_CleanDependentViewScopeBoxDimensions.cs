@@ -33,8 +33,13 @@ namespace ScopeBoxes
                 Document doc = uidoc.Document;
 
                 // All dependenet views
-                List<View> selectedViews = GetAllDependentVies(doc);
-
+                //List<View> selectedViews = GetAllDependentVies(doc);
+                List<View> selectedViews = GetAllDependentViesFromViewsTreeForm(doc);
+                if (selectedViews == null)
+                {
+                    TaskDialog.Show("INFO", "No dependent views selected. \n Command cancelled.");
+                    return Result.Cancelled;
+                }
                 //// Step 1: Get Selected Views
                 //ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
                 //var selectedViews = GetSelectedViews(doc, selectedIds);
@@ -79,7 +84,27 @@ namespace ScopeBoxes
                 return Result.Failed;
             }
         }
-        private List<View> GetAllDependentVies(global::Autodesk.Revit.DB.Document doc)
+        public List<View> GetAllDependentViesFromViewsTreeForm(Document doc)
+        {
+            // Populate the tree data
+            var treeData = Cmd_DependentViewsBrowserTree.PopulateTreeView(doc);
+
+            //// Create and show the WPF form
+            ViewsTreeForm form = new ViewsTreeForm();
+            form.InitializeTreeData(treeData);
+            bool? dialogResult = form.ShowDialog();
+
+            if (dialogResult != true) // if user does not click OK, cancel command
+                return null;
+
+
+            var selectedItems = Cmd_DependentViewsBrowserTree.GetSelectedViews(doc, form.TreeData);
+            selectedItems = Cmd_DependentViewsBrowserTree.GetDependentViews(selectedItems);
+            //TaskDialog.Show("INFO", $"Selected views count {selectedItems.Count}");
+            return selectedItems;
+
+        }
+        private List<View> GetAllDependentVies(Document doc)
         {
             var views = new FilteredElementCollector(doc).OfClass(typeof(View));
             var DependentViews = new List<View>();
