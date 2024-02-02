@@ -130,7 +130,7 @@ namespace ScopeBoxes
             // Ensure the dotted line pattern and custom line style are created
             LinePatternElement dottedLinePattern = EnsureDottedLinePattern(doc);
             GraphicsStyle lineStyle = EnsureCustomLineStyle(doc, dottedLinePattern);
-            doc.ActiveView.
+
             // Create the geometry line between point1 and point2
             Line geometryLine = Line.CreateBound(point1, point2);
 
