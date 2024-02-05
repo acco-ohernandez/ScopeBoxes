@@ -208,7 +208,7 @@ namespace ScopeBoxes
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btnCleanDependentDims";
-            string buttonTitle = "Clean Dependent Dims";
+            string buttonTitle = "Clean Dependent \nView Dims";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -216,7 +216,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This Add-in will hide any dimension inside a cropbox");
+                "This button will hide any GRID DIMENSION's inside a dependent view's Crop Box.");
 
             return myButtonData1.Data;
         }

@@ -21,7 +21,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_288E25A2FC7E4D6E8CD4593B09E2D426"
+        "MsmKey" = "8:_20B79279A5DA4DC090159F2F3858B818"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -33,7 +33,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5C11E33AFD1242B3B6C5408D0F866BEF"
+        "MsmKey" = "8:_6D8FD96B08F44C57927F11C0B76C4022"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CFAEB42EA64A460C99F5FC0615318193"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -45,26 +51,20 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EDE737F946504FD6B35FEA7855C5DFA1"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CFAEB42EA64A460C99F5FC0615318193"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5C11E33AFD1242B3B6C5408D0F866BEF"
+        "OwnerKey" = "8:_6D8FD96B08F44C57927F11C0B76C4022"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_EDE737F946504FD6B35FEA7855C5DFA1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_288E25A2FC7E4D6E8CD4593B09E2D426"
+        "OwnerKey" = "8:_20B79279A5DA4DC090159F2F3858B818"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -124,6 +124,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -174,14 +182,14 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_288E25A2FC7E4D6E8CD4593B09E2D426"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_20B79279A5DA4DC090159F2F3858B818"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:00_ScopeBoxes, Version=2023.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_288E25A2FC7E4D6E8CD4593B09E2D426"
+                    "_20B79279A5DA4DC090159F2F3858B818"
                     {
                     "Name" = "8:00_ScopeBoxes.dll"
                     "Attributes" = "3:512"
@@ -225,14 +233,14 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_5C11E33AFD1242B3B6C5408D0F866BEF"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_6D8FD96B08F44C57927F11C0B76C4022"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:00_ScopeBoxes, Version=2023.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_5C11E33AFD1242B3B6C5408D0F866BEF"
+                    "_6D8FD96B08F44C57927F11C0B76C4022"
                     {
                     "Name" = "8:00_ScopeBoxes.dll"
                     "Attributes" = "3:512"
@@ -256,12 +264,23 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E905391BEBA246A4A4A0A377AEB36CA0"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_CFAEB42EA64A460C99F5FC0615318193"
             {
-            "SourcePath" = "8:..\\ScopeBoxes\\bin\\Debug\\2023\\ScopeBoxes.addin"
-            "TargetName" = "8:ScopeBoxes.addin"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:00_ScopeBoxes, Version=2023.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_CFAEB42EA64A460C99F5FC0615318193"
+                    {
+                    "Name" = "8:00_ScopeBoxes.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\ScopeBoxes\\bin\\Debug\\2022\\00_ScopeBoxes.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_0DB191C7509A40F69940CDF45FE00722"
+            "Folder" = "8:_8D40EAA3FC804B349D6E7060EEBC24F1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -276,23 +295,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_EDE737F946504FD6B35FEA7855C5DFA1"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E905391BEBA246A4A4A0A377AEB36CA0"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:00_ScopeBoxes, Version=2023.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_EDE737F946504FD6B35FEA7855C5DFA1"
-                    {
-                    "Name" = "8:00_ScopeBoxes.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\ScopeBoxes\\bin\\Debug\\2022\\00_ScopeBoxes.dll"
-            "TargetName" = "8:"
+            "SourcePath" = "8:..\\ScopeBoxes\\bin\\Debug\\2023\\ScopeBoxes.addin"
+            "TargetName" = "8:ScopeBoxes.addin"
             "Tag" = "8:"
-            "Folder" = "8:_8D40EAA3FC804B349D6E7060EEBC24F1"
+            "Folder" = "8:_0DB191C7509A40F69940CDF45FE00722"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -474,15 +482,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ScopeBoxesAndDimensions"
-        "ProductCode" = "8:{AFF235E1-7C12-4050-AE2E-2187CD04456A}"
-        "PackageCode" = "8:{53937DB2-56B8-4B57-AB51-967F62EEEDFC}"
+        "ProductCode" = "8:{D778603E-D5B4-4B51-9083-FBE608AFF153}"
+        "PackageCode" = "8:{ECA7B9DD-E978-498D-95AE-6B32A88DC8A0}"
         "UpgradeCode" = "8:{1B4594D3-FA50-4343-BCFC-FD4271942348}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.1"
+        "ProductVersion" = "8:1.0.1001"
         "Manufacturer" = "8:ACCO"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

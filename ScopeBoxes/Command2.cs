@@ -193,7 +193,7 @@ namespace ScopeBoxes
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btnCommand2";
-            string buttonTitle = "ReName Elems";
+            string buttonTitle = "Rename \nScope Boxes";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -201,7 +201,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This will rename all the selected ScopeBoxes. You can pre-select a group of scopeboxes before clicking the button Or Click the button first and select the individual scopeboxes then hit ESC to continue ");
+                "This button will rename all selected ScopeBoxes. You can either pre-select a group of scopeboxes before clicking the button OR click the button first and select the individual scopeboxes then hit ESC to continue ");
 
             return myButtonData1.Data;
         }

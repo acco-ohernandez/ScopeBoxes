@@ -527,7 +527,7 @@ namespace ScopeBoxes
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btnGridDimensions";
-            string buttonTitle = "Grid Dimensions";
+            string buttonTitle = "Grid \nDimensions";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -535,7 +535,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This command will create dimentions for horizontal and vertical grid lines. If you pre-select the scopeboxes, it will place the dimension on top and to the right of the scopeboxes");
+                "This button will create dimensions for horizontal and vertical grid lines on a new dimension style named GRID DIMENSIONS. If you pre-select the scopeboxes, it will place a linear dimension above and to the right of each Scope Boxe.");
 
             return myButtonData1.Data;
         }

@@ -29,7 +29,6 @@ namespace ScopeBoxes
 
             try
             {
-
                 // Get the user's drawn scope box using the provided method
                 Element userDrawnScopeBox = GetSelectedScopeBox(doc, uiapp);
 
@@ -170,7 +169,7 @@ namespace ScopeBoxes
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btnCommand1";
-            string buttonTitle = "Scope Box Grid";
+            string buttonTitle = "Scope Box \nGrid";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -178,7 +177,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "Select an already created ScopeBox and create a Grid of ScopeBoxes");
+                "This button will allow you to create a grid of scope boxes based on the number of columns and rows required. You will first have to create a desired size scope box, then select it in order to create a Grid of Scope Boxes");
 
             return myButtonData1.Data;
         }

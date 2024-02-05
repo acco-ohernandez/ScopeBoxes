@@ -38,13 +38,14 @@ namespace ScopeBoxes
                 {
                     trans.Start();
 
-                    // This ensures that there is a Cyan DottedPattern Line Type in the current model. It's refference 
-                    if (!_isThickDottedLineCreated)
-                    {
-                        CreateAndTrackThickDottedLine(doc);
-                        // After creation, the flag is set to true to avoid duplicate creations
-                        _isThickDottedLineCreated = true;
-                    }
+                    //// This ensures that there is a Cyan DottedPattern Line Type in the current model. It's refference 
+                    //if (!_isThickDottedLineCreated)
+                    //{
+                    //    CreateAndTrackThickDottedLine(doc);
+                    //    // After creation, the flag is set to true to avoid duplicate creations
+                    //    _isThickDottedLineCreated = true;
+                    //}
+                    //doc.Delete(_createdDetailLine);
 
                     List<Element> selectedScopeBoxes = Command2.GetSelectedScopeBoxes(doc);
                     List<BoundingBoxXYZ> scopeBoxBounds = GetSelectedScopeBoxBounds(selectedScopeBoxes);
@@ -55,14 +56,16 @@ namespace ScopeBoxes
                     List<XYZ> lineMidPointsList = CalculateOverlapMidpoints(sortedByX, sortedByY);
                     lineMidPointsList = FindLongestLines(lineMidPointsList);
 
+                    var scopeBoxBoundsOverlaps = DetermineOverlapRegions(scopeBoxBounds);
                     var listOfLinesCreated = DrawThickDottedLines(doc, lineMidPointsList);
+                    //var listOfLinesCreated = DrawThickDottedLines(doc, lineMidPointsList, scopeBoxBoundsOverlaps);
                     linesCreatedCount = listOfLinesCreated.Count;
-                    doc.Delete(_createdDetailLine);
+                    //doc.Delete(_createdDetailLine);
 
                     trans.Commit();
                 }
 
-                ShowInfoDialog($"{linesCreatedCount} Lines Created");
+                ShowInfoDialog($"{linesCreatedCount} Cyan Dotted Pattern Lines Created");
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -201,7 +204,79 @@ namespace ScopeBoxes
 
             return midpoints;
         }
-        // Method to check if a horizontal line at midpointY crosses all boxes in the row
+
+        // --> ##########################
+        private static List<BoundingBoxXYZ> DetermineOverlapRegions(List<BoundingBoxXYZ> scopeBoxBounds)
+        {
+            var overlapRegions = new List<BoundingBoxXYZ>();
+
+            // Find overlaps by comparing each box with every other box
+            for (int i = 0; i < scopeBoxBounds.Count - 1; i++)
+            {
+                for (int j = i + 1; j < scopeBoxBounds.Count; j++)
+                {
+                    // Check for intersection
+                    double minX = Math.Max(scopeBoxBounds[i].Min.X, scopeBoxBounds[j].Min.X);
+                    double minY = Math.Max(scopeBoxBounds[i].Min.Y, scopeBoxBounds[j].Min.Y);
+                    double maxX = Math.Min(scopeBoxBounds[i].Max.X, scopeBoxBounds[j].Max.X);
+                    double maxY = Math.Min(scopeBoxBounds[i].Max.Y, scopeBoxBounds[j].Max.Y);
+
+                    // If boxes intersect, add the intersection as an overlap region
+                    if (minX < maxX && minY < maxY)
+                    {
+                        var overlapRegion = new BoundingBoxXYZ
+                        {
+                            Min = new XYZ(minX, minY, 0),
+                            Max = new XYZ(maxX, maxY, 0)
+                        };
+                        overlapRegions.Add(overlapRegion);
+                    }
+                }
+            }
+
+            return overlapRegions;
+        }
+
+        public static List<ElementId> DrawThickDottedLines_2(Document doc, List<XYZ> midpoints, List<BoundingBoxXYZ> overlapRegions)
+        {
+            if (midpoints.Count % 2 != 0)
+            {
+                throw new InvalidOperationException("The midpoint list should contain an even number of points.");
+            }
+
+            List<ElementId> lineIdsList = new List<ElementId>();
+            for (int i = 0; i < midpoints.Count; i += 2)
+            {
+                XYZ startPoint = midpoints[i];
+                XYZ endPoint = midpoints[i + 1];
+
+                XYZ lineMidpoint = new XYZ((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2, 0);
+
+                // Only draw the line if the midpoint is within any overlap region
+                if (IsInsideOverlapRegion(lineMidpoint, overlapRegions))
+                {
+                    ElementId lineId = Cmd_CreateThickDottedLine.CreateThickDottedLine(doc, startPoint, endPoint);
+                    lineIdsList.Add(lineId);
+                }
+            }
+            return lineIdsList;
+        }
+
+        private static bool IsInsideOverlapRegion(XYZ midpoint, List<BoundingBoxXYZ> overlapRegions)
+        {
+            foreach (var region in overlapRegions)
+            {
+                if (midpoint.X >= region.Min.X && midpoint.X <= region.Max.X &&
+                    midpoint.Y >= region.Min.Y && midpoint.Y <= region.Max.Y)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        // <-- ##########################
+
+
         public static List<ElementId> DrawThickDottedLines(Document doc, List<XYZ> midpoints)
         {
             // Check if the midpoints list has an even number of points to form lines
@@ -270,7 +345,7 @@ namespace ScopeBoxes
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btn_Cmd_GridForMatchLines";
-            string buttonTitle = "Grid For MatchLines";
+            string buttonTitle = "Matchline \nReference Lines";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -278,7 +353,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This will create MatchLines ");
+                "This button will create detail lines that can be used as a reference when creating Matchlines.");
 
             return myButtonData1.Data;
         }
