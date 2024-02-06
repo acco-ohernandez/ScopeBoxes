@@ -56,9 +56,7 @@ namespace ScopeBoxes
                     List<XYZ> lineMidPointsList = CalculateOverlapMidpoints(sortedByX, sortedByY);
                     lineMidPointsList = FindLongestLines(lineMidPointsList);
 
-                    var scopeBoxBoundsOverlaps = DetermineOverlapRegions(scopeBoxBounds);
-                    var listOfLinesCreated = DrawThickDottedLines(doc, lineMidPointsList);
-                    //var listOfLinesCreated = DrawThickDottedLines(doc, lineMidPointsList, scopeBoxBoundsOverlaps);
+                    var listOfLinesCreated = DrawThickDottedLines(doc, lineMidPointsList, scopeBoxBounds);
                     linesCreatedCount = listOfLinesCreated.Count;
                     //doc.Delete(_createdDetailLine);
 
@@ -205,79 +203,8 @@ namespace ScopeBoxes
             return midpoints;
         }
 
-        // --> ##########################
-        private static List<BoundingBoxXYZ> DetermineOverlapRegions(List<BoundingBoxXYZ> scopeBoxBounds)
-        {
-            var overlapRegions = new List<BoundingBoxXYZ>();
 
-            // Find overlaps by comparing each box with every other box
-            for (int i = 0; i < scopeBoxBounds.Count - 1; i++)
-            {
-                for (int j = i + 1; j < scopeBoxBounds.Count; j++)
-                {
-                    // Check for intersection
-                    double minX = Math.Max(scopeBoxBounds[i].Min.X, scopeBoxBounds[j].Min.X);
-                    double minY = Math.Max(scopeBoxBounds[i].Min.Y, scopeBoxBounds[j].Min.Y);
-                    double maxX = Math.Min(scopeBoxBounds[i].Max.X, scopeBoxBounds[j].Max.X);
-                    double maxY = Math.Min(scopeBoxBounds[i].Max.Y, scopeBoxBounds[j].Max.Y);
-
-                    // If boxes intersect, add the intersection as an overlap region
-                    if (minX < maxX && minY < maxY)
-                    {
-                        var overlapRegion = new BoundingBoxXYZ
-                        {
-                            Min = new XYZ(minX, minY, 0),
-                            Max = new XYZ(maxX, maxY, 0)
-                        };
-                        overlapRegions.Add(overlapRegion);
-                    }
-                }
-            }
-
-            return overlapRegions;
-        }
-
-        public static List<ElementId> DrawThickDottedLines_2(Document doc, List<XYZ> midpoints, List<BoundingBoxXYZ> overlapRegions)
-        {
-            if (midpoints.Count % 2 != 0)
-            {
-                throw new InvalidOperationException("The midpoint list should contain an even number of points.");
-            }
-
-            List<ElementId> lineIdsList = new List<ElementId>();
-            for (int i = 0; i < midpoints.Count; i += 2)
-            {
-                XYZ startPoint = midpoints[i];
-                XYZ endPoint = midpoints[i + 1];
-
-                XYZ lineMidpoint = new XYZ((startPoint.X + endPoint.X) / 2, (startPoint.Y + endPoint.Y) / 2, 0);
-
-                // Only draw the line if the midpoint is within any overlap region
-                if (IsInsideOverlapRegion(lineMidpoint, overlapRegions))
-                {
-                    ElementId lineId = Cmd_CreateThickDottedLine.CreateThickDottedLine(doc, startPoint, endPoint);
-                    lineIdsList.Add(lineId);
-                }
-            }
-            return lineIdsList;
-        }
-
-        private static bool IsInsideOverlapRegion(XYZ midpoint, List<BoundingBoxXYZ> overlapRegions)
-        {
-            foreach (var region in overlapRegions)
-            {
-                if (midpoint.X >= region.Min.X && midpoint.X <= region.Max.X &&
-                    midpoint.Y >= region.Min.Y && midpoint.Y <= region.Max.Y)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        // <-- ##########################
-
-
-        public static List<ElementId> DrawThickDottedLines(Document doc, List<XYZ> midpoints)
+        public static List<ElementId> DrawThickDottedLines(Document doc, List<XYZ> midpoints, List<BoundingBoxXYZ> xyzBoundingBoxesList)
         {
             // Check if the midpoints list has an even number of points to form lines
             if (midpoints.Count % 2 != 0)
@@ -291,14 +218,40 @@ namespace ScopeBoxes
                 XYZ startPoint = midpoints[i];
                 XYZ endPoint = midpoints[i + 1];
 
-                // Use the CreateThickDottedLine method that takes two XYZ points
-                // The method should already handle the creation of lines within the active view and applying the desired style
-                //ElementId lineId = Cmd_CreateThickDottedLine.CreateThickDottedLine(doc, startPoint, endPoint, null);
-                ElementId lineId = Cmd_CreateThickDottedLine.CreateThickDottedLine(doc, startPoint, endPoint);
-                lineIdsList.Add(lineId);
+
+                bool startPointIsInOverlapArea = StartPointIsInOverlapArea(startPoint, xyzBoundingBoxesList);
+                if (startPointIsInOverlapArea) // if the start of the line is inside two bounding boxes
+                {
+                    // Use the CreateThickDottedLine method that takes two XYZ points
+                    ElementId lineId = Cmd_CreateThickDottedLine.CreateThickDottedLine(doc, startPoint, endPoint);
+                    lineIdsList.Add(lineId);
+                }
             }
             return lineIdsList;
         }
+        private static bool StartPointIsInOverlapArea(XYZ startPoint, List<BoundingBoxXYZ> boundingBoxes)
+        {
+            int overlapCount = 0;
+
+            // Iterate through all bounding boxes to check if the start point is within them
+            foreach (var boundingBox in boundingBoxes)
+            {
+                if (startPoint.X >= boundingBox.Min.X && startPoint.X <= boundingBox.Max.X &&
+                    startPoint.Y >= boundingBox.Min.Y && startPoint.Y <= boundingBox.Max.Y)
+                {
+                    overlapCount++;
+                    // If the start point is within two or more bounding boxes, return true
+                    if (overlapCount >= 2)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // If the start point is within less than two bounding boxes, return false
+            return false;
+        }
+
 
         public static List<BoundingBoxXYZ> GetSelectedScopeBoxBounds(List<Element> selectedScopeBoxes)
         {
