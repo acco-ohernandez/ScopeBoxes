@@ -352,7 +352,7 @@ namespace ScopeBoxes
             return newGridDimensionType;
         }
 
-        public DimensionType GetDimensionTypeByName(Document doc, string dimensionName)
+        public static DimensionType GetDimensionTypeByName(Document doc, string dimensionName)
         {
             FilteredElementCollector dimCollector = new FilteredElementCollector(doc);
             var dimension = dimCollector

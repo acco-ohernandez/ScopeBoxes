@@ -167,15 +167,11 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions.cs" />
-    <Compile Include="Cmd_GridDimensions.cs" />
-    <Compile Include="Cmd_GridDimensions_Working2.cs" />
-    <Compile Include="Cmd_GridDimensions_Working.cs" />
     <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions_Working.cs" />
+    <Compile Include="Cmd_GridDimensions.cs" />
     <Compile Include="Cmd_DependentViewsBrowserTree.cs" />
     <Compile Include="Cmd_GridForMatchLines.cs" />
     <Compile Include="Cmd_CreateThickDottedLine.cs" />
-    <Compile Include="Cmd_MatchLines_02_SeparateTransactions.cs" />
-    <Compile Include="Cmd_MatchLines_01_existingLine.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\DimensionTypesForm.xaml.cs">
       <DependentUpon>DimensionTypesForm.xaml</DependentUpon>

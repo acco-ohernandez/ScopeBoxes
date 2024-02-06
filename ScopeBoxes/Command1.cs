@@ -177,7 +177,10 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This button will allow you to create a grid of scope boxes based on the number of columns and rows required. You will first have to create a desired size scope box, then select it in order to create a Grid of Scope Boxes");
+                "This button will allow you to create a grid of scope boxes based on the number of columns and rows required. You will first have to create a desired size scope box, then select it in order to create a Grid of Scope Boxes " +
+                "\r\n\nSTEP 1: Create first scope box" +
+                "\r\nSTEP 2: Select scope box" +
+                "\r\nSTEP 3: Click Scope Box Grid button");
 
             return myButtonData1.Data;
         }

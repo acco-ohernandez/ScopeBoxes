@@ -219,7 +219,8 @@ namespace ScopeBoxes
         {
             LinePatternElement dottedLinePattern;
 
-            dottedLinePattern = GetOrCreateDottedLinePattern(doc, "DottedPattern");
+            //dottedLinePattern = GetOrCreateDottedLinePattern(doc, "DottedPattern");
+            dottedLinePattern = GetOrCreateDottedLinePattern(doc, "Solid");
 
             return dottedLinePattern;
         }
@@ -228,9 +229,11 @@ namespace ScopeBoxes
         {
 
             GraphicsStyle lineGraphicStyle;
-            var lineStyleName = "ThickDottedLine";
-            double lineWeight = 16;
-            lineGraphicStyle = CreateNewLineStyle(doc, lineStyleName, lineWeight, linePattern);
+            //var lineStyleName = "ThickDottedLine";
+            var lineStyleName = "Matchline Reference";
+            double lineWeight = 10;
+            //lineGraphicStyle = CreateNewLineStyle(doc, lineStyleName, lineWeight, linePattern);
+            lineGraphicStyle = CreateSolidLineStyle(doc, lineStyleName, lineWeight, linePattern);
 
             return lineGraphicStyle;
         }
@@ -269,6 +272,43 @@ namespace ScopeBoxes
             }
 
             return linePatternElement;
+        }
+        //private static GraphicsStyle CreateSolidLineStyle(Document doc, string styleName)
+        private static GraphicsStyle CreateSolidLineStyle(Document doc, string lineStyleName, double lineWeight, LinePatternElement linePattern)
+        {
+            var styleName = lineStyleName;
+
+            // Attempt to find an existing GraphicsStyle for lines
+            GraphicsStyle graphicsStyle = new FilteredElementCollector(doc)
+                .OfClass(typeof(GraphicsStyle))
+                .Cast<GraphicsStyle>()
+                .Where(e => e.GraphicsStyleCategory.Parent != null && e.GraphicsStyleCategory.Parent.Name == "Lines")
+                .FirstOrDefault(e => e.Name == styleName);
+
+            // If not found, create a new Category for the custom line style (if needed) and set it to default properties for a solid line
+            if (graphicsStyle == null)
+            {
+                // Creating a new line style involves creating a new subcategory under Lines category.
+                // Note: Revit API does not allow direct creation of new line styles in the Lines category, it's managed through subcategories.
+                Category linesCategory = doc.Settings.Categories.get_Item(BuiltInCategory.OST_Lines);
+                Category newSubCategory = doc.Settings.Categories.NewSubcategory(linesCategory, styleName);
+
+
+                // Set the line color, weight, etc., as needed. No pattern is set since it's solid by default.
+                newSubCategory.LineColor = new Autodesk.Revit.DB.Color(0, 255, 255); // RGB values for cyan.
+                                                                                     // Set the line Font size (Font size)
+                newSubCategory.SetLineWeight((int)lineWeight, GraphicsStyleType.Projection);
+
+
+                // Attempt to retrieve the newly created style again
+                graphicsStyle = new FilteredElementCollector(doc)
+                    .OfClass(typeof(GraphicsStyle))
+                    .Cast<GraphicsStyle>()
+                    .Where(e => e.GraphicsStyleCategory.Parent != null && e.GraphicsStyleCategory.Parent.Name == "Lines")
+                    .FirstOrDefault(e => e.Name == styleName);
+            }
+
+            return graphicsStyle;
         }
 
         private static GraphicsStyle CreateNewLineStyle(Document doc, string lineStyleName, double lineWeight, LinePatternElement linePattern)

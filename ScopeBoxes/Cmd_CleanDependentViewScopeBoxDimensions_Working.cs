@@ -20,7 +20,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_CleanDependentViewScopeBoxDimensions_Working : IExternalCommand
+    public class Cmd_CleanDependentViewScopeBoxDimensions2 : IExternalCommand
     {
         public int DimensionsHiden { get; set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -32,12 +32,19 @@ namespace ScopeBoxes
                 UIDocument uidoc = uiapp.ActiveUIDocument;
                 Document doc = uidoc.Document;
 
-                // Step 1: Get Selected Views
-                ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
-                var selectedViews = GetSelectedViews(doc, selectedIds);
+                // All dependenet views
+                //List<View> selectedViews = GetAllDependentVies(doc);
+                List<View> selectedViews = GetAllDependentViesFromViewsTreeForm(doc);
+                if (selectedViews == null)
+                {
+                    TaskDialog.Show("INFO", "No dependent views selected. \n Command cancelled.");
+                    return Result.Cancelled;
+                }
+                //// Step 1: Get Selected Views
+                //ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
+                //var selectedViews = GetSelectedViews(doc, selectedIds);
 
                 string noCropBoxFoundList = "";
-
 
                 using (Transaction transaction = new Transaction(doc, "Hide Dimensions in Dependent View"))
                 {
@@ -75,6 +82,46 @@ namespace ScopeBoxes
                 TaskDialog.Show("Info", $"An unexpected error occurred: {ex.Message}");
                 return Result.Failed;
             }
+        }
+
+        public List<View> GetAllDependentViesFromViewsTreeForm(Document doc)
+        {
+            // Populate the tree data
+            var treeData = Cmd_DependentViewsBrowserTree.PopulateTreeView(doc);
+
+            //// Create and show the WPF form
+            ViewsTreeForm form = new ViewsTreeForm();
+            form.InitializeTreeData(treeData);
+            bool? dialogResult = form.ShowDialog();
+
+            if (dialogResult != true) // if user does not click OK, cancel command
+                return null;
+
+
+            var selectedItems = Cmd_DependentViewsBrowserTree.GetSelectedViews(doc, form.TreeData);
+            selectedItems = Cmd_DependentViewsBrowserTree.GetDependentViews(selectedItems);
+            //TaskDialog.Show("INFO", $"Selected views count {selectedItems.Count}");
+            return selectedItems;
+
+        }
+        private List<View> GetAllDependentVies(Document doc)
+        {
+            var views = new FilteredElementCollector(doc).OfClass(typeof(View));
+            var DependentViews = new List<View>();
+            foreach (View view in views)
+            {
+                ElementId paretnId = view.GetPrimaryViewId();
+                if (paretnId.IntegerValue == -1 && !view.IsTemplate)
+                {
+                    // View is Not a dependent
+                }
+                else if (paretnId.IntegerValue != -1 && !view.IsTemplate)
+                {
+                    // View is dependent
+                    DependentViews.Add(view);
+                }
+            }
+            return DependentViews;
         }
 
         private List<View> GetSelectedViews(Document doc, ICollection<ElementId> selectedIds)
@@ -149,7 +196,7 @@ namespace ScopeBoxes
             {
                 // 		FamilyName	"Linear Dimension Style"	string
                 //if (dimension.Name == "Linear - 3/32\" Arial")
-                if (dimension.Name == "Linear - 3/32\" Arial - Grids")
+                if (dimension.Name == "GRID DIMENSIONS")
                     dependentView.HideElements(new List<ElementId> { dimension.Id });
             }
 
@@ -161,7 +208,7 @@ namespace ScopeBoxes
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btnCleanDependentDims";
-            string buttonTitle = "Clean Dependent Dims";
+            string buttonTitle = "Clean Dependent \nView Dims";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -169,7 +216,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This Add-in will hide any dimension inside a cropbox");
+                "This button will hide any GRID DIMENSION's inside a dependent view's Crop Box.");
 
             return myButtonData1.Data;
         }
