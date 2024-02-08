@@ -535,7 +535,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This button will create dimensions for horizontal and vertical grid lines on a new dimension style named GRID DIMENSIONS. If you pre-select the scopeboxes, it will place a linear dimension above and to the right of each Scope Boxe.");
+                "This button will create dimensions for horizontal and vertical grid lines. Additionally, when scope boxes are selected, it will create linear dimensions above and to the right for all grids within each Scope Box. All dimensions created will use the GRID DIMENSIONS style to differentiate themselves from other standard dimension styles.");
 
             return myButtonData1.Data;
         }

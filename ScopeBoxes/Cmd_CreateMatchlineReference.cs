@@ -48,8 +48,13 @@ namespace ScopeBoxes
                     doc.Delete(_createdDetailLine);
 
                     List<Element> selectedScopeBoxes = Cmd_RenameScopeBoxes.GetSelectedScopeBoxes(doc);
-                    List<BoundingBoxXYZ> scopeBoxBounds = GetSelectedScopeBoxBounds(selectedScopeBoxes);
+                    if (!(selectedScopeBoxes.Count > 0))
+                    {
+                        TaskDialog.Show("Info", "You have to pre-select the group of overlapped scope boxes before clicking this button.");
+                        return Result.Cancelled;
+                    }
 
+                    List<BoundingBoxXYZ> scopeBoxBounds = GetSelectedScopeBoxBounds(selectedScopeBoxes);
                     List<BoundingBoxXYZ> sortedByX = SortScopeBoxesByX(scopeBoxBounds);
                     List<BoundingBoxXYZ> sortedByY = SortScopeBoxesByY(scopeBoxBounds);
 
@@ -306,7 +311,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This button will create detail lines that can be used as a reference when creating Matchlines.");
+                "This button will create intersecting detail lines between selected scope boxes. These detail lines can then be used as references when creating match lines using Revit’s native Match Line function. Note: Only use this in a non-plotting view to avoid any confusion.");
 
             return myButtonData1.Data;
         }

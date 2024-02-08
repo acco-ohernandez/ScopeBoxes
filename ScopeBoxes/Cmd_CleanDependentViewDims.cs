@@ -37,6 +37,14 @@ namespace ScopeBoxes
                 UIDocument uidoc = uiapp.ActiveUIDocument;
                 Document doc = uidoc.Document;
 
+
+                // Check if dependent views exist
+                if (Cmd_DependentViewsBrowserTree.GetOnlyDependentViews(doc).Count == 0)
+                {
+                    TaskDialog.Show("Info:", "There are no dependent views.");
+                    return Result.Cancelled;
+                }
+
                 // All dependenet views
                 //List<View> selectedViews = GetAllDependentVies(doc);
                 List<View> selectedViews = GetAllDependentViesFromViewsTreeForm(doc);
@@ -327,7 +335,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This button will hide any GRID DIMENSION's inside a dependent view's Crop Box.");
+                "This button will go through the selected dependent views and hide any unnecessary dimensions that uses the GRID DIMENSIONS style. Dimensions will be cleaned accordingly based on the selected dependent views’ crop boxes.");
 
             return myButtonData1.Data;
         }

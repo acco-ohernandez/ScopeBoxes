@@ -37,6 +37,7 @@ namespace ScopeBoxes
                 //var curViewScale = doc.ActiveView.Scale;
 
 
+
                 // Populate the tree data
                 var treeData = PopulateTreeView(doc);
 
@@ -75,6 +76,13 @@ namespace ScopeBoxes
                                                          .ToList();
             return dependentViews;
         }
+        public static List<View> GetOnlyDependentViews(Document doc)
+        {
+            // Get all the views 
+            var allViews = GetAllViews(doc);
+            //return only dependent views
+            return GetDependentViews(allViews);
+        }
 
         public static List<View> GetSelectedViews(Document doc, IEnumerable<TreeNode> nodes)
         {
@@ -105,11 +113,7 @@ namespace ScopeBoxes
             var treeNodes = new List<TreeNode>();
 
             // Collect all views, excluding view templates
-            var allViews = new FilteredElementCollector(doc)
-                .OfClass(typeof(View))
-                .Cast<View>()
-                .Where(v => !v.IsTemplate)
-                .ToList();
+            List<View> allViews = GetAllViews(doc);
 
             // Group views by their type
             var viewsByType = allViews.GroupBy(v => v.ViewType);
@@ -155,6 +159,15 @@ namespace ScopeBoxes
             }
 
             return treeNodes;
+        }
+
+        private static List<View> GetAllViews(Document doc)
+        {
+            return new FilteredElementCollector(doc)
+                            .OfClass(typeof(View))
+                            .Cast<View>()
+                            .Where(v => !v.IsTemplate)
+                            .ToList();
         }
 
         public List<TreeNode> GetAllViewsTree(Document doc)
