@@ -10,9 +10,9 @@ using System.Windows.Media;
 using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
-
 
 using ScopeBoxes.Forms;
 #endregion
@@ -20,7 +20,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_GridForMatchLines : IExternalCommand
+    public class Cmd_CreateMatchlineReference : IExternalCommand
     {
         // Property to indicate whether a ThickDottedLine has been created
         private bool _isThickDottedLineCreated = false;
@@ -38,16 +38,16 @@ namespace ScopeBoxes
                 {
                     trans.Start();
 
-                    //// This ensures that there is a Cyan DottedPattern Line Type in the current model. It's refference 
-                    //if (!_isThickDottedLineCreated)
-                    //{
-                    //    CreateAndTrackThickDottedLine(doc);
-                    //    // After creation, the flag is set to true to avoid duplicate creations
-                    //    _isThickDottedLineCreated = true;
-                    //}
-                    //doc.Delete(_createdDetailLine);
+                    // This ensures that there is a Cyan DottedPattern Line Type in the current model. It's refference 
+                    if (!_isThickDottedLineCreated)
+                    {
+                        CreateAndTrackThickDottedLine(doc);
+                        // After creation, the flag is set to true to avoid duplicate creations
+                        _isThickDottedLineCreated = true;
+                    }
+                    doc.Delete(_createdDetailLine);
 
-                    List<Element> selectedScopeBoxes = Command2.GetSelectedScopeBoxes(doc);
+                    List<Element> selectedScopeBoxes = Cmd_RenameScopeBoxes.GetSelectedScopeBoxes(doc);
                     List<BoundingBoxXYZ> scopeBoxBounds = GetSelectedScopeBoxBounds(selectedScopeBoxes);
 
                     List<BoundingBoxXYZ> sortedByX = SortScopeBoxesByX(scopeBoxBounds);

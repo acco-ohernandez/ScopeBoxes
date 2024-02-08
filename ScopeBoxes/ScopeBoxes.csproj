@@ -166,11 +166,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
-    <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions.cs" />
-    <Compile Include="Cmd_CleanDependentViewScopeBoxDimensions_Working.cs" />
+    <Compile Include="Cmd_CleanDependentViewDims.cs" />
     <Compile Include="Cmd_GridDimensions.cs" />
     <Compile Include="Cmd_DependentViewsBrowserTree.cs" />
-    <Compile Include="Cmd_GridForMatchLines.cs" />
+    <Compile Include="Cmd_CreateMatchlineReference.cs" />
     <Compile Include="Cmd_CreateThickDottedLine.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\DimensionTypesForm.xaml.cs">
@@ -192,8 +191,8 @@
       <DependentUpon>ViewsTreeForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils\ButtonDataClass.cs" />
-    <Compile Include="Command2.cs" />
-    <Compile Include="Command1.cs" />
+    <Compile Include="Cmd_RenameScopeBoxes.cs" />
+    <Compile Include="Cmd_ScopeBoxGrid.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

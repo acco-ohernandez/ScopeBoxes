@@ -33,12 +33,12 @@ namespace ScopeBoxes
             RibbonPanel panel = Utils.CreateRibbonPanel(app, tabName, "Revit Tools Testing");
 
             // 3. Create button data instances
-            PushButtonData btnData1 = Command1.GetButtonData();
-            PushButtonData btnData2 = Command2.GetButtonData();
+            PushButtonData btnData1 = Cmd_ScopeBoxGrid.GetButtonData();
+            PushButtonData btnData2 = Cmd_RenameScopeBoxes.GetButtonData();
             PushButtonData btnData3 = Cmd_GridDimensions.GetButtonData();
-            PushButtonData btnData4 = Cmd_CleanDependentViewScopeBoxDimensions.GetButtonData();
+            PushButtonData btnData4 = Cmd_CleanDependentViewDims.GetButtonData();
             //PushButtonData btnData5 = Cmd_CreateThickDottedLine.GetButtonData();
-            PushButtonData btnData5 = Cmd_GridForMatchLines.GetButtonData();
+            PushButtonData btnData5 = Cmd_CreateMatchlineReference.GetButtonData();
 
             //PushButtonData btnData6 = Cmd_DependentViewsBrowserTree.GetButtonData();
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -20,9 +21,13 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Cmd_CleanDependentViewScopeBoxDimensions2 : IExternalCommand
+    public class Cmd_CleanDependentViewDims : IExternalCommand
     {
         public int DimensionsHiden { get; set; }
+        // Define a static field to hold the original value of the "Tick Mark" parameter
+        private static ElementId originalTickMarkValue = null;
+        //private static ElementId _originalTickMarkId = ElementId.InvalidElementId;
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             try
@@ -40,11 +45,34 @@ namespace ScopeBoxes
                     TaskDialog.Show("INFO", "No dependent views selected. \n Command cancelled.");
                     return Result.Cancelled;
                 }
-                //// Step 1: Get Selected Views
-                //ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
-                //var selectedViews = GetSelectedViews(doc, selectedIds);
 
                 string noCropBoxFoundList = "";
+
+
+                using (Transaction transaction = new Transaction(doc, "Tick Marks Off Temporarilly"))
+                {
+                    transaction.Start();
+                    // Step 2: Process Each View
+                    foreach (var curView in selectedViews)
+                    {
+                        // Step 3: Check if the current view has the CropBoxActive
+                        if (curView.CropBoxActive == true)
+                        {
+                            var gridDimensionInCurrentView = GetGridDimensionsInView(doc, curView);
+                            // Ensure StoreAndSetTickMarkToZero accepts an ElementId as parameter
+                            gridDimensionInCurrentView
+                                .Select(dim => dim.DimensionType) // Extract DimensionType Ids
+                                .Distinct() // Ensure unique DimensionType Ids
+                                .ToList() // Convert to List for iteration
+                                .ForEach(dimType => StoreAndSetTickMarkToZero(doc, dimType)); // Apply operation
+                        }
+                        else
+                        {
+                            noCropBoxFoundList += $"{curView.Name}\n";
+                        }
+                    }
+                    transaction.Commit();
+                }
 
                 using (Transaction transaction = new Transaction(doc, "Hide Dimensions in Dependent View"))
                 {
@@ -55,12 +83,20 @@ namespace ScopeBoxes
                         // Step 3: Check if the current view has the CropBoxActive
                         if (curView.CropBoxActive == true)
                         {
-                            // var cb = curView.CropBox;
+                            var gridDimensionInCurrentView = GetGridDimensionsInView(doc, curView);
+
                             // Step 4: Get Dimensions Inside Crop Box in Parent View
                             var dimensionsInsideCropBox = GetDimensionsInsideCropBox(curView);
 
                             // Step 5: Hide Dimensions in Dependent View
                             HideDimensionsInDependentView(doc, curView, dimensionsInsideCropBox);
+
+
+                            gridDimensionInCurrentView
+                                .Select(dim => dim.DimensionType) // Extract DimensionType Ids
+                                .Distinct() // Ensure unique DimensionType Ids
+                                .ToList() // Convert to List for iteration
+                                .ForEach(dimType => RestoreTickMarkToOriginal(doc, dimType)); // Apply operation
                         }
                         else
                         {
@@ -83,7 +119,82 @@ namespace ScopeBoxes
                 return Result.Failed;
             }
         }
+        public static void RestoreTickMarkToOriginal(Document doc, DimensionType dimensionType)
+        {
+            // Get the "Tick Mark" parameter
+            Parameter tickMarkParam = dimensionType.LookupParameter("Tick Mark");
 
+            if (tickMarkParam != null && !tickMarkParam.IsReadOnly)
+            {
+                if (originalTickMarkValue == null)
+                    TaskDialog.Show("Info", $"The value of originalTickMarkValue is: {originalTickMarkValue}");
+
+                bool setResult = tickMarkParam.Set(originalTickMarkValue);
+
+                // Check if the parameter was set successfully
+                if (!setResult)
+                {
+                    TaskDialog.Show("Error", "Unable to set 'Tick Mark' parameter to None.");
+                }
+            }
+        }
+        public static void StoreAndSetTickMarkToZero(Document doc, DimensionType dimensionType)
+        {
+            // Get the "Tick Mark" parameter
+            Parameter tickMarkParam = dimensionType.LookupParameter("Tick Mark");
+
+            if (tickMarkParam != null && !tickMarkParam.IsReadOnly)
+            {
+                if (originalTickMarkValue == null)
+                    originalTickMarkValue = tickMarkParam.AsElementId();
+
+                // Attempt to set the parameter to ElementId.InvalidElementId
+                // Note: This might not be directly possible for all parameter types, especially for system parameters
+                // You might need to find the specific method or workaround for setting this parameter to "None"
+                bool setResult = tickMarkParam.Set(ElementId.InvalidElementId);
+
+                // Check if the parameter was set successfully
+                if (!setResult)
+                {
+                    TaskDialog.Show("Error", "Unable to set 'Tick Mark' parameter to None.");
+                }
+            }
+        }
+
+
+
+
+
+        public static List<Dimension> GetGridDimensionsInView(Document doc, View view)
+        {
+            List<Dimension> gridDimensions = new List<Dimension>();
+
+            // Collect all dimensions in the view
+            FilteredElementCollector collector = new FilteredElementCollector(doc, view.Id);
+            ICollection<Element> allDimensions = collector.OfClass(typeof(Dimension)).ToElements();
+
+            // Iterate through the collected dimensions
+            foreach (Element elem in allDimensions)
+            {
+                Dimension dim = elem as Dimension;
+                if (dim != null)
+                {
+                    // Retrieve the DimensionType of the current dimension
+                    DimensionType dimType = doc.GetElement(dim.GetTypeId()) as DimensionType;
+
+                    // Check if the DimensionType name matches "GRID DIMENSIONS"
+                    if (dimType != null && dimType.Name.Equals("GRID DIMENSIONS", StringComparison.OrdinalIgnoreCase))
+                    {
+                        gridDimensions.Add(dim);
+                    }
+                }
+            }
+
+            return gridDimensions;
+        }
+
+
+        //<---###########
         public List<View> GetAllDependentViesFromViewsTreeForm(Document doc)
         {
             // Populate the tree data

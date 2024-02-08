@@ -39,7 +39,7 @@ namespace ScopeBoxes
             gridsCollector = GetHorizontalAndVerticalGrids(gridsCollector);
 
             // Get user pre-selected scope boxes
-            var selectedScopeBoxes = Command2.GetSelectedScopeBoxes(doc);
+            var selectedScopeBoxes = Cmd_RenameScopeBoxes.GetSelectedScopeBoxes(doc);
 
             using (Transaction t = new Transaction(doc))
             {

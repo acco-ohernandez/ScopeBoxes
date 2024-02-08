@@ -19,7 +19,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     [Transaction(TransactionMode.Manual)]
-    public class Command2 : IExternalCommand
+    public class Cmd_RenameScopeBoxes : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -201,7 +201,11 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "This button will rename all selected ScopeBoxes. You can either pre-select a group of scopeboxes before clicking the button OR click the button first and select the individual scopeboxes then hit ESC to continue ");
+                "This button will rename all selected ScopeBoxes. \n " +
+                "OPTIONS: \n" +
+                " 1. You can either pre-select a group of scopeboxes before clicking the button \n" +
+                "   OR \n" +
+                " 2. click the button first and select the individual scopeboxes then hit ESC to continue ");
 
             return myButtonData1.Data;
         }
