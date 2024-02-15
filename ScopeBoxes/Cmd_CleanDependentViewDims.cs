@@ -57,30 +57,30 @@ namespace ScopeBoxes
                 string noCropBoxFoundList = "";
 
 
-                using (Transaction transaction = new Transaction(doc, "Tick Marks Off Temporarilly"))
-                {
-                    transaction.Start();
-                    // Step 2: Process Each View
-                    foreach (var curView in selectedViews)
-                    {
-                        // Step 3: Check if the current view has the CropBoxActive
-                        if (curView.CropBoxActive == true)
-                        {
-                            var gridDimensionInCurrentView = GetGridDimensionsInView(doc, curView);
-                            // Ensure StoreAndSetTickMarkToZero accepts an ElementId as parameter
-                            gridDimensionInCurrentView
-                                .Select(dim => dim.DimensionType) // Extract DimensionType Ids
-                                .Distinct() // Ensure unique DimensionType Ids
-                                .ToList() // Convert to List for iteration
-                                .ForEach(dimType => StoreAndSetTickMarkToZero(doc, dimType)); // Apply operation
-                        }
-                        else
-                        {
-                            noCropBoxFoundList += $"{curView.Name}\n";
-                        }
-                    }
-                    transaction.Commit();
-                }
+                //using (Transaction transaction = new Transaction(doc, "Tick Marks Off Temporarilly"))
+                //{
+                //    transaction.Start();
+                //    // Step 2: Process Each View
+                //    foreach (var curView in selectedViews)
+                //    {
+                //        // Step 3: Check if the current view has the CropBoxActive
+                //        if (curView.CropBoxActive == true)
+                //        {
+                //            var gridDimensionInCurrentView = GetGridDimensionsInView(doc, curView);
+                //            // Ensure StoreAndSetTickMarkToZero accepts an ElementId as parameter
+                //            gridDimensionInCurrentView
+                //                .Select(dim => dim.DimensionType) // Extract DimensionType Ids
+                //                .Distinct() // Ensure unique DimensionType Ids
+                //                .ToList() // Convert to List for iteration
+                //                .ForEach(dimType => StoreAndSetTickMarkToZero(doc, dimType)); // Apply operation
+                //        }
+                //        else
+                //        {
+                //            noCropBoxFoundList += $"{curView.Name}\n";
+                //        }
+                //    }
+                //    transaction.Commit();
+                //}
 
                 using (Transaction transaction = new Transaction(doc, "Hide Dimensions in Dependent View"))
                 {
@@ -99,12 +99,12 @@ namespace ScopeBoxes
                             // Step 5: Hide Dimensions in Dependent View
                             HideDimensionsInDependentView(doc, curView, dimensionsInsideCropBox);
 
-
-                            gridDimensionInCurrentView
-                                .Select(dim => dim.DimensionType) // Extract DimensionType Ids
-                                .Distinct() // Ensure unique DimensionType Ids
-                                .ToList() // Convert to List for iteration
-                                .ForEach(dimType => RestoreTickMarkToOriginal(doc, dimType)); // Apply operation
+                            ////Restore TickMark To Original 
+                            //gridDimensionInCurrentView
+                            //    .Select(dim => dim.DimensionType) // Extract DimensionType Ids
+                            //    .Distinct() // Ensure unique DimensionType Ids
+                            //    .ToList() // Convert to List for iteration
+                            //    .ForEach(dimType => RestoreTickMarkToOriginal(doc, dimType)); // Apply operation
                         }
                         else
                         {
@@ -275,7 +275,8 @@ namespace ScopeBoxes
                 {
                     BoundingBoxXYZ cropBoxBoundingBox = view.CropBox;
 
-                    if (IsBoundingBoxInsideBoundingBox(dimensionBoundingBox, cropBoxBoundingBox))
+                    //if (IsBoundingBoxInsideBoundingBox(dimensionBoundingBox, cropBoxBoundingBox))
+                    if (IsCenterOfBoundingBoxInsideBoundingBox(dimensionBoundingBox, cropBoxBoundingBox))
                     {
                         dimensionsInsideCropBox.Add(dimension);
                     }
@@ -284,7 +285,20 @@ namespace ScopeBoxes
 
             return dimensionsInsideCropBox;
         }
+        private bool IsCenterOfBoundingBoxInsideBoundingBox(BoundingBoxXYZ innerBox, BoundingBoxXYZ outerBox)
+        {
+            // Calculate the center point of the innerBox
+            XYZ innerBoxCenter = (innerBox.Min + innerBox.Max) / 2;
 
+            // Check if the center of the innerBox is inside the outerBox
+            bool xInside = innerBoxCenter.X >= outerBox.Min.X && innerBoxCenter.X <= outerBox.Max.X;
+            bool yInside = innerBoxCenter.Y >= outerBox.Min.Y && innerBoxCenter.Y <= outerBox.Max.Y;
+            //bool zInside = innerBoxCenter.Z >= outerBox.Min.Z && innerBoxCenter.Z <= outerBox.Max.Z;
+
+            // If the center point is inside the outerBox in all dimensions, return true
+            var trueOrFalse = xInside && yInside;// && zInside;
+            return trueOrFalse;
+        }
         private bool IsBoundingBoxInsideBoundingBox(BoundingBoxXYZ innerBox, BoundingBoxXYZ outerBox)
         {
             // Check if the innerBox is completely inside the outerBox
@@ -326,7 +340,7 @@ namespace ScopeBoxes
         internal static PushButtonData GetButtonData()
         {
             // use this method to define the properties for this command in the Revit ribbon
-            string buttonInternalName = "btnCleanDependentDims";
+            string buttonInternalName = "btn_CleanDependentDims";
             string buttonTitle = "Clean Dependent \nView Dims";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(

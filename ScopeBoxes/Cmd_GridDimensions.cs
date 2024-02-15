@@ -146,7 +146,6 @@ namespace ScopeBoxes
             return true;
         }
 
-
         private List<Element> GetHorizontalAndVerticalGrids(List<Element> gridsCollector)
         {
             var horizontalAndVerticalGrids = new List<Element>();
@@ -526,7 +525,7 @@ namespace ScopeBoxes
         internal static PushButtonData GetButtonData()
         {
             // use this method to define the properties for this command in the Revit ribbon
-            string buttonInternalName = "btnGridDimensions";
+            string buttonInternalName = "btn_GridDimensions";
             string buttonTitle = "Grid \nDimensions";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(

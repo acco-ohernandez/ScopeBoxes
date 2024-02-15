@@ -170,7 +170,7 @@
     <Compile Include="Cmd_GridDimensions.cs" />
     <Compile Include="Cmd_DependentViewsBrowserTree.cs" />
     <Compile Include="Cmd_CreateMatchlineReference.cs" />
-    <Compile Include="Cmd_CreateThickDottedLine.cs" />
+    <Compile Include="Cmd_CreateNewLineStyle.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\DimensionTypesForm.xaml.cs">
       <DependentUpon>DimensionTypesForm.xaml</DependentUpon>

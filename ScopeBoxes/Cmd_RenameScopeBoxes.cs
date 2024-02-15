@@ -192,7 +192,7 @@ namespace ScopeBoxes
         internal static PushButtonData GetButtonData()
         {
             // use this method to define the properties for this command in the Revit ribbon
-            string buttonInternalName = "btnCommand2";
+            string buttonInternalName = "btn_RenameScopeBoxes";
             string buttonTitle = "Rename \nScope Boxes";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(

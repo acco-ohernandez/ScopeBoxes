@@ -20,7 +20,7 @@ using ScopeBoxes.Forms;
 namespace ScopeBoxes
 {
     //[Transaction(TransactionMode.Manual)]
-    public class Cmd_CreateThickDottedLine //: IExternalCommand
+    public class Cmd_CreateNewLineStyle //: IExternalCommand
     {
         //public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         //{
@@ -56,10 +56,6 @@ namespace ScopeBoxes
         // Adjusted method to create a thick dotted line and return its ElementId
         public static ElementId CreateThickDottedLine(Document doc)
         {
-            //using (Transaction trans = new Transaction(doc, "Create Thick Dotted Line"))
-            //{
-            //    trans.Start();
-
             // Example of creating a line; adjust this to fit your actual line creation logic
             XYZ start = new XYZ(0, 0, 0); // Starting point of the line
             XYZ end = new XYZ(10, 0, 0); // Ending point of the line
@@ -79,11 +75,9 @@ namespace ScopeBoxes
                 detailLine.LineStyle = lineStyle;
             }
 
-            //trans.Commit();
-
             // Return the ElementId of the created line
             return detailLine?.Id ?? ElementId.InvalidElementId;
-            //}
+
         }
         public static ElementId CreateThickDottedLine(Document doc, DetailLine referenceLine)
         {
@@ -191,13 +185,6 @@ namespace ScopeBoxes
             return detailLine?.Id ?? ElementId.InvalidElementId;
         }
 
-        //// Method to ensure custom line style exists and return it
-        //private GraphicsStyle EnsureCustomLineStyle(Document doc)
-        //{
-        //    // Implementation to create or retrieve a custom line style
-        //    // Return a GraphicsStyle object for the line
-        //    return null; // Placeholder return, implement according to your needs
-        //}
 
 
         /// <summary>

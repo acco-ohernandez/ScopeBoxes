@@ -228,7 +228,7 @@ namespace ScopeBoxes
                 if (startPointIsInOverlapArea) // if the start of the line is inside two bounding boxes
                 {
                     // Use the CreateThickDottedLine method that takes two XYZ points
-                    ElementId lineId = Cmd_CreateThickDottedLine.CreateThickDottedLine(doc, startPoint, endPoint);
+                    ElementId lineId = Cmd_CreateNewLineStyle.CreateThickDottedLine(doc, startPoint, endPoint);
                     lineIdsList.Add(lineId);
                 }
             }
@@ -280,7 +280,7 @@ namespace ScopeBoxes
             // Example call to a method from Cmd_CreateThickDottedLine
             // Assuming an adjusted method in Cmd_CreateThickDottedLine that fits this use case
             // This is a conceptual call; adjust according to your actual implementation
-            _createdDetailLine = Cmd_CreateThickDottedLine.CreateThickDottedLine(doc);
+            _createdDetailLine = Cmd_CreateNewLineStyle.CreateThickDottedLine(doc);
         }
 
 
@@ -302,7 +302,7 @@ namespace ScopeBoxes
         internal static PushButtonData GetButtonData()
         {
             // use this method to define the properties for this command in the Revit ribbon
-            string buttonInternalName = "btn_Cmd_GridForMatchLines";
+            string buttonInternalName = "btn_GridForMatchLines";
             string buttonTitle = "Matchline \nReference Lines";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
