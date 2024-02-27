@@ -56,19 +56,10 @@ namespace ScopeBoxes
                 using (Transaction trans = new Transaction(doc, "Copy elem"))
                 {
                     trans.Start();
-                    //RotateElement90Degrees(doc, viewReference.Id);
-                    //RotateElement90Degrees(doc, viewReference);
                     RotateElementFromCenter(doc, viewReference.Id);
 
 
-                    ////XYZ point1 = viewReference.get_BoundingBox(doc.ActiveView).Min;
-                    ////XYZ point2 = viewReference.get_BoundingBox(doc.ActiveView).Max;
-                    //XYZ point1 = new XYZ(500, -15, 0);
-                    //XYZ point2 = new XYZ(500, -15, 0.01);
-                    //Line axis = Line.CreateBound(point1, point2);
-                    //double angle =1.55;
-                    //viewReference.Location.Rotate(axis, angle);
-                    ////viewReference.Location.Rotate(axis, angle);
+
 
                     foreach (Element scopeBox in orderScopeBoxes)
                     {
@@ -93,23 +84,6 @@ namespace ScopeBoxes
                             //if (Cmd_CreateMatchlineReference.StartPointIsInOverlapArea(translatedVectorPoint, scopeBoxBounds))
                             //{
                             var copiedElem = ElementTransformUtils.CopyElement(doc, viewReference.Id, translatedVectorPoint);
-
-                            //var e = doc.GetElement(copiedElem.First());
-                            //XYZ point1 = new XYZ(0, 10, 0);
-                            //XYZ point2 = new XYZ(0, 10, 10);
-                            //Line axis = Line.CreateBound(point1, point2);
-                            //double angle = 45;
-                            //e.Location.Rotate(axis, angle);
-
-
-                            //var fi = doc.GetElement(copiedElem.First()) as FamilyInstance;
-
-                            //XYZ point1 = new XYZ(0, 10, 0);
-                            //XYZ point2 = new XYZ(0, 10, 10);
-                            //Line axis = Line.CreateBound(point1, point2);
-                            //double angle = 45;
-                            //ElementTransformUtils.RotateElement(doc, fi.Id, axis, angle);
-                            //RotateElement90DegCCWise(doc, copiedElem);
 
                             viewReferenceCopies.Add(copiedElem.First());
                             //}
