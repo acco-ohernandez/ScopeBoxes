@@ -139,7 +139,7 @@ namespace ScopeBoxes
             return Result.Succeeded;
         }
 
-        private Element GetSelectedScopeBox(Document doc, UIApplication uiapp)
+        public static Element GetSelectedScopeBox(Document doc, UIApplication uiapp)
         {
             // Get the current selection
             Selection selection = uiapp.ActiveUIDocument.Selection;

@@ -167,10 +167,12 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Cmd_CleanDependentViewDims.cs" />
+    <Compile Include="Cmd_CreateViewReferencesDuplicates.cs" />
     <Compile Include="Cmd_GridDimensions.cs" />
     <Compile Include="Cmd_DependentViewsBrowserTree.cs" />
     <Compile Include="Cmd_CreateMatchlineReference.cs" />
     <Compile Include="Cmd_CreateNewLineStyle.cs" />
+    <Compile Include="Cmd_CreateViewReferencesAnotations_01_Test.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\DimensionTypesForm.xaml.cs">
       <DependentUpon>DimensionTypesForm.xaml</DependentUpon>

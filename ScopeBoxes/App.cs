@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Versioning;
+using System.Windows.Controls;
 using System.Windows.Markup;
 
 using Autodesk.Revit.ApplicationServices;
@@ -37,10 +38,8 @@ namespace ScopeBoxes
             PushButtonData btnData2 = Cmd_RenameScopeBoxes.GetButtonData();
             PushButtonData btnData3 = Cmd_GridDimensions.GetButtonData();
             PushButtonData btnData4 = Cmd_CleanDependentViewDims.GetButtonData();
-            //PushButtonData btnData5 = Cmd_CreateThickDottedLine.GetButtonData();
             PushButtonData btnData5 = Cmd_CreateMatchlineReference.GetButtonData();
-
-            //PushButtonData btnData6 = Cmd_DependentViewsBrowserTree.GetButtonData();
+            PushButtonData btnData6 = Cmd_CreateViewReferencesDuplicates.GetButtonData();
 
             // 4. Create buttons
             PushButton myButton1 = panel.AddItem(btnData1) as PushButton;
@@ -48,11 +47,17 @@ namespace ScopeBoxes
             PushButton myButton3 = panel.AddItem(btnData3) as PushButton;
             PushButton myButton4 = panel.AddItem(btnData4) as PushButton;
             PushButton myButton5 = panel.AddItem(btnData5) as PushButton;
-            //PushButton myButton6 = panel.AddItem(btnData5) as PushButton;
+            PushButton myButton6 = panel.AddItem(btnData6) as PushButton;
 
-            // NOTE:
-            // To create a new tool, copy lines 35 and 39 and rename the variables to "btnData3" and "myButton3". 
-            // Change the name of the tool in the arguments of line 
+
+            // Define the URL of the help page
+            string helpUrl = "http://www.autodesk.com";
+            // Create a new ContextualHelp object with the help type and URL
+            ContextualHelp help = new ContextualHelp(ContextualHelpType.Url, helpUrl);
+            // Set the contextual help on the button
+            myButton1.SetContextualHelp(help);
+            // Set ToolTip Image
+            myButton1.ToolTipImage = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"C:\Images\SampleImage_64x64.png"));
 
             return Result.Succeeded;
         }

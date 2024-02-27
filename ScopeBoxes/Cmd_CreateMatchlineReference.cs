@@ -234,7 +234,7 @@ namespace ScopeBoxes
             }
             return lineIdsList;
         }
-        private static bool StartPointIsInOverlapArea(XYZ startPoint, List<BoundingBoxXYZ> boundingBoxes)
+        public static bool StartPointIsInOverlapArea(XYZ startPoint, List<BoundingBoxXYZ> boundingBoxes)
         {
             int overlapCount = 0;
 
