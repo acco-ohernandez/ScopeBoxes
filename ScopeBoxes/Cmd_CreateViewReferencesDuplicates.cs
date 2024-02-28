@@ -30,12 +30,7 @@ namespace ScopeBoxes
             UIApplication uiapp = commandData.Application;
             Document doc = uiapp.ActiveUIDocument.Document;
 
-            var viewReference = new FilteredElementCollector(doc)
-                .OfCategory(BuiltInCategory.OST_ReferenceViewer)
-                .WhereElementIsNotElementType()
-                .Cast<Element>()
-                .FirstOrDefault();
-
+            var viewReference = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_ReferenceViewer).WhereElementIsNotElementType().Cast<Element>().FirstOrDefault();
 
             List<Element> selectedScopBoxes = Cmd_RenameScopeBoxes.GetSelectedScopeBoxes(doc);
             List<BoundingBoxXYZ> scopeBoxBounds = Cmd_CreateMatchlineReference.GetSelectedScopeBoxBounds(selectedScopBoxes);
@@ -53,44 +48,42 @@ namespace ScopeBoxes
             List<ElementId> viewReferenceCopies = new List<ElementId>();
             try
             {
-                using (Transaction trans = new Transaction(doc, "Copy elem"))
+                using (Transaction trans = new Transaction(doc, "Place View Refereces"))
                 {
                     trans.Start();
-                    RotateElementFromCenter(doc, viewReference.Id);
-
-
-
 
                     foreach (Element scopeBox in orderScopeBoxes)
                     {
-
-
-                        ExpandedBoundingBox scopeboxFourCorners = new ExpandedBoundingBox(scopeBox.get_BoundingBox(null));
-
-                        // Convert the corners into a list to iterate over
-                        List<XYZ> insertPoints = new List<XYZ>
-                                                    {
-                                                        scopeboxFourCorners.LeftTop,
-                                                        scopeboxFourCorners.RightTop,
-                                                        scopeboxFourCorners.LeftBottom,
-                                                        scopeboxFourCorners.RightBottom
-                                                    };
+                        List<XYZ> insertPoints = GetBoxForInsertPoints(scopeBox); // Corner points for insertion
+                        List<Element> otherScopeBoxes = selectedScopBoxes.Where(sb => sb.Id != scopeBox.Id).ToList(); // Other scope boxes for checking overlap
+                        BoundingBoxXYZ currentBox = scopeBox.get_BoundingBox(null); // Current scope box bounding box for reference
 
                         foreach (XYZ insertPoint in insertPoints)
                         {
-                            // Calculate the translation vector needed to move the original location to the new location
-                            XYZ translatedVectorPoint = insertPoint - originalLocation;
+                            List<string> overlapDirections = CheckOverlapsForCorner(insertPoint, otherScopeBoxes, currentBox);
 
-                            //if (Cmd_CreateMatchlineReference.StartPointIsInOverlapArea(translatedVectorPoint, scopeBoxBounds))
-                            //{
-                            var copiedElem = ElementTransformUtils.CopyElement(doc, viewReference.Id, translatedVectorPoint);
+                            // Only proceed if there is an overlap
+                            if (overlapDirections.Count > 0)
+                            {
+                                // Insert a copy for each direction of overlap detected
+                                foreach (var direction in overlapDirections)
+                                {
+                                    var copiedElem = ElementTransformUtils.CopyElement(doc, viewReference.Id, insertPoint - originalLocation);
+                                    ElementId copiedElementId = copiedElem.First();
 
-                            viewReferenceCopies.Add(copiedElem.First());
-                            //}
+                                    // Rotate the element for a vertical copy, if needed
+                                    if (direction == "Vertical")
+                                    {
+                                        RotateElementFromCenter(doc, copiedElementId);
+                                    }
 
+                                    // Add the copy to the list
+                                    viewReferenceCopies.Add(copiedElementId);
+                                }
+                            }
                         }
-
                     }
+
                     trans.Commit();
                 }
                 //TaskDialog.Show("Info", $"Results");
@@ -103,6 +96,67 @@ namespace ScopeBoxes
             // Return the result indicating success
             return Result.Succeeded;
         }
+        private List<string> CheckOverlapsForCorner(XYZ cornerPoint, List<Element> allScopeBoxes, BoundingBoxXYZ currentBox)
+        {
+            List<string> overlaps = new List<string>();
+
+            foreach (Element scopeBox in allScopeBoxes)
+            {
+                BoundingBoxXYZ bbox = scopeBox.get_BoundingBox(null);
+                if (cornerPoint.X > bbox.Min.X && cornerPoint.X < bbox.Max.X &&
+                    cornerPoint.Y > bbox.Min.Y && cornerPoint.Y < bbox.Max.Y)
+                {
+                    // The corner is inside this scope box; now determine the specific overlaps
+                    if (cornerPoint.Y >= currentBox.Min.Y && cornerPoint.Y <= currentBox.Max.Y)
+                    {
+                        overlaps.Add("Horizontal");
+                    }
+                    if (cornerPoint.X >= currentBox.Min.X && cornerPoint.X <= currentBox.Max.X)
+                    {
+                        overlaps.Add("Vertical");
+                    }
+                }
+            }
+
+            return overlaps;
+        }
+
+
+        private static List<XYZ> GetBoxForInsertPoints(Element scopeBox)
+        {
+            ExpandedBoundingBox scopeboxFourCorners = new ExpandedBoundingBox(scopeBox.get_BoundingBox(null));
+
+            // Convert the corners into a list to iterate over
+            List<XYZ> insertPoints = new List<XYZ>
+                                                    {
+                                                        scopeboxFourCorners.LeftTop,
+                                                        scopeboxFourCorners.RightTop,
+                                                        scopeboxFourCorners.LeftBottom,
+                                                        scopeboxFourCorners.RightBottom
+                                                    };
+            return insertPoints;
+        }
+        private static List<XYZ> GetBoxSidesCentertPoints(Element scopeBox)
+        {
+            GetLeftRightTopBottomCenters scopeboxFourCorners = new GetLeftRightTopBottomCenters(scopeBox.get_BoundingBox(null));
+
+            // Convert the corners into a list to iterate over
+            List<XYZ> insertPoints = new List<XYZ>
+                                                    {
+                                                        scopeboxFourCorners.LeftCenter,
+                                                        scopeboxFourCorners.RightCenter,
+                                                        scopeboxFourCorners.TopCenter,
+                                                        scopeboxFourCorners.BottomCenter
+                                                    };
+            return insertPoints;
+        }
+
+
+        /// <summary>
+        /// Rotates elements with bounding box 90 degrees CounterClockWise
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <param name="elementId"></param>
         public void RotateElementFromCenter(Document doc, ElementId elementId)
         {
             Element element = doc.GetElement(elementId);
@@ -129,243 +183,6 @@ namespace ScopeBoxes
             }
         }
 
-        public void RotateElement90Degrees(Document doc, Element element)
-        {
-            if (element.Location == null)
-                TaskDialog.Show("Info", "Element location is null");
-
-            // Check if the element has a Location property that can be rotated
-            if (element.Location is LocationPoint locationPoint)
-            {
-                // Define the axis of rotation (here, global Z-axis at the element's location)
-                XYZ point1 = locationPoint.Point;
-                XYZ point2 = point1 + XYZ.BasisZ; // Adding Z basis vector to create a vertical line
-
-                Line rotationAxis = Line.CreateBound(point1, point2);
-
-                // Convert 90 degrees to radians
-                double angleRadians = 90 * (Math.PI / 180);
-
-                // Start a new transaction to apply changes in the document
-                using (Transaction tx = new Transaction(doc))
-                {
-                    tx.Start("Rotate Element 90 Degrees CCW");
-
-                    // Rotate the element counterclockwise by 90 degrees
-                    locationPoint.Rotate(rotationAxis, angleRadians);
-
-                    tx.Commit(); // Commit the changes
-                }
-            }
-        }
-        public void RotateElement90Degrees2(Document doc, ElementId elementId)
-        {
-            // Retrieve the element from its ID
-            Element element = doc.GetElement(elementId);
-
-            // Check if the element has a Location property that can be rotated
-            if (element.Location is LocationPoint locationPoint)
-            {
-                // Define the axis of rotation (here, global Z-axis at the element's location)
-                XYZ point1 = locationPoint.Point;
-                XYZ point2 = point1 + XYZ.BasisZ; // Adding Z basis vector to create a vertical line
-
-                Line rotationAxis = Line.CreateBound(point1, point2);
-
-                // Convert 90 degrees to radians
-                double angleRadians = 90 * (Math.PI / 180);
-
-                // Start a new transaction to apply changes in the document
-                using (Transaction tx = new Transaction(doc))
-                {
-                    tx.Start("Rotate Element 90 Degrees CCW");
-
-                    // Rotate the element counterclockwise by 90 degrees
-                    locationPoint.Rotate(rotationAxis, angleRadians);
-
-                    tx.Commit(); // Commit the changes
-                }
-            }
-        }
-        private static void RotateElement90DegCCWise(Document doc, ICollection<ElementId> copiedElements)
-        {
-            // Ensure there's at least one element in the collection
-            if (copiedElements == null || copiedElements.Count == 0)
-            {
-                TaskDialog.Show("Error", "No elements to rotate.");
-                return;
-            }
-
-            // Get the first copied element ID
-            ElementId copiedElementId = copiedElements.First();
-
-
-            // Get the element to rotate
-            Element element = doc.GetElement(copiedElementId);
-            if (element == null)
-            {
-                TaskDialog.Show("Error", "Element not found.");
-                return;
-            }
-
-            Location location = element.Location;
-            if (!(location is LocationPoint locationPoint))
-            {
-                TaskDialog.Show("Error", "Element cannot be rotated.");
-                return;
-            }
-
-            // Define the rotation axis (vertical axis through the element's location point)
-            XYZ point = locationPoint.Point;
-            XYZ axis = new XYZ(0, 0, 1); // Z-axis for vertical rotation
-
-            // Create the rotation axis
-            Line rotationAxis = Line.CreateBound(point, point + axis);
-
-            // Rotate the element 90 degrees counterclockwise (in radians)
-            double angle = Math.PI / 2; // 90 degrees in radians
-
-            // Perform the rotation
-            ElementTransformUtils.RotateElement(doc, copiedElementId, rotationAxis, angle);
-        }
-
-        private static void RotateElement90DegCCWise3(Document doc, ICollection<ElementId> elementIds)
-        {
-            ElementId elementId = elementIds.First(); // Assuming there's at least one element.
-            Element element = doc.GetElement(elementId);
-            Location location = element.Location;
-
-            // Check if the location is a point.
-            if (location is LocationPoint locationPoint)
-            {
-                using (Transaction trans = new Transaction(doc, "Rotate Element"))
-                {
-                    trans.Start();
-
-                    XYZ rotationPoint = locationPoint.Point; // The point around which to rotate.
-                    XYZ axis = new XYZ(rotationPoint.X, rotationPoint.Y, rotationPoint.Z + 10); // Axis of rotation.
-
-                    // Creating a line that represents the axis of rotation.
-                    Line rotationAxis = Line.CreateBound(rotationPoint, axis);
-
-                    // Rotate the element 90 degrees counterclockwise (in radians).
-                    double angle = Math.PI / 2; // 90 degrees in radians.
-
-                    ElementTransformUtils.RotateElement(doc, elementId, rotationAxis, angle);
-
-                    trans.Commit();
-                }
-            }
-            else
-            {
-                TaskDialog.Show("Error", "The element does not have a LocationPoint and cannot be rotated this way.");
-            }
-        }
-
-        private static void RotateElement90DegCCWise2(Document doc, ICollection<ElementId> _element)
-        {
-            // Assuming '_element' is the collection returned from ElementTransformUtils.CopyElement
-            // and you've already checked that it contains at least one element.
-            ElementId copiedElementId = _element.First();
-
-
-            // Get the copied element
-            Element copiedElement = doc.GetElement(copiedElementId);
-
-            // Try to cast the Location of the copied element to a LocationCurve
-            LocationCurve curve = copiedElement.Location as LocationCurve;
-            if (curve != null)
-            {
-                // Define the rotation axis
-                Curve line = curve.Curve;
-                XYZ startPoint = line.GetEndPoint(0); // Start point of the curve
-                XYZ endPoint = new XYZ(startPoint.X, startPoint.Y, startPoint.Z + 10); // End point of the axis, 10 units up in Z direction
-
-                // Create a line that represents the axis of rotation
-                Line axis = Line.CreateBound(startPoint, endPoint);
-
-                // Rotate the element 90 degrees counterclockwise (in radians)
-                double angle = Math.PI / 2; // 90 degrees in radians
-                bool rotated = curve.Rotate(axis, angle);
-
-                // Check if the rotation was successful
-                if (rotated)
-                {
-
-                    TaskDialog.Show("Rotation", "Element rotated successfully.");
-                }
-                else
-                {
-
-                    TaskDialog.Show("Rotation", "Rotation failed.");
-                }
-            }
-            else
-            {
-                // If the copied element doesn't have a LocationCurve, it cannot be rotated in this way.
-                TaskDialog.Show("Error", "The copied element does not have a LocationCurve and cannot be rotated.");
-
-            }
-
-
-        }
-        private static void RotateElement(Document doc, ElementId elementId, XYZ point, XYZ axis, double angle)
-        {
-            using (Transaction tx = new Transaction(doc))
-            {
-                tx.Start("Rotate Element");
-
-                // Create the rotation axis
-                Line rotationAxis = Line.CreateBound(point, point + axis);
-
-                // Rotate the element
-                ElementTransformUtils.RotateElement(doc, elementId, rotationAxis, angle);
-
-                tx.Commit();
-            }
-        }
-
-
-        public static List<Element> GetAllMatchlines(Document doc)
-        {
-            // Create a new filtered element collector in the given document
-            FilteredElementCollector collector = new FilteredElementCollector(doc);
-
-            // Apply a category filter for OST_Matchline
-            ElementCategoryFilter filter = new ElementCategoryFilter(BuiltInCategory.OST_Matchline);
-
-            // Apply the filter to the collector and return the results
-            List<Element> matchlines = collector.WherePasses(filter).ToElements().ToList();
-
-            return matchlines;
-        }
-        private static void CreateAnnotationReferenceLink(Document doc, ElementId matchlineId, string targetViewName)
-        {
-            // Retrieve the matchline element as a CurveElement
-            CurveElement matchlineElement = doc.GetElement(matchlineId) as CurveElement;
-            if (matchlineElement == null) throw new InvalidOperationException("Matchline not found.");
-
-            // Get the curve from the CurveElement, which could be a Line, Arc, etc.
-            Curve matchlineCurve = matchlineElement.GeometryCurve;
-            if (matchlineCurve == null) throw new InvalidOperationException("Matchline curve not found.");
-
-            // Determine placement location for the annotation (e.g., end of the matchline)
-            XYZ placementLocation = matchlineCurve.GetEndPoint(0); // Or calculate specific placement
-
-            // Define text note options (customize as needed)
-            TextNoteOptions opts = new TextNoteOptions()
-            {
-                VerticalAlignment = VerticalTextAlignment.Middle,
-                HorizontalAlignment = HorizontalTextAlignment.Left
-            };
-
-            // Ensure a transaction is started before creating the text note
-
-            // Create the text note next to the matchline
-            TextNote note = TextNote.Create(doc, doc.ActiveView.Id, placementLocation, $"See View: {targetViewName}", opts);
-
-
-        }
 
         internal static PushButtonData GetButtonData()
         {
@@ -411,7 +228,37 @@ namespace ScopeBoxes
             LeftTop = new XYZ(min.X + expandDistance, max.Y - expandDistance, max.Z);
             RightTop = new XYZ(max.X - expandDistance, max.Y - expandDistance, max.Z);
         }
+    }
 
+    public class GetLeftRightTopBottomCenters
+    {
+        public XYZ LeftCenter { get; private set; }
+        public XYZ RightCenter { get; private set; }
+        public XYZ TopCenter { get; private set; }
+        public XYZ BottomCenter { get; private set; }
+
+        public GetLeftRightTopBottomCenters(BoundingBoxXYZ boundingBox)
+        {
+            // Calculate the expanded corners
+            GetBoxCenterPoints(boundingBox);
+        }
+        private void GetBoxCenterPoints(BoundingBoxXYZ boundingBox)
+        {
+            XYZ min = boundingBox.Min;
+            XYZ max = boundingBox.Max;
+
+            // Center point of the left side
+            LeftCenter = new XYZ(min.X, (min.Y + max.Y) / 2.0, (min.Z + max.Z) / 2.0);
+
+            // Center point of the right side
+            RightCenter = new XYZ(max.X, (min.Y + max.Y) / 2.0, (min.Z + max.Z) / 2.0);
+
+            // Center point of the top side
+            TopCenter = new XYZ((min.X + max.X) / 2.0, max.Y, (min.Z + max.Z) / 2.0);
+
+            // Center point of the bottom side
+            BottomCenter = new XYZ((min.X + max.X) / 2.0, min.Y, (min.Z + max.Z) / 2.0);
+        }
     }
 
 }
