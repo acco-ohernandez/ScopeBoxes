@@ -168,6 +168,7 @@
     <Compile Include="App.cs" />
     <Compile Include="Cmd_CleanDependentViewDims.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates.cs" />
+    <Compile Include="Cmd_CreateViewReferencesDuplicates_03_ToManyCopies.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates_02_CenterCopies.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates_01.cs" />
     <Compile Include="Cmd_GridDimensions.cs" />
