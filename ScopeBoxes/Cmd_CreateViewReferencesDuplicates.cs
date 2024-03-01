@@ -320,7 +320,7 @@ namespace ScopeBoxes
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btn_CreateViewReferencesAnotations";
-            string buttonTitle = "ViewReference \nAnotations";
+            string buttonTitle = "View Reference \nAnotations";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -328,7 +328,7 @@ namespace ScopeBoxes
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Blue_32,
                 Properties.Resources.Blue_16,
-                "Cmd_CreateViewReferencesAnotations will be used to create view reverence anotaions.");
+                "Cmd_CreateViewReferencesAnotations will be used to create view reverence copies at each corner of overlapped scope boxes.");
 
             return myButtonData1.Data;
         }
