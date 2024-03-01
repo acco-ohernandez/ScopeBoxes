@@ -167,6 +167,7 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Cmd_CleanDependentViewDims.cs" />
+    <Compile Include="Cmd_CreateViewReferencesDuplicates_04_needsCleanup.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates_03_ToManyCopies.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates_02_CenterCopies.cs" />

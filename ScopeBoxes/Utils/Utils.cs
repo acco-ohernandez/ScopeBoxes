@@ -32,4 +32,35 @@ namespace ScopeBoxes
             return null;
         }
     }
+
+    public class GetLeftRightTopBottomCenters
+    {
+        public XYZ LeftCenter { get; private set; }
+        public XYZ RightCenter { get; private set; }
+        public XYZ TopCenter { get; private set; }
+        public XYZ BottomCenter { get; private set; }
+
+        public GetLeftRightTopBottomCenters(BoundingBoxXYZ boundingBox)
+        {
+            // Calculate the expanded corners
+            GetBoxCenterPoints(boundingBox);
+        }
+        private void GetBoxCenterPoints(BoundingBoxXYZ boundingBox)
+        {
+            XYZ min = boundingBox.Min;
+            XYZ max = boundingBox.Max;
+
+            // Center point of the left side
+            LeftCenter = new XYZ(min.X, (min.Y + max.Y) / 2.0, (min.Z + max.Z) / 2.0);
+
+            // Center point of the right side
+            RightCenter = new XYZ(max.X, (min.Y + max.Y) / 2.0, (min.Z + max.Z) / 2.0);
+
+            // Center point of the top side
+            TopCenter = new XYZ((min.X + max.X) / 2.0, max.Y, (min.Z + max.Z) / 2.0);
+
+            // Center point of the bottom side
+            BottomCenter = new XYZ((min.X + max.X) / 2.0, min.Y, (min.Z + max.Z) / 2.0);
+        }
+    }
 }
