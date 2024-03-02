@@ -57,7 +57,7 @@ namespace ScopeBoxes
             // Set the contextual help on the button
             myButton1.SetContextualHelp(help);
             // Set ToolTip Image
-            myButton1.ToolTipImage = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"C:\Images\SampleImage_64x64.png"));
+            //myButton1.ToolTipImage = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"C:\Images\SampleImage_64x64.png"));
 
             return Result.Succeeded;
         }

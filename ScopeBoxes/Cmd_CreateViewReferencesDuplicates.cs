@@ -33,7 +33,7 @@ namespace ScopeBoxes
             Element viewReference = GetFirstViewReference(doc);
             if (viewReference == null)
             {
-                TaskDialog.Show("Error", "No View Reference found in the document.");
+                TaskDialog.Show("Error", "No View Reference found in the current view.");
                 return Result.Failed;
             }
 
@@ -60,7 +60,7 @@ namespace ScopeBoxes
 
         private Element GetFirstViewReference(Document doc)
         {
-            return new FilteredElementCollector(doc)
+            return new FilteredElementCollector(doc, doc.ActiveView.Id)
                 .OfCategory(BuiltInCategory.OST_ReferenceViewer)
                 .WhereElementIsNotElementType()
                 .FirstOrDefault();
