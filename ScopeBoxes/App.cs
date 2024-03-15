@@ -40,6 +40,7 @@ namespace ScopeBoxes
             PushButtonData btnData4 = Cmd_CleanDependentViewDims.GetButtonData();
             PushButtonData btnData5 = Cmd_CreateMatchlineReference.GetButtonData();
             PushButtonData btnData6 = Cmd_CreateViewReferencesDuplicates.GetButtonData();
+            PushButtonData btnData7 = Cmd_ScaleCalculator.GetButtonData();
 
             // 4. Create buttons
             PushButton myButton1 = panel.AddItem(btnData1) as PushButton;
@@ -48,6 +49,7 @@ namespace ScopeBoxes
             PushButton myButton4 = panel.AddItem(btnData4) as PushButton;
             PushButton myButton5 = panel.AddItem(btnData5) as PushButton;
             PushButton myButton6 = panel.AddItem(btnData6) as PushButton;
+            PushButton myButton7 = panel.AddItem(btnData7) as PushButton;
 
 
             // Define the URL of the help page

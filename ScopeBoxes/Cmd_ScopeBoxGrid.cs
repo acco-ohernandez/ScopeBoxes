@@ -44,10 +44,13 @@ namespace ScopeBoxes
                 double newScopeBoxX = userScopeBoxBoundingBox.Max.X - userScopeBoxBoundingBox.Min.X;
                 double newScopeBoxY = userScopeBoxBoundingBox.Max.Y - userScopeBoxBoundingBox.Min.Y;
 
+
                 // ================== Form data ===================
                 // Access the controls from the form
                 ScopeBoxGridForm form = new ScopeBoxGridForm();
                 form.txtBaseScopeBoxName.Text = userDrawnScopeBox.Name;
+                form.txtHorizontalOverlap.Text = Utils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 5).ToString();
+                form.txtVerticalOverlap.Text = Utils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 5).ToString();
                 form.ShowDialog();
 
                 // Read values from textboxes

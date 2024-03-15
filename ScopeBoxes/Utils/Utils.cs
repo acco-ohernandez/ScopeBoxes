@@ -31,6 +31,24 @@ namespace ScopeBoxes
 
             return null;
         }
+
+        /// <summary>
+        /// Must pass in a View and the required distance in feet at a known scale.
+        /// Example 1: Revit view scale = 48 => 2 feet
+        /// Example 2: offSet = Utils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 2);
+        /// This will returned the value needed at the current view scale
+        /// </summary>
+        /// <param name="currentView"></param>
+        /// <param name="baseNum"></param>
+        /// <returns></returns>
+        public static double GetViewScaleMultipliedValue(View currentView, double baseScaleNum, double baseNum)
+        {
+            double viewScale = currentView.Scale;
+            //double baseScaleNum = 48;
+            double multiplier = baseScaleNum / viewScale;
+            double calculatedDistance = baseNum / multiplier;
+            return calculatedDistance;
+        }
     }
 
     public class GetLeftRightTopBottomCenters

@@ -44,7 +44,7 @@ namespace ScopeBoxes
             using (Transaction t = new Transaction(doc))
             {
                 t.Start("Create grid dimension");
-
+                double? offSet = null;
                 if (!SetRequiredGridsDimentionType(doc))
                 {
                     TaskDialog.Show("Info", "No Dimention Type Template selected");
@@ -58,7 +58,9 @@ namespace ScopeBoxes
                     var firstRowXMax = GetTheFirstRowOfScopeBoxesMax(selectedScopeBoxes);
                     var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
 
-                    double? offSet = GetFeetOffSet(); // get the OffSet from the form
+                    //double? offSet = GetFeetOffSet(); // get the OffSet from the form
+                    offSet = Utils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 2);
+
                     double offSetFeet;
                     if (offSet == null)
                     {
@@ -85,6 +87,15 @@ namespace ScopeBoxes
                     CreateDimensions(doc, gridsCollector, new XYZ(0, 0, 0), new XYZ(0, 0, 0), 2, -2, doc.ActiveView);
                 }
 
+                double? roundedNumber = offSet.HasValue ? Math.Round(offSet.Value, 1) : (double?)null;
+
+                string messageinfo = roundedNumber.HasValue
+                    ? $"The dimensions were placed {roundedNumber.Value} feet outside of scopeboxes"
+                    : "The dimensions offset value is not available.";
+
+                TaskDialog.Show("Info", messageinfo);
+
+                //TaskDialog.Show("Info", $"The dimensions were placed {offSet} feet outside of scope");
                 t.Commit();
             }
 
@@ -192,7 +203,7 @@ namespace ScopeBoxes
             // If the difference in Y coordinates is less than the tolerance, it's considered horizontal.
             return deltaX < tolerance || deltaY < tolerance;
         }
-        public static double? GetFeetOffSet()
+        public static double? GetFeetOffSet(Document doc)
         {
             var offSetForm = new DimOffSet_Form();
             offSetForm.ShowDialog();
