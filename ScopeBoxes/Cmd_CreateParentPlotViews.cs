@@ -48,6 +48,7 @@ namespace RevitAddinTesting
                                 .OfClass(typeof(View))
                                 .Cast<View>()
                                 .Where(v => v.IsTemplate)
+                                .OrderBy(v => v.Name)
                                 .ToList();
 
             // Prompt the user to select a view template and levels
