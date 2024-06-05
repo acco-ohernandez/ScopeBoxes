@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>RevitAddinTesting</Name>
+    <Assembly>00_RevitAddinTesting.dll</Assembly>
+    <FullClassName>RevitAddinTesting.App</FullClassName>
+    <ClientId>8da60550-1513-4ee5-aca1-97cdf2f67dea</ClientId>
+    <VendorId>com.ACCOES</VendorId>
+    <VendorDescription>ACCO ENGINEERED SYSTEMS, ACCOES.COM</VendorDescription>
+  </AddIn>
+</RevitAddIns>

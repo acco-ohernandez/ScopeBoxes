@@ -13,14 +13,14 @@ using Autodesk.Revit.UI;
 
 #endregion
 
-namespace ScopeBoxes
+namespace RevitAddinTesting
 {
     internal class App : IExternalApplication
     {
         public Result OnStartup(UIControlledApplication app)
         {
             // 1. Create ribbon tab
-            string tabName = "Add-in Testing";
+            string tabName = "Addin_Testing";
             try
             {
                 app.CreateRibbonTab(tabName);
@@ -41,6 +41,7 @@ namespace ScopeBoxes
             PushButtonData btnData5 = Cmd_CreateMatchlineReference.GetButtonData();
             PushButtonData btnData6 = Cmd_CreateViewReferencesDuplicates.GetButtonData();
             PushButtonData btnData7 = Cmd_ScaleCalculator.GetButtonData();
+            PushButtonData btnData8 = Cmd_RemoveRevisionsNotOnSheet.GetButtonData();
 
             // 4. Create buttons
             PushButton myButton1 = panel.AddItem(btnData1) as PushButton;
@@ -50,6 +51,13 @@ namespace ScopeBoxes
             PushButton myButton5 = panel.AddItem(btnData5) as PushButton;
             PushButton myButton6 = panel.AddItem(btnData6) as PushButton;
             PushButton myButton7 = panel.AddItem(btnData7) as PushButton;
+            PushButton myButton8 = panel.AddItem(btnData8) as PushButton;
+
+            PushButtonData btnData9 = Cmd_CreateCatalogPage.GetButtonData();
+            PushButton myButton9 = panel.AddItem(btnData9) as PushButton;
+
+            PushButtonData btnData10 = Cmd_CreateParentPlotViews.GetButtonData();
+            PushButton myButton10 = panel.AddItem(btnData10) as PushButton;
 
 
             // Define the URL of the help page

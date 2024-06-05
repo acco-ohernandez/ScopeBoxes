@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 
 using Autodesk.Revit.UI;
 
-namespace ScopeBoxes
+namespace RevitAddinTesting
 {
     internal class ButtonDataClass
     {
@@ -26,7 +26,11 @@ namespace ScopeBoxes
             Data.Image = BitmapToImageSource(smallImage);
 
             // set command availability
-            Data.AvailabilityClassName = "ScopeBoxes.CommandAvailability";
+            Data.AvailabilityClassName = $"{GetNamespace()}.CommandAvailability";
+        }
+        public static string GetNamespace()
+        {
+            return typeof(ButtonDataClass).Namespace;
         }
         public static Assembly GetAssembly()
         {

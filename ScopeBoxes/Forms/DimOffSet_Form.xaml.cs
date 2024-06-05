@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace ScopeBoxes.Forms
+namespace RevitAddinTesting.Forms
 {
     /// <summary>
     /// Interaction logic for DimOffSet_Form.xaml

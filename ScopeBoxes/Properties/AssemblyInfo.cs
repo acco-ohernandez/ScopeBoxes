@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ScopeBoxes")]
-[assembly: AssemblyDescription("Revit Add-In Description for ScopeBoxes")]
+[assembly: AssemblyTitle("RevitAddinTesting")]
+[assembly: AssemblyDescription("Revit Add-In Description for RevitAddinTesting")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("YOUR COMPANY NAME")]
-[assembly: AssemblyProduct("ScopeBoxes Revit C# .NET Add-In")]
-[assembly: AssemblyCopyright("Copyright (C) 2023 by YOUR NAME, YOUR COMPANY")]
+[assembly: AssemblyCompany("ACCO ENGINNERED SYSTEMS")]
+[assembly: AssemblyProduct("RevitAddinTesting Revit C# .NET Add-In")]
+[assembly: AssemblyCopyright("Copyright (C) 2023 by ORLANDO R HERNANDEZ, ACCOES")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

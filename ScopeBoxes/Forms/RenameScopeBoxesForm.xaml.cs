@@ -8,7 +8,7 @@ using System.Windows;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
-namespace ScopeBoxes.Forms
+namespace RevitAddinTesting.Forms
 {
     public partial class RenameScopeBoxesForm : Window
     {

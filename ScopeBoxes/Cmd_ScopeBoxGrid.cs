@@ -13,11 +13,11 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 
-using ScopeBoxes.Forms;
+using RevitAddinTesting.Forms;
 
 #endregion
 
-namespace ScopeBoxes
+namespace RevitAddinTesting
 {
     [Transaction(TransactionMode.Manual)]
     public class Cmd_ScopeBoxGrid : IExternalCommand

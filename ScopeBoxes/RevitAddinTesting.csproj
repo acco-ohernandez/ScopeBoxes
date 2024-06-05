@@ -14,8 +14,8 @@
     <ProjectGuid>{B10071A1-8B72-498C-B02F-6AB32CE14147}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ScopeBoxes</RootNamespace>
-    <AssemblyName>00_ScopeBoxes</AssemblyName>
+    <RootNamespace>RevitAddinTesting</RootNamespace>
+    <AssemblyName>00_RevitAddinTesting</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -167,6 +167,14 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Cmd_CleanDependentViewDims.cs" />
+    <Compile Include="Cmd_CreateCatalogPage_Original.cs" />
+    <Compile Include="Cmd_RemoveRevisionsNotOnSheet.cs" />
+    <Compile Include="Cmd_CreateCatalogPage.cs" />
+    <Compile Include="Utils\Command_Template.cs" />
+    <Compile Include="Forms\LevelsParentViewsForm.xaml.cs">
+      <DependentUpon>LevelsParentViewsForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Cmd_CreateParentPlotViews.cs" />
     <Compile Include="Cmd_ScaleCalculator.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates_04_needsCleanup.cs" />
     <Compile Include="Cmd_CreateViewReferencesDuplicates.cs" />
@@ -226,7 +234,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ScopeBoxes.addin" />
+    <Content Include="00_RevitAddinTesting.addin" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Forms\DimensionTypesForm.xaml">
@@ -234,6 +242,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Forms\DimOffSet_Form.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\LevelsParentViewsForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

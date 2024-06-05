@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScopeBoxes", "ScopeBoxes\ScopeBoxes.csproj", "{B10071A1-8B72-498C-B02F-6AB32CE14147}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevitAddinTesting", "ScopeBoxes\RevitAddinTesting.csproj", "{B10071A1-8B72-498C-B02F-6AB32CE14147}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ScopeBoxesAndDimensions", "ScopeBoxesAndDimensions\ScopeBoxesAndDimensions.vdproj", "{31DFA1AA-ECB2-427D-90FE-5C3404FBD976}"
 EndProject
