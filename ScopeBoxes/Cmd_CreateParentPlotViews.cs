@@ -99,7 +99,7 @@ namespace RevitAddinTesting
 
             do
             {
-                newName = $"{baseName} dup-{suffix}";
+                newName = $"{baseName}({suffix})";
                 suffix++;
             }
             while (ViewNameExists(doc, newName));
