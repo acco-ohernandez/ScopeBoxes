@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Autodesk.Revit.DB;
+﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+
+using System;
+using System.Linq;
 
 namespace RevitAddinTesting
 {
-    internal static class Utils
+    public static class Utils
     {
         internal static RibbonPanel CreateRibbonPanel(UIControlledApplication app, string tabName, string panelName)
         {
@@ -49,6 +46,48 @@ namespace RevitAddinTesting
             double calculatedDistance = baseNum / multiplier;
             return calculatedDistance;
         }
+
+        public static ElementId GetViewSheetIdByName(Document doc, string viewSheetName)
+        {
+            // Create a filtered element collector for ViewSheets
+            FilteredElementCollector collector = new FilteredElementCollector(doc)
+                                                 .OfClass(typeof(ViewSheet));
+
+            // Find the ViewSheet by its name
+            ViewSheet viewSheet = collector
+                                    .Cast<ViewSheet>()
+                                    .FirstOrDefault(vs => vs.Name.Equals(viewSheetName, StringComparison.OrdinalIgnoreCase));
+
+            // Return the Id of the ViewSheet, or ElementId.InvalidElementId if not found
+            return viewSheet?.Id ?? ElementId.InvalidElementId;
+        }
+
+
+        public static ViewSheet GetViewSheetByName(Document doc, string viewSheetName)
+        {
+            // Create a filtered element collector for ViewSheets
+            FilteredElementCollector collector = new FilteredElementCollector(doc)
+                                                 .OfClass(typeof(ViewSheet));
+
+            // Find the ViewSheet by its name
+            ViewSheet viewSheet = collector
+                                    .Cast<ViewSheet>()
+                                    .FirstOrDefault(vs => vs.Name.Equals(viewSheetName, System.StringComparison.OrdinalIgnoreCase));
+
+            return viewSheet;
+        }
+
+        public static ViewSheet GetViewSheetById(Document doc, ElementId viewSheetId)
+        {
+            // Get the element from the document using the provided ElementId
+            Element element = doc.GetElement(viewSheetId);
+
+            // Cast the element to ViewSheet and return it
+            ViewSheet viewSheet = element as ViewSheet;
+
+            return viewSheet;
+        }
+
     }
 
     public class GetLeftRightTopBottomCenters
