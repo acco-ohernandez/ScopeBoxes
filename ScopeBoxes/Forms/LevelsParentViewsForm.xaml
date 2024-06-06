@@ -29,8 +29,8 @@
             </Grid.RowDefinitions>
             <TextBlock Text="Levels" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
             <CheckBox x:Name="ChkBox_SelectAllLevels" Content="Select All" Grid.Row="1" Margin="5,0,0,5" Checked="ChkBox_SelectAllLevels_Checked" Unchecked="ChkBox_SelectAllLevels_Unchecked" />
-            <ListBox x:Name="LevelsListBox" SelectionMode="Multiple" BorderBrush="Gray" BorderThickness="1" Padding="5" 
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2">
+            <ListBox x:Name="LevelsListBox" SelectionMode="Extended" BorderBrush="Gray" BorderThickness="1" Padding="5" 
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" PreviewMouseDown="ListBox_PreviewMouseDown">
                 <ListBox.ItemTemplate >
                     <DataTemplate>
                         <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="5" />
@@ -45,13 +45,17 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Text="View Templates" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
-            <ComboBox x:Name="FilterComboBox" SelectionChanged="FilterComboBox_SelectionChanged" ToolTip="Filter view templates by name. &#10;The filter is based on the unique prefix of the ViewTemplate Name." Margin="0,0,0,5" Grid.Row="1" />
-            <ListBox x:Name="ViewTemplatesListBox" SelectionMode="Single" BorderBrush="Gray" BorderThickness="1" Padding="5" 
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" SelectionChanged="ViewTemplatesListBox_SelectionChanged">
+            <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center">
+                <TextBlock Text="View Templates" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
+                <CheckBox x:Name="WildCardCheckBox" Content="* WildCard" Margin="10,0,0,0" VerticalAlignment="Center" IsChecked="{Binding IsWildCardEnabled, Mode=TwoWay}" />
+                <CheckBox x:Name="ChkBox_SelectAllTemplates" Content="Select All" Margin="10,0,0,0" VerticalAlignment="Center" Checked="ChkBox_SelectAllTemplates_Checked" Unchecked="ChkBox_SelectAllTemplates_Unchecked" />
+            </StackPanel>
+            <ComboBox x:Name="FilterComboBox" IsEditable="True" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter view templates by name. &#10;The filter is based on the unique prefix of the ViewTemplate Name." Margin="0,0,0,5" Grid.Row="1" />
+            <ListBox x:Name="ViewTemplatesListBox" SelectionMode="Extended" BorderBrush="Gray" BorderThickness="1" Padding="5" 
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" SelectionChanged="ViewTemplatesListBox_SelectionChanged" PreviewMouseDown="ListBox_PreviewMouseDown">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="5" IsEnabled="False"/>
+                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="5"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -94,8 +98,8 @@
             </Grid.RowDefinitions>
             <TextBlock Text="Levels" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
             <CheckBox x:Name="ChkBox_SelectAllLevels" Content="Select All" Grid.Row="1" Margin="5,0,0,5" Checked="ChkBox_SelectAllLevels_Checked" Unchecked="ChkBox_SelectAllLevels_Unchecked" />
-            <ListBox x:Name="LevelsListBox" SelectionMode="Multiple" BorderBrush="Gray" BorderThickness="1" Padding="5" 
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2">
+            <ListBox x:Name="LevelsListBox" SelectionMode="Extended" BorderBrush="Gray" BorderThickness="1" Padding="5" 
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" PreviewMouseDown="ListBox_PreviewMouseDown">
                 <ListBox.ItemTemplate >
                     <DataTemplate>
                         <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="5" />
@@ -110,13 +114,16 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBlock Text="View Templates" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
-            <ComboBox x:Name="FilterComboBox" SelectionChanged="FilterComboBox_SelectionChanged" ToolTip="Filter view templates by name. &#10;The filter is based on the unique prefix of the ViewTemplate Name." Margin="0,0,0,5" Grid.Row="1" />
-            <ListBox x:Name="ViewTemplatesListBox" SelectionMode="Single" BorderBrush="Gray" BorderThickness="1" Padding="5" 
-                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" SelectionChanged="ViewTemplatesListBox_SelectionChanged">
+            <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center">
+                <TextBlock Text="View Templates" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
+                <CheckBox x:Name="WildCardCheckBox" Content="* WildCard" Margin="10,0,0,0" VerticalAlignment="Center" IsChecked="{Binding IsWildCardEnabled, Mode=TwoWay}" />
+            </StackPanel>
+            <ComboBox x:Name="FilterComboBox" IsEditable="True" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter view templates by name. &#10;The filter is based on the unique prefix of the ViewTemplate Name." Margin="0,0,0,5" Grid.Row="1" />
+            <ListBox x:Name="ViewTemplatesListBox" SelectionMode="Extended" BorderBrush="Gray" BorderThickness="1" Padding="5" 
+                     ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="2" SelectionChanged="ViewTemplatesListBox_SelectionChanged" PreviewMouseDown="ListBox_PreviewMouseDown">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="5" IsEnabled="False"/>
+                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="5"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -128,3 +135,4 @@
         </StackPanel>
     </Grid>
 </Window>-->
+
