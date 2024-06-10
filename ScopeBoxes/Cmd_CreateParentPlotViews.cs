@@ -84,7 +84,20 @@ namespace RevitAddinTesting
                             else
                             {
                                 // Set view name based on ViewFamilyType and level
-                                baseName = $"{viewFamType.Name} - {level.Name} - {viewTemplate.Name}";
+                                //baseName = $"{viewFamType.Name} - {level.Name} - {viewTemplate.Name}";
+                                Parameter tradeParameter = GetViewParameterByName(viewTemplate, "Trade");
+                                Parameter Sheet_SeriesParameter = GetViewParameterByName(viewTemplate, "Sheet Series");
+
+                                string trade = "TRADE";
+                                if (tradeParameter.AsString() != null)
+                                { trade = tradeParameter.AsString(); }
+
+                                string Sheet_Series = "SHEET SERIES";
+                                if (Sheet_SeriesParameter.AsString() != null)
+                                { Sheet_Series = Sheet_SeriesParameter.AsString(); }
+
+                                baseName = $"{trade} {level.Name} {Sheet_Series} - PARENT";
+                                //baseName = $"{tradeParameter.AsString()} {level.Name} {Sheet_SeriesParameter.AsString()} - PARENT";
                             }
 
                             viewPlan.Name = GetUniqueViewName(doc, baseName);
@@ -119,6 +132,13 @@ namespace RevitAddinTesting
             taskDialog.Show();
 
             return Result.Succeeded;
+        }
+
+        private static Parameter GetViewParameterByName(View viewTemplate, string paramName)
+        {
+            // Set view name based on ViewFamilyType and level
+            //baseName = $"{viewFamType.Name} - {level.Name} - {viewTemplate.Name}";
+            return viewTemplate.Parameters.Cast<Parameter>().FirstOrDefault(p => p.Definition.Name.Equals(paramName));
         }
 
         private static int GetLevelNumber(ElementId levelId, Dictionary<ElementId, Level> levels)
