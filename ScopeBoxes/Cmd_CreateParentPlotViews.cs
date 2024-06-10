@@ -1,6 +1,7 @@
 ﻿#region Namespaces
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -71,8 +72,20 @@ namespace RevitAddinTesting
                             // Create a new Floor Plan view for each level and ViewFamilyType
                             ViewPlan viewPlan = ViewPlan.Create(doc, viewFamType.Id, level.Id);
 
-                            // Set view name based on ViewFamilyType and level
-                            string baseName = $"{viewFamType.Name} - {level.Name} - {viewTemplate.Name}";
+                            // Set view names
+                            string baseName = "N/A";
+                            if (viewTemplate.Name.IndexOf("WORKING", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                // This Naming convention is only applied to views where the template name contains the word "Working"
+                                // Set view names based on Level number starting at 00 and Level Name.
+                                var levelNum = GetLevelNumber(level.Id, levels);
+                                baseName = $"{FormatLevelNumber(levelNum)} - {ToTitleCase(level.Name)}";
+                            }
+                            else
+                            {
+                                // Set view name based on ViewFamilyType and level
+                                baseName = $"{viewFamType.Name} - {level.Name} - {viewTemplate.Name}";
+                            }
 
                             viewPlan.Name = GetUniqueViewName(doc, baseName);
 
@@ -108,6 +121,30 @@ namespace RevitAddinTesting
             return Result.Succeeded;
         }
 
+        private static int GetLevelNumber(ElementId levelId, Dictionary<ElementId, Level> levels)
+        {
+            // Sort the levels by their elevation
+            var sortedLevels = levels.Values.OrderBy(l => l.Elevation).ToList();
+
+            // Find the index of the specified level
+            int levelNumber = sortedLevels.FindIndex(l => l.Id == levelId);
+
+            // Return the level number formatted as required
+            return levelNumber >= 0 ? levelNumber : -1; // Return -1 if the level is not found
+        }
+        private static string FormatLevelNumber(int levelNumber)
+        {
+            // Format the level number as a two-digit string or return "Not Found"
+            return levelNumber >= 0 ? levelNumber.ToString("D2") : "Not Found";
+        }
+        private static string ToTitleCase(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+            return textInfo.ToTitleCase(input.ToLower());
+        }
         private static void DictionaryRemoveEntryByValueName(Dictionary<ElementId, Level> levels, string valueName)
         {
             // Find the key for the level with the name "!CAD Link Template"
