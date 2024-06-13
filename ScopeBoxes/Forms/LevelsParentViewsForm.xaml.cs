@@ -210,6 +210,12 @@ namespace RevitAddinTesting.Forms
             }
         }
 
+        /// <summary>
+        /// Retrieves the first parent of the specified type in the visual tree.
+        /// </summary>
+        /// <typeparam name="T">The type of the parent to search for.</typeparam>
+        /// <param name="element">The starting element to begin the search from.</param>
+        /// <returns>The first parent of type T if found; otherwise, null.</returns>
         private T GetParentOfType<T>(DependencyObject element) where T : DependencyObject
         {
             while (element != null)

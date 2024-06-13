@@ -27,8 +27,10 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            
             <TextBlock Text="Levels" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
             <CheckBox x:Name="ChkBox_SelectAllLevels" Content="Select All" Grid.Row="1" Margin="15,0,0,5" Checked="ChkBox_SelectAllLevels_Checked" Unchecked="ChkBox_SelectAllLevels_Unchecked" />
+            
             <DataGrid x:Name="LevelsDataGrid" Grid.Row="2" Margin="10" 
                       ItemsSource="{Binding Levels}" AutoGenerateColumns="False"
                       IsReadOnly="False" CanUserAddRows="False" SelectionMode="Extended" GridLinesVisibility="None" RowBackground="#FFF0F0F0">
@@ -51,13 +53,16 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            
             <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center">
                 <TextBlock Text="View Templates" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
                 <CheckBox x:Name="WildCardCheckBox" Content="* WildCard" Margin="10,0,0,0" VerticalAlignment="Center" IsChecked="{Binding IsWildCardEnabled, Mode=TwoWay}" />
                 <!--<CheckBox x:Name="ChkBox_SelectAllTemplates" Content="Select All" Margin="10,0,0,0" VerticalAlignment="Center" Checked="ChkBox_SelectAllTemplates_Checked" Unchecked="ChkBox_SelectAllTemplates_Unchecked" />-->
                 <Button Content="Clear" Margin="10,0,0,0" VerticalAlignment="Center" Click="ClearSelectedTemplates_Click" />
             </StackPanel>
+            
             <ComboBox x:Name="FilterComboBox" IsEditable="True" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter view templates by name. &#10;The filter is based on the unique prefix of the ViewTemplate Name." Margin="0,0,0,5" Grid.Row="1" />
+            
             <DataGrid x:Name="ViewTemplatesDataGrid" Grid.Row="2" Margin="10" 
                       ItemsSource="{Binding FilteredViewTemplates}" AutoGenerateColumns="False"
                       IsReadOnly="False" CanUserAddRows="False" SelectionMode="Extended" GridLinesVisibility="None" RowBackground="#FFF0F0F0">
