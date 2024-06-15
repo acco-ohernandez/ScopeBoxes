@@ -1,18 +1,12 @@
 #region Namespaces
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Windows;
-using System.Windows.Controls;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 
 
 using RevitAddinTesting.Forms;
@@ -223,25 +217,7 @@ namespace RevitAddinTesting
             return selectedItems;
 
         }
-        private List<View> GetAllDependentVies(Document doc)
-        {
-            var views = new FilteredElementCollector(doc).OfClass(typeof(View));
-            var DependentViews = new List<View>();
-            foreach (View view in views)
-            {
-                ElementId paretnId = view.GetPrimaryViewId();
-                if (paretnId.IntegerValue == -1 && !view.IsTemplate)
-                {
-                    // View is Not a dependent
-                }
-                else if (paretnId.IntegerValue != -1 && !view.IsTemplate)
-                {
-                    // View is dependent
-                    DependentViews.Add(view);
-                }
-            }
-            return DependentViews;
-        }
+
 
         private List<View> GetSelectedViews(Document doc, ICollection<ElementId> selectedIds)
         {

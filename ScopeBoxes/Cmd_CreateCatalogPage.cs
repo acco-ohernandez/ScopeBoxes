@@ -96,8 +96,8 @@ namespace RevitAddinTesting
         private void CopyTemplateSheetFields(Document doc, ElementId catalogViewSheetId)
         {
             // Get the template and target view sheets
-            ViewSheet viewSheetTemplate = Utils.GetViewSheetByName(doc, "Sheet Name");
-            ViewSheet newViewSheet = Utils.GetViewSheetById(doc, catalogViewSheetId);
+            ViewSheet viewSheetTemplate = MyUtils.GetViewSheetByName(doc, "Sheet Name");
+            ViewSheet newViewSheet = MyUtils.GetViewSheetById(doc, catalogViewSheetId);
 
             // Ensure both sheets are valid
             if (viewSheetTemplate == null || newViewSheet == null)

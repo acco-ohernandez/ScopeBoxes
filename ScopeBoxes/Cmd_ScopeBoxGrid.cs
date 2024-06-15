@@ -49,8 +49,8 @@ namespace RevitAddinTesting
                 // Access the controls from the form
                 ScopeBoxGridForm form = new ScopeBoxGridForm();
                 form.txtBaseScopeBoxName.Text = userDrawnScopeBox.Name;
-                form.txtHorizontalOverlap.Text = Utils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 5).ToString();
-                form.txtVerticalOverlap.Text = Utils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 5).ToString();
+                form.txtHorizontalOverlap.Text = MyUtils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 5).ToString();
+                form.txtVerticalOverlap.Text = MyUtils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 5).ToString();
                 form.ShowDialog();
 
                 // Read values from textboxes

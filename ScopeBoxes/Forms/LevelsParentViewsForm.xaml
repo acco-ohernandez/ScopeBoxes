@@ -32,8 +32,17 @@
             <CheckBox x:Name="ChkBox_SelectAllLevels" Content="Select All" Grid.Row="1" Margin="15,0,0,5" Checked="ChkBox_SelectAllLevels_Checked" Unchecked="ChkBox_SelectAllLevels_Unchecked" />
             
             <DataGrid x:Name="LevelsDataGrid" Grid.Row="2" Margin="10" 
-                      ItemsSource="{Binding Levels}" AutoGenerateColumns="False"
-                      IsReadOnly="False" CanUserAddRows="False" SelectionMode="Extended" GridLinesVisibility="None" RowBackground="#FFF0F0F0">
+                      ItemsSource="{Binding Levels}" 
+                      AutoGenerateColumns="False"
+                      IsReadOnly="False" 
+                      CanUserAddRows="False" 
+                      SelectionMode="Extended" 
+                      GridLinesVisibility="None" 
+                      RowBackground="White" 
+                      Background="White"
+                      CanUserResizeRows="False"
+                      HeadersVisibility="Column">
+                
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="  √" Width="30">
                         <DataGridTemplateColumn.CellTemplate>
@@ -64,8 +73,17 @@
             <ComboBox x:Name="FilterComboBox" IsEditable="True" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter view templates by name. &#10;The filter is based on the unique prefix of the ViewTemplate Name." Margin="0,0,0,5" Grid.Row="1" />
             
             <DataGrid x:Name="ViewTemplatesDataGrid" Grid.Row="2" Margin="10" 
-                      ItemsSource="{Binding FilteredViewTemplates}" AutoGenerateColumns="False"
-                      IsReadOnly="False" CanUserAddRows="False" SelectionMode="Extended" GridLinesVisibility="None" RowBackground="#FFF0F0F0">
+                      ItemsSource="{Binding FilteredViewTemplates}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="False"
+                      CanUserAddRows="False"
+                      SelectionMode="Extended"
+                      GridLinesVisibility="None"
+                      RowBackground="White" 
+                      Background="White"
+                      CanUserResizeRows="False"
+                      HeadersVisibility="Column">
+                
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="  √" Width="30">
                         <DataGridTemplateColumn.CellTemplate>

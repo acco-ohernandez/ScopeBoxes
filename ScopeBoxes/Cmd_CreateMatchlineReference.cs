@@ -1,20 +1,12 @@
 #region Namespaces
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Controls;
-using System.Windows.Media;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
-
-using RevitAddinTesting.Forms;
 #endregion
 
 namespace RevitAddinTesting
@@ -47,7 +39,7 @@ namespace RevitAddinTesting
                     }
                     doc.Delete(_createdDetailLine);
 
-                    List<Element> selectedScopeBoxes = Cmd_RenameScopeBoxes.GetSelectedScopeBoxes(doc);
+                    List<Element> selectedScopeBoxes = MyUtils.GetSelectedScopeBoxes(doc);
                     if (!(selectedScopeBoxes.Count > 0))
                     {
                         TaskDialog.Show("Info", "You have to pre-select the group of overlapped scope boxes before clicking this button.");

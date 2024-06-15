@@ -1,14 +1,7 @@
 #region Namespaces
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Versioning;
-using System.Windows.Controls;
-using System.Windows.Markup;
 
-using Autodesk.Revit.ApplicationServices;
-using Autodesk.Revit.Attributes;
-using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 
 #endregion
@@ -31,7 +24,7 @@ namespace RevitAddinTesting
             }
 
             // 2. Create ribbon panel 
-            RibbonPanel panel = Utils.CreateRibbonPanel(app, tabName, "Revit Tools Testing");
+            RibbonPanel panel = MyUtils.CreateRibbonPanel(app, tabName, "Revit Tools Testing");
 
             // 3. Create button data instances
             PushButtonData btnData1 = Cmd_ScopeBoxGrid.GetButtonData();
@@ -58,6 +51,9 @@ namespace RevitAddinTesting
 
             PushButtonData btnData10 = Cmd_CreateParentPlotViews.GetButtonData();
             PushButton myButton10 = panel.AddItem(btnData10) as PushButton;
+
+            PushButtonData btnData11 = Cmd_CreateDependentScopeView.GetButtonData();
+            PushButton myButton11 = panel.AddItem(btnData11) as PushButton;
 
 
             // Define the URL of the help page
