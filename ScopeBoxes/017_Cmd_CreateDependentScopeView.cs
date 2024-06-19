@@ -1,5 +1,5 @@
 ﻿#region Namespaces
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 
 using Autodesk.Revit.Attributes;
@@ -18,16 +18,33 @@ namespace RevitAddinTesting
             UIApplication uiapp = commandData.Application;
             Document doc = uiapp.ActiveUIDocument.Document;
 
-            var allParentViews = MyUtils.GetAllParentViews(doc);
-            var allFloorPlanViews = allParentViews.Where(v => v.ViewType == ViewType.FloorPlan);
-            foreach (var view in allFloorPlanViews)
+            //// Uncomment these two lines if you want to process all the FloorPlan Views
+            //var allParentViews = MyUtils.GetAllParentViews(doc).Where(v => v.Id == doc.ActiveView.Id).ToList();
+            //var allFloorPlanViews = allParentViews.Where(v => v.ViewType == ViewType.FloorPlan); 
+            List<View> allFloorPlanViews = new List<View> { doc.ActiveView as View }; // This will only do the current active view
+
+
+            // Form would load Parent views
+            // No form currently created
+
+
+
+            // Start a new transaction
+            using (Transaction trans = new Transaction(doc, "Create Dependent View"))
             {
-                var scopeBoxesOnCurrentView = MyUtils.GetAllScopeBoxesInView(view);
-                foreach (var box in scopeBoxesOnCurrentView)
+                trans.Start();
+                // Create the dependent views
+                foreach (var view in allFloorPlanViews)
                 {
-                    MyUtils.CreateDependentView(doc, view);
+                    var scopeBoxesOnCurrentView = MyUtils.GetAllScopeBoxesInView(view);
+                    foreach (var box in scopeBoxesOnCurrentView)
+                    {
+                        MyUtils.CreateDependentViewByScopeBox(doc, view, box);
+                    }
                 }
+                trans.Commit();
             }
+
 
 
             return Result.Succeeded;
@@ -38,7 +55,7 @@ namespace RevitAddinTesting
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btn_CreateDependentScopeView";
-            string buttonTitle = "Cmd CreateDependentScopeView";
+            string buttonTitle = "Create Dependent ScopeView";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,

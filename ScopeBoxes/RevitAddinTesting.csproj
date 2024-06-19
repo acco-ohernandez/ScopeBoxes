@@ -202,6 +202,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="016_Cmd_CreateBimSetupView.cs" />
     <Compile Include="App.cs" />
     <Compile Include="Cmd_CleanDependentViewDims.cs" />
     <Compile Include="Cmd_CreateCatalogPage_Original.cs" />
@@ -209,6 +210,9 @@
     <Compile Include="Cmd_CreateCatalogPage.cs" />
     <Compile Include="017_Cmd_CreateDependentScopeView.cs" />
     <Compile Include="Command_Template.cs" />
+    <Compile Include="Forms\CreateBIMSetupView.xaml.cs">
+      <DependentUpon>CreateBIMSetupView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Forms\LevelsParentViewsForm.xaml.cs">
       <DependentUpon>LevelsParentViewsForm.xaml</DependentUpon>
     </Compile>
@@ -219,7 +223,6 @@
     <Compile Include="Cmd_DependentViewsBrowserTree.cs" />
     <Compile Include="Cmd_CreateMatchlineReference.cs" />
     <Compile Include="Cmd_CreateNewLineStyle.cs" />
-    <Compile Include="Cmd_CreateViewReferencesAnotations_01_Test.cs" />
     <Compile Include="ElementPicker.cs" />
     <Compile Include="Forms\DimensionTypesForm.xaml.cs">
       <DependentUpon>DimensionTypesForm.xaml</DependentUpon>
@@ -271,6 +274,10 @@
     <Content Include="00_RevitAddinTesting.addin" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Forms\CreateBIMSetupView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Forms\DimensionTypesForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

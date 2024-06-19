@@ -1,0 +1,51 @@
+﻿<Window x:Class="RevitAddinTesting.Forms.CreateBIMSetupView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RevitAddinTesting.Forms"
+        mc:Ignorable="d"
+        Title="Create BIM Setup View" 
+        Height="500" 
+        Width="400" 
+        MinHeight="300"
+        MinWidth="300"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="60" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" Grid.Row="0" VerticalAlignment="Center" Margin="10,5,10,0" >
+            <TextBlock Text="View Scale" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,0,130,5" FontSize="14" />
+            <ComboBox x:Name="CmBox_ViewScales" IsEditable="False" ItemsSource="{Binding Scales}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding SelectedScale}" Width="200" HorizontalAlignment="Right" Margin="0,0,0,5" Grid.Row="1" />
+        </StackPanel>
+
+        <DataGrid x:Name="LevelsDataGrid" Grid.Row="1" Margin="10,0,10,10" 
+               ItemsSource="{Binding Levels}"
+               AutoGenerateColumns="False"
+               IsReadOnly="False" 
+               CanUserAddRows="False" 
+               SelectionMode="Single" 
+               GridLinesVisibility="None" 
+               RowBackground="White" 
+               Background="White"
+               CanUserResizeRows="False"
+               HeadersVisibility="Column"
+               SelectedItem="{Binding SelectedLevel}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Level" Binding="{Binding Name}" IsReadOnly="True" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.ColumnSpan="2" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+            <Button x:Name="btn_OK" Content="OK" Width="75" Height="30" Margin="5" Click="btn_OK_Click" IsDefault="True" />
+            <Button  x:Name="btn_Cancel" Content="Cancel" Width="75" Height="30" Margin="5" Click="btn_Cancel_Click" IsCancel="True" />
+        </StackPanel>
+    </Grid>
+</Window>

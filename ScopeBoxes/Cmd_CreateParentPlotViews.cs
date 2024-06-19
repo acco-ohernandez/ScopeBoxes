@@ -74,7 +74,7 @@ namespace RevitAddinTesting
                             ViewPlan viewPlan = ViewPlan.Create(doc, viewFamType.Id, level.Id);
 
                             string baseName = GenerateViewName(levels, level, viewTemplate);
-                            viewPlan.Name = GetUniqueViewName(doc, baseName);
+                            viewPlan.Name = MyUtils.GetUniqueViewName(doc, baseName);
 
                             // Apply the selected view template
                             viewPlan.ViewTemplateId = viewTemplate.Id;
@@ -185,6 +185,7 @@ namespace RevitAddinTesting
             }
         }
 
+
         private static Dictionary<ElementId, Level> GetAllElemIDsAndLevelsAsDictionary(Document doc)
         {
 
@@ -196,33 +197,33 @@ namespace RevitAddinTesting
                          .ToDictionary(l => l.Id, l => l);
         }
 
-        private string GetUniqueViewName(Document doc, string baseName)
-        {
-            if (!ViewNameExists(doc, baseName))
-            {
-                return baseName;
-            }
+        //private string GetUniqueViewName(Document doc, string baseName)
+        //{
+        //    if (!ViewNameExists(doc, baseName))
+        //    {
+        //        return baseName;
+        //    }
 
-            int suffix = 1;
-            string newName;
+        //    int suffix = 1;
+        //    string newName;
 
-            do
-            {
-                newName = $"{baseName}({suffix})";
-                suffix++;
-            }
-            while (ViewNameExists(doc, newName));
+        //    do
+        //    {
+        //        newName = $"{baseName}({suffix})";
+        //        suffix++;
+        //    }
+        //    while (ViewNameExists(doc, newName));
 
-            return newName;
-        }
+        //    return newName;
+        //}
 
-        private bool ViewNameExists(Document doc, string viewName)
-        {
-            return new FilteredElementCollector(doc)
-                   .OfClass(typeof(View))
-                   .Cast<View>()
-                   .Any(v => v.Name.Equals(viewName, StringComparison.OrdinalIgnoreCase));
-        }
+        //private bool ViewNameExists(Document doc, string viewName)
+        //{
+        //    return new FilteredElementCollector(doc)
+        //           .OfClass(typeof(View))
+        //           .Cast<View>()
+        //           .Any(v => v.Name.Equals(viewName, StringComparison.OrdinalIgnoreCase));
+        //}
 
         // Method to display a selection dialog for view templates and levels and return the selected view templates and levels
         private Tuple<List<View>, List<Level>> SelectViewTemplatesAndLevels(Document doc, List<View> viewTemplates, List<Level> levels)

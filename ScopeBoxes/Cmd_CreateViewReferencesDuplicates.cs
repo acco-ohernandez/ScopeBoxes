@@ -52,9 +52,10 @@ namespace RevitAddinTesting
         private Element GetFirstViewReference(Document doc)
         {
             return new FilteredElementCollector(doc, doc.ActiveView.Id)
-                .OfCategory(BuiltInCategory.OST_ReferenceViewer)
-                .WhereElementIsNotElementType()
-                .FirstOrDefault();
+               .OfCategory(BuiltInCategory.OST_ReferenceViewer)
+               .WhereElementIsNotElementType()
+               .FirstOrDefault();
+
         }
 
         private List<Element> GetSelectedScopeBoxes(Document doc)

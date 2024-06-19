@@ -55,6 +55,9 @@ namespace RevitAddinTesting
             PushButtonData btnData11 = Cmd_CreateDependentScopeView.GetButtonData();
             PushButton myButton11 = panel.AddItem(btnData11) as PushButton;
 
+            PushButtonData btnData12 = Cmd_CreateBimSetupView.GetButtonData();
+            PushButton myButton12 = panel.AddItem(btnData12) as PushButton;
+
 
             // Define the URL of the help page
             string helpUrl = "http://www.autodesk.com";
