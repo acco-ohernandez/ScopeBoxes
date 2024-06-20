@@ -15,6 +15,10 @@ namespace RevitAddinTesting.Forms
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private int _selectedScale;
+        private Dictionary<int, string> _scales;
+
+
         private string _filterText;
         public string FilterText
         {
@@ -49,6 +53,11 @@ namespace RevitAddinTesting.Forms
         {
             InitializeComponent();
             Levels = levels;
+
+            var viewScalesMappingDictionary = MyUtils.ScalesList();
+            Scales = viewScalesMappingDictionary;
+            SelectedScale = viewScalesMappingDictionary.First(s => s.Value == "1/4\" = 1'-0\"").Key;
+
             ViewTemplates = viewTemplates;
 
             FilteredViewTemplates = new List<ViewTemplateSelection>(ViewTemplates);
@@ -65,7 +74,24 @@ namespace RevitAddinTesting.Forms
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
+        public Dictionary<int, string> Scales
+        {
+            get => _scales;
+            set
+            {
+                _scales = value;
+                OnPropertyChanged(nameof(Scales));
+            }
+        }
+        public int SelectedScale
+        {
+            get => _selectedScale;
+            set
+            {
+                _selectedScale = value;
+                OnPropertyChanged(nameof(SelectedScale));
+            }
+        }
         private void PopulateFilterComboBox()
         {
             var uniqueFirstWords = ViewTemplates

@@ -27,10 +27,24 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
-            <TextBlock Text="Levels" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
-            <CheckBox x:Name="ChkBox_SelectAllLevels" Content="Select All" Grid.Row="1" Margin="15,0,0,5" Checked="ChkBox_SelectAllLevels_Checked" Unchecked="ChkBox_SelectAllLevels_Unchecked" />
-            
+
+            <Grid Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="10,0,10,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel x:Name="sp_Left" Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
+                    <TextBlock Text="Levels" FontWeight="Bold" Margin="0,0,0,5" FontSize="14"/>
+                    <CheckBox x:Name="ChkBox_SelectAllLevels" Content="Select All" Margin="10,0,0,5" Checked="ChkBox_SelectAllLevels_Checked" Unchecked="ChkBox_SelectAllLevels_Unchecked" />
+                </StackPanel>
+
+                <StackPanel x:Name="sp_Right" Orientation="Vertical" HorizontalAlignment="Right" Grid.Column="1">
+                    <TextBlock Text="View Scale" FontWeight="Bold" Margin="0,0,10,5" FontSize="14" />
+                    <ComboBox x:Name="CmBox_ViewScales" IsEditable="False" ItemsSource="{Binding Scales}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding SelectedScale}" Width="150" Margin="0,0,0,5"/>
+                </StackPanel>
+            </Grid>
+
             <DataGrid x:Name="LevelsDataGrid" Grid.Row="2" Margin="10" 
                       ItemsSource="{Binding Levels}" 
                       AutoGenerateColumns="False"
@@ -42,7 +56,7 @@
                       Background="White"
                       CanUserResizeRows="False"
                       HeadersVisibility="Column">
-                
+
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="  √" Width="30">
                         <DataGridTemplateColumn.CellTemplate>
@@ -56,22 +70,23 @@
             </DataGrid>
         </Grid>
 
+        
         <Grid Grid.Column="1" Grid.Row="0" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
+
             <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center">
                 <TextBlock Text="View Templates" FontWeight="Bold" Margin="0,0,0,5" FontSize="14" />
                 <CheckBox x:Name="WildCardCheckBox" Content="* WildCard" Margin="10,0,0,0" VerticalAlignment="Center" IsChecked="{Binding IsWildCardEnabled, Mode=TwoWay}" />
                 <!--<CheckBox x:Name="ChkBox_SelectAllTemplates" Content="Select All" Margin="10,0,0,0" VerticalAlignment="Center" Checked="ChkBox_SelectAllTemplates_Checked" Unchecked="ChkBox_SelectAllTemplates_Unchecked" />-->
                 <Button Content="Clear" Margin="10,0,0,0" VerticalAlignment="Center" Click="ClearSelectedTemplates_Click" />
             </StackPanel>
-            
+
             <ComboBox x:Name="FilterComboBox" IsEditable="True" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter view templates by name. &#10;The filter is based on the unique prefix of the ViewTemplate Name." Margin="0,0,0,5" Grid.Row="1" />
-            
+
             <DataGrid x:Name="ViewTemplatesDataGrid" Grid.Row="2" Margin="10" 
                       ItemsSource="{Binding FilteredViewTemplates}"
                       AutoGenerateColumns="False"
@@ -83,7 +98,7 @@
                       Background="White"
                       CanUserResizeRows="False"
                       HeadersVisibility="Column">
-                
+
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="  √" Width="30">
                         <DataGridTemplateColumn.CellTemplate>

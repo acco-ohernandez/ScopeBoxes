@@ -222,7 +222,7 @@ namespace RevitAddinTesting
             // Create the dependent view
             ElementId dependentViewId = parentView.Duplicate(ViewDuplicateOption.AsDependent);
             View dependentView = doc.GetElement(dependentViewId) as View;
-            dependentView.Name = $"{parentViewName} {scopeBoxName}";
+            dependentView.Name = $"{parentViewName} - {scopeBoxName}";
 
             // assign the scopeBox to the DependentView
             dependentView.get_Parameter(BuiltInParameter.VIEWER_VOLUME_OF_INTEREST_CROP).Set(scopeBox.Id);
@@ -473,6 +473,44 @@ namespace RevitAddinTesting
 
             return scaleDictionary;
         }
+
+        public static string ConvertSpaceToAlt255(string input)
+        {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input), "Input string cannot be null");
+            }
+
+            // Replace spaces with Alt+255 " " (non-breaking space)
+            string result = input.Replace(' ', ' ');
+            //string result = input.Replace(' ', '\u00A0');
+            //string result = input.Replace(' ', '8');
+
+
+            return result;
+        }
+        public static int GetUnicodeInt(char character)
+        {
+            return (int)character;
+        }
+        public static string GetUnicodeValue(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                throw new ArgumentException("Input string cannot be null or empty", nameof(input));
+            }
+
+            // Get the first character of the input string
+            char character = input[0];
+            int unicodeValue = (int)character;
+            string unicodeString = $"\\u{unicodeValue:X4}";
+
+            string ReturnString = $"Character: '{character}', Decimal: {unicodeValue}, Unicode: {unicodeString}";
+            TaskDialog.Show("Character to Unicode", $"{ReturnString}");
+            return ReturnString;
+        }
+
+
     } // EndOf MyUtils
 
     public class GetLeftRightTopBottomCenters

@@ -21,34 +21,36 @@ namespace RevitAddinTesting
             UIDocument uidoc = uiapp.ActiveUIDocument;
             Document doc = uiapp.ActiveUIDocument.Document;
 
+            //string character = " ";
+            //MyUtils.GetUnicodeValue(character);
+
             var allLevels = MyUtils.GetAllLevels(doc).Where(l => l.Name != "!CAD Link Template").ToList();
             var scalesDictionary = MyUtils.ScalesList();
 
             var form = new CreateBIMSetupView(allLevels, scalesDictionary);
-            if (form.ShowDialog() == true)
+            if (form.ShowDialog() != true) { return Result.Cancelled; }
+
+            var selectedLevel = form.SelectedLevel;
+            var selectedScale = form.SelectedScale;
+            //string selectedLevelName = selectedLevel.Name;
+            string selectedLevelName = MyUtils.ConvertSpaceToAlt255(selectedLevel.Name);
+
+            using (Transaction trans = new Transaction(doc, "Create BIM Setup View"))
             {
-                var selectedLevel = form.SelectedLevel;
-                var selectedScale = form.SelectedScale;
-                string selectedLevelName = selectedLevel.Name;
+                trans.Start();
+                string viewName = MyUtils.GetUniqueViewName(doc, $"BIM Set Up View - {selectedLevelName}");
+                ViewPlan view = MyUtils.CreateFloorPlanView(doc, viewName, selectedLevel);
+                view.Scale = selectedScale;
 
-                using (Transaction trans = new Transaction(doc, "Create BIM Setup View"))
-                {
-                    trans.Start();
-                    string viewName = MyUtils.GetUniqueViewName(doc, $"BIM Set Up View - {selectedLevelName}");
-                    ViewPlan view = MyUtils.CreateFloorPlanView(doc, viewName, selectedLevel);
-                    view.Scale = selectedScale;
+                // This can be commented out if you don't want to set the Category and SubCategory on the Project Browser
+                MyUtils.SetViewBrowserCategory(view);
 
-                    // This can be commented out if you don't want to set the Category and SubCategory on the Project Browser
-                    MyUtils.SetViewBrowserCategory(view);
-
-                    trans.Commit();
-                    uidoc.ActiveView = view;
-                }
-
-                return Result.Succeeded;
+                trans.Commit();
+                uidoc.ActiveView = view;
             }
 
-            return Result.Cancelled;
+            return Result.Succeeded;
+
         }
 
         internal static PushButtonData GetButtonData()

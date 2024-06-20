@@ -17,6 +17,7 @@ namespace RevitAddinTesting
     [Transaction(TransactionMode.Manual)]
     public class Cmd_CreateParentPlotViews : IExternalCommand
     {
+        public int SelectedScale { get; set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             // Obtain the Revit application and document objects
@@ -72,6 +73,7 @@ namespace RevitAddinTesting
                         {
                             // Create a new Floor Plan view for each level and ViewFamilyType
                             ViewPlan viewPlan = ViewPlan.Create(doc, viewFamType.Id, level.Id);
+                            viewPlan.Scale = SelectedScale; // This Property gets set by the LevelsParentViewsForm
 
                             string baseName = GenerateViewName(levels, level, viewTemplate);
                             viewPlan.Name = MyUtils.GetUniqueViewName(doc, baseName);
@@ -92,9 +94,15 @@ namespace RevitAddinTesting
                 trans.Commit();
             }
 
+            // Get the string value of the SelectedScale
+            string scaleString = MyUtils.ScalesList().First(s => s.Key == SelectedScale).Value;
+
+            string viewsCreated = "Views Created";
+            string viewTemplateApplied = "View Template Applied";
             // Create a task dialog to show the results
-            string mainContent = "View Created |  View Template Applied\n";
-            mainContent += string.Join(Environment.NewLine, viewCounts.Select(kvp => $"                  {kvp.Value}  |  {kvp.Key}"));
+            string mainContent = $"View Scale: {scaleString}\n\n";
+            mainContent += $"{viewsCreated}  |    {viewTemplateApplied}\n";
+            mainContent += string.Join(Environment.NewLine, viewCounts.Select(kvp => $"                  {kvp.Value}       |    {kvp.Key}"));
 
             TaskDialog taskDialog = new TaskDialog("Views Created")
             {
@@ -135,12 +143,18 @@ namespace RevitAddinTesting
                 if (Sheet_SeriesParameter != null && Sheet_SeriesParameter.AsString() != null)
                 { Sheet_Series = Sheet_SeriesParameter.AsString(); }
 
-                baseName = $"{trade} {level.Name} {Sheet_Series} - PARENT";
+                string levelName = MyUtils.ConvertSpaceToAlt255(level.Name);
+
+                baseName = $"{trade} {levelName} {Sheet_Series} - PARENT";
+                //baseName = $"{trade} {level.Name} {Sheet_Series} - PARENT";
                 //baseName = $"{tradeParameter.AsString()} {level.Name} {Sheet_SeriesParameter.AsString()} - PARENT";
             }
 
             return baseName;
         }
+
+
+
 
         private static Parameter GetViewParameterByName(View viewTemplate, string paramName)
         {
@@ -197,34 +211,6 @@ namespace RevitAddinTesting
                          .ToDictionary(l => l.Id, l => l);
         }
 
-        //private string GetUniqueViewName(Document doc, string baseName)
-        //{
-        //    if (!ViewNameExists(doc, baseName))
-        //    {
-        //        return baseName;
-        //    }
-
-        //    int suffix = 1;
-        //    string newName;
-
-        //    do
-        //    {
-        //        newName = $"{baseName}({suffix})";
-        //        suffix++;
-        //    }
-        //    while (ViewNameExists(doc, newName));
-
-        //    return newName;
-        //}
-
-        //private bool ViewNameExists(Document doc, string viewName)
-        //{
-        //    return new FilteredElementCollector(doc)
-        //           .OfClass(typeof(View))
-        //           .Cast<View>()
-        //           .Any(v => v.Name.Equals(viewName, StringComparison.OrdinalIgnoreCase));
-        //}
-
         // Method to display a selection dialog for view templates and levels and return the selected view templates and levels
         private Tuple<List<View>, List<Level>> SelectViewTemplatesAndLevels(Document doc, List<View> viewTemplates, List<Level> levels)
         {
@@ -241,6 +227,7 @@ namespace RevitAddinTesting
             var form = new LevelsParentViewsForm(levelSelections, viewTemplateSelections);
             if (form.ShowDialog() == true)
             {
+                SelectedScale = form.SelectedScale;
                 // Get the selected levels and view templates
                 var selectedViewTemplates = viewTemplates.Where(vt => form.SelectedViewTemplates.Any(f => f.Id == vt.Id)).ToList();
                 var selectedLevels = levels.Where(l => form.Levels.Any(ls => ls.IsSelected && ls.Id == l.Id)).ToList();
