@@ -71,8 +71,8 @@ namespace RevitAddinTesting
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
+                Properties.Resources.Green_32,
+                Properties.Resources.Green_16,
                 "This button will create dependent views of the Current Active view based on the number of scope boxes.");
 
             return myButtonData1.Data;

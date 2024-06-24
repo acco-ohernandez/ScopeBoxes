@@ -27,7 +27,7 @@
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                     <StackPanel Orientation="Horizontal">
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                        <CheckBox x:Name="chkBox_items" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding IsEnabled}"/>
                         <TextBlock Text="{Binding Header}" Margin="5,0,0,0"/>
                     </StackPanel>
                 </HierarchicalDataTemplate>

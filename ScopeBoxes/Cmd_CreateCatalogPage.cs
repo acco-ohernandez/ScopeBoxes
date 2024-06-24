@@ -1,12 +1,12 @@
 ﻿#region Namespaces
-using Autodesk.Revit.Attributes;
-using Autodesk.Revit.DB;
-using Autodesk.Revit.UI;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
+using Autodesk.Revit.Attributes;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 
 #endregion
 
@@ -241,8 +241,8 @@ namespace RevitAddinTesting
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
+                Properties.Resources.Yellow_32,
+                Properties.Resources.Yellow_16,
                 "This will create a catalog page and more...");
 
             return myButtonData1.Data;

@@ -22,6 +22,7 @@ namespace RevitAddinTesting
     [Transaction(TransactionMode.Manual)]
     public class Cmd_UpdateAppliedDependentViews : IExternalCommand
     {
+        public bool DependentViewsMatchBIMSetupViews { get; set; } = true;
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiapp = commandData.Application;
@@ -73,53 +74,65 @@ namespace RevitAddinTesting
 
             // All dependenet views selected by the user from the UpdateAppliedDependentViewsForm
             List<View> selectedDependentViews = GetAllDependentViesFromViewsTreeForm(doc);
-            //var listOfListsOfViews = GroupViewsByPrimaryViewId(selectedDependentViews);
+            if (selectedDependentViews == null) { return Result.Cancelled; } // Cancel if user closes or cancels the form
+
+            var listOfListsOfViews = GroupViewsByPrimaryViewId(selectedDependentViews);
 
 
+            List<Dictionary<View, Element>> listOfDependentViewsDictionaries = GetListOfDependentViewsDictionaries(doc, listOfListsOfViews, dependentViewsWithScopeBoxParams);
 
-
-            // Create a dictionary to map views to scope boxes
-            Dictionary<View, Element> viewsAndScopeBoxes = new Dictionary<View, Element>();
-            if (selectedDependentViews == null) { return Result.Cancelled; }
-            if (selectedDependentViews.Count == dependentViewsWithScopeBoxParams.Count)
+            if (DependentViewsMatchBIMSetupViews == false)
             {
-                for (int i = 0; i < selectedDependentViews.Count; i++)
-                {
-                    viewsAndScopeBoxes.Add(selectedDependentViews[i], doc.GetElement(dependentViewsWithScopeBoxParams[i].AsElementId()));
-                }
-            }
-            else
-            {
-                TaskDialog.Show("Info", $"The number of dependent views does not match the number of scope boxes. \n\n{selectedDependentViews.Count} - Dependent Views\n{dependentViewsWithScopeBoxParams.Count} - Scope Boxes");
+                TaskDialog.Show("Info", $"The number of dependent views does not match the number of scope boxes.");
                 return Result.Cancelled;
             }
 
+
+            //// Create a dictionary to map views to scope boxes
+            //Dictionary<View, Element> viewsAndScopeBoxes = new Dictionary<View, Element>();
+            //if (selectedDependentViews == null) { return Result.Cancelled; }
+            //if (selectedDependentViews.Count == dependentViewsWithScopeBoxParams.Count)
+            //{
+            //    for (int i = 0; i < selectedDependentViews.Count; i++)
+            //    {
+            //        viewsAndScopeBoxes.Add(selectedDependentViews[i], doc.GetElement(dependentViewsWithScopeBoxParams[i].AsElementId()));
+            //    }
+            //}
+            //else
+            //{
+            //    TaskDialog.Show("Info", $"The number of dependent views does not match the number of scope boxes. \n\n{selectedDependentViews.Count} - Dependent Views\n{dependentViewsWithScopeBoxParams.Count} - Scope Boxes");
+            //    return Result.Cancelled;
+            //}
+
             List<ViewsRenameReport> NamesResult = new List<ViewsRenameReport>();
             // Start a transaction to rename the view
-            using (Transaction trans = new Transaction(doc, "Rename Views"))
+            using (Transaction trans = new Transaction(doc, "Update Applied Dependent Views"))
             {
                 trans.Start();
 
-
-                foreach (var keyValuePair in viewsAndScopeBoxes)
+                foreach (var viewsAndScopeBoxes in listOfDependentViewsDictionaries)
                 {
-                    //var namesResult = new List<ViewsRenameReport>();
-                    View view = keyValuePair.Key;
-                    Element scopeBox = keyValuePair.Value;
-                    MyUtils.AssignScopeBoxToView(view, scopeBox);
-                    var previousName = view.Name;
-                    var scopeBoxName = scopeBox.Name;
-
-                    RenameViewWithScopeBoxName(view, scopeBoxName);
-                    var newName = view.Name;
-
-                    // Add the NamesResult to the ViewsRenameReport list
-                    NamesResult.Add(new ViewsRenameReport
+                    foreach (var keyValuePair in viewsAndScopeBoxes)
                     {
-                        PreviousName = previousName,
-                        ScopeBoxName = scopeBoxName,
-                        NewName = newName
-                    });
+                        //var namesResult = new List<ViewsRenameReport>();
+                        View view = keyValuePair.Key;
+                        Element scopeBox = keyValuePair.Value;
+                        MyUtils.AssignScopeBoxToView(view, scopeBox);
+                        var previousName = view.Name;
+                        var scopeBoxName = scopeBox.Name;
+
+                        RenameViewWithScopeBoxName(view, scopeBoxName);
+                        var newName = view.Name;
+
+                        // Add the NamesResult to the ViewsRenameReport list
+                        NamesResult.Add(new ViewsRenameReport
+                        {
+                            PreviousName = previousName,
+                            ScopeBoxName = scopeBoxName,
+                            NewName = newName
+                        });
+                    }
+
                 }
                 trans.Commit();
             }
@@ -129,6 +142,34 @@ namespace RevitAddinTesting
             ShowRenameReport(NamesResult);
 
             return Result.Succeeded;
+        }
+
+
+        private List<Dictionary<View, Element>> GetListOfDependentViewsDictionaries(Document doc, List<List<View>> listOfListsOfViews, List<Parameter> dependentViewsWithScopeBoxParams)
+        {
+            List<Dictionary<View, Element>> listOfDependentViewsDictionaries = new List<Dictionary<View, Element>>();
+            foreach (var listOfDictionaries in listOfListsOfViews)
+            {
+
+                var selectedDependentViews = listOfDictionaries;
+                // Create a dictionary to map views to scope boxes
+                Dictionary<View, Element> viewsAndScopeBoxes = new Dictionary<View, Element>();
+                if (selectedDependentViews == null) { DependentViewsMatchBIMSetupViews = false; return null; }// Result.Cancelled; }
+                if (selectedDependentViews.Count == dependentViewsWithScopeBoxParams.Count)
+                {
+                    for (int i = 0; i < selectedDependentViews.Count; i++)
+                    {
+                        viewsAndScopeBoxes.Add(selectedDependentViews[i], doc.GetElement(dependentViewsWithScopeBoxParams[i].AsElementId()));
+                    }
+                    listOfDependentViewsDictionaries.Add(viewsAndScopeBoxes);
+                }
+                else
+                {
+                    DependentViewsMatchBIMSetupViews = false; return null;
+                }
+            }
+            return listOfDependentViewsDictionaries;
+
         }
 
         private static List<List<View>> GroupViewsByPrimaryViewId(List<View> selectedDependentViews)
