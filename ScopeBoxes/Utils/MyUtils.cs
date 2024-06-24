@@ -225,11 +225,29 @@ namespace RevitAddinTesting
             dependentView.Name = $"{parentViewName} - {scopeBoxName}";
 
             // assign the scopeBox to the DependentView
-            dependentView.get_Parameter(BuiltInParameter.VIEWER_VOLUME_OF_INTEREST_CROP).Set(scopeBox.Id);
-
+            //dependentView.get_Parameter(BuiltInParameter.VIEWER_VOLUME_OF_INTEREST_CROP).Set(scopeBox.Id);
+            AssignScopeBoxToView(dependentView, scopeBox);
 
             return dependentView;
         }
+
+        public static void AssignScopeBoxToView(View view, Element scopeBox)
+        {
+            // assign the scopeBox to the DependentView
+            view.get_Parameter(BuiltInParameter.VIEWER_VOLUME_OF_INTEREST_CROP).Set(scopeBox.Id);
+        }
+        public static Parameter GetAssignedScopeBox(View view)
+        {
+            if (view == null)
+            {
+                throw new ArgumentNullException(nameof(view), "View cannot be null.");
+            }
+
+            // Get the assigned Scope Box of the View
+            Parameter assignedScopeBox = view.get_Parameter(BuiltInParameter.VIEWER_VOLUME_OF_INTEREST_CROP);
+            return assignedScopeBox;
+        }
+
         public static void ChangeViewReferenceTargetView(Document doc, Element viewReference, View newTargetView)
         {
             // Check if the view reference and the target view are valid
@@ -510,7 +528,27 @@ namespace RevitAddinTesting
             return ReturnString;
         }
 
+        public static List<View> GetDependentViewsFromParentView(View parentView)
+        {
+            // Get the document from the parent view
+            Document doc = parentView.Document;
 
+            // Get the IDs of the dependent elements
+            ICollection<ElementId> dependentElementIds = parentView.GetDependentElements(null);
+
+            // Filter the dependent elements to include only views and exclude the parent view
+            List<View> dependentViews = new List<View>();
+            foreach (ElementId id in dependentElementIds)
+            {
+                Element element = doc.GetElement(id);
+                if (element is View dependentView && dependentView.Id != parentView.Id)
+                {
+                    dependentViews.Add(dependentView);
+                }
+            }
+
+            return dependentViews;
+        }
     } // EndOf MyUtils
 
     public class GetLeftRightTopBottomCenters

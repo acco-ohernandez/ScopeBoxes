@@ -209,6 +209,7 @@
     <Compile Include="Cmd_RemoveRevisionsNotOnSheet.cs" />
     <Compile Include="Cmd_CreateCatalogPage.cs" />
     <Compile Include="017_Cmd_CreateDependentScopeView.cs" />
+    <Compile Include="018Cmd_UpdateAppliedDependentViews.cs" />
     <Compile Include="Command_Template.cs" />
     <Compile Include="Forms\CreateBIMSetupView.xaml.cs">
       <DependentUpon>CreateBIMSetupView.xaml</DependentUpon>
@@ -238,6 +239,9 @@
     </Compile>
     <Compile Include="Forms\ScopeBoxSizeCalculator.xaml.cs">
       <DependentUpon>ScopeBoxSizeCalculator.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdateAppliedDependentViewsForm.xaml.cs">
+      <DependentUpon>UpdateAppliedDependentViewsForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="Forms\ViewsTreeForm.xaml.cs">
       <DependentUpon>ViewsTreeForm.xaml</DependentUpon>
@@ -299,6 +303,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Forms\ScopeBoxSizeCalculator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\UpdateAppliedDependentViewsForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,19 +1,13 @@
 #region Namespaces
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Windows.Controls;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 
 using RevitAddinTesting.Forms;
 
@@ -161,7 +155,7 @@ namespace RevitAddinTesting
             return treeNodes;
         }
 
-        private static List<View> GetAllViews(Document doc)
+        public static List<View> GetAllViews(Document doc)
         {
             return new FilteredElementCollector(doc)
                             .OfClass(typeof(View))
@@ -314,6 +308,8 @@ namespace RevitAddinTesting
 
             return myButtonData1.Data;
         }
+
+
     }
 
 
