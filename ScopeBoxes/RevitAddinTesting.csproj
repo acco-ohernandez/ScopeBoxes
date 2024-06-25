@@ -210,6 +210,7 @@
     <Compile Include="Cmd_CreateCatalogPage.cs" />
     <Compile Include="017_Cmd_CreateDependentScopeView.cs" />
     <Compile Include="018Cmd_UpdateAppliedDependentViews.cs" />
+    <Compile Include="019_Cmd_CopyDimsToParentViews.cs" />
     <Compile Include="Command_Template.cs" />
     <Compile Include="Forms\CreateBIMSetupView.xaml.cs">
       <DependentUpon>CreateBIMSetupView.xaml</DependentUpon>
