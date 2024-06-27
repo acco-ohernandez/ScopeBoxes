@@ -29,15 +29,14 @@ namespace RevitAddinTesting
             Document doc = uiapp.ActiveUIDocument.Document;
 
             // Check if the 'BIM Set Up View' exists, exclude dependent views with the same name
-            var BIMSetupView = Cmd_DependentViewsBrowserTree.GetAllViews(doc)
-                                                            .Where(v => v.Name.StartsWith("BIM Set Up View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
-                                                            .FirstOrDefault();
-
-            if (BIMSetupView == null)
-            {
-                TaskDialog.Show("INFO", "No 'BIM Setup View' found");
-                return Result.Cancelled;
-            }
+            // Declare a variable to hold the 'BIM Set Up View'
+            View BIMSetupView;
+            // Call a utility method to get the 'BIM Set Up View' from the document
+            // This method sets the BIMSetupView variable if found and returns a Result indicating success or failure
+            Result result = MyUtils.GetBIMSetupView(doc, out BIMSetupView);
+            // Check if the result indicates that the 'BIM Set Up View' was successfully found
+            // If the view was not found, return the result indicating failure
+            if (result != Result.Succeeded) { return result; }
 
             // Retrieve dependent views of 'BIM Set Up View'
             List<View> BIMSetupViewDependentViews = MyUtils.GetDependentViewsFromParentView(BIMSetupView);
@@ -47,7 +46,6 @@ namespace RevitAddinTesting
                 TaskDialog.Show("INFO", "'BIM Set Up View' has no dependent views");
                 return Result.Cancelled;
             }
-
             // Get the dependent views assigned Scope Boxes
             var dependentViewsWithScopeBoxParams = new List<Parameter>();
             foreach (View dependentView in BIMSetupViewDependentViews)
@@ -60,7 +58,7 @@ namespace RevitAddinTesting
             var dependentViews = Cmd_DependentViewsBrowserTree.GetOnlyDependentViews(doc);
             if (dependentViews.Count == 0)
             {
-                TaskDialog.Show("Info:", "There are no dependent views.");
+                MyUtils.M_MyTaskDialog("Info:", "There are no dependent views.");
                 return Result.Cancelled;
             }
 
@@ -83,7 +81,7 @@ namespace RevitAddinTesting
 
             if (DependentViewsMatchBIMSetupViews == false)
             {
-                TaskDialog.Show("Info", $"The number of dependent views does not match the number of scope boxes.");
+                MyUtils.M_MyTaskDialog("Info", $"The number of dependent views does not match the number of scope boxes.");
                 return Result.Cancelled;
             }
 
@@ -144,6 +142,18 @@ namespace RevitAddinTesting
             return Result.Succeeded;
         }
 
+        //public static Result GetBIMSetupView(Document doc, out View BIMSetupView)
+        //{
+        //    BIMSetupView = Cmd_DependentViewsBrowserTree.GetAllViews(doc)
+        //                                                .Where(v => v.Name.StartsWith("BIM Set Up View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
+        //                                                .FirstOrDefault();
+        //    if (BIMSetupView == null)
+        //    {
+        //        MyUtils.M_MyTaskDialog("INFO", "No 'BIM Set Up View' found");
+        //        return Result.Cancelled;
+        //    }
+        //    return Result.Succeeded;
+        //}
 
         private List<Dictionary<View, Element>> GetListOfDependentViewsDictionaries(Document doc, List<List<View>> listOfListsOfViews, List<Parameter> dependentViewsWithScopeBoxParams)
         {
