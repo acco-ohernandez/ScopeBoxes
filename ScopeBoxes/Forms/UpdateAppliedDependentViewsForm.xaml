@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="2" >
-            <Label Content="Select the parent view for which you want to update its dependent views" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold" Margin="15"/>
+            <Label x:Name="lbl_info" Content="Select the parent view for which you want to update its dependent views" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold" Margin="15"/>
         </StackPanel>
 
         <TreeView x:Name="viewsTreeView" Grid.Row="1" ItemsSource="{Binding}" Margin="5,0,5,0">

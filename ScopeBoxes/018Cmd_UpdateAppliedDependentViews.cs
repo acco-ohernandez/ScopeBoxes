@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -72,7 +73,7 @@ namespace RevitAddinTesting
 
             // All dependenet views selected by the user from the UpdateAppliedDependentViewsForm
             List<View> selectedDependentViews = GetAllDependentViesFromViewsTreeForm(doc);
-            if (selectedDependentViews == null) { return Result.Cancelled; } // Cancel if user closes or cancels the form
+            if (selectedDependentViews == null || selectedDependentViews.Count == 0) { return Result.Cancelled; } // Cancel if user closes or cancels the form
 
             var listOfListsOfViews = GroupViewsByPrimaryViewId(selectedDependentViews);
 
@@ -238,8 +239,30 @@ namespace RevitAddinTesting
             // Populate the tree data
             var treeData = Cmd_DependentViewsBrowserTree.PopulateTreeView(doc);
 
+            //using LINQ to check if any TreeNode in the list has children.
+            bool treeDataHasChildren = treeData.Any(node => node.Children != null && node.Children.Any());
+            //bool treeDataHasChildren = false;
+            //foreach (var node in treeData)
+            //{
+            //    if (node.Children != null && node.Children.Any())
+            //    {
+            //        treeDataHasChildren = true;
+            //        break;
+            //    }
+            //}
+
             //// Create and show the WPF form
             var form = new UpdateAppliedDependentViewsForm();
+
+
+            if (!treeDataHasChildren)
+            {
+                form.lbl_info.Content = "No dependen views to update were found.";
+                form.lbl_info.Background = Brushes.Red; // Set the background color to red
+                form.lbl_info.Foreground = Brushes.White; // Set the background color to red
+                form.lbl_info.FontSize = 20;
+            }
+
             form.InitializeTreeData(treeData);
             bool? dialogResult = form.ShowDialog();
 
@@ -308,8 +331,8 @@ namespace RevitAddinTesting
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
+                Properties.Resources.Yellow_32,
+                Properties.Resources.Yellow_16,
                 "This button will use as source the 'BIM Set Up View' to update the dependent views of the selected parent view.");
 
             return myButtonData1.Data;

@@ -246,8 +246,8 @@ namespace RevitAddinTesting
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
+                Properties.Resources.Yellow_32,
+                Properties.Resources.Yellow_16,
                 "This will create parent plot views...");
 
             return myButtonData1.Data;

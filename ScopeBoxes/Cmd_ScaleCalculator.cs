@@ -22,11 +22,12 @@ namespace RevitAddinTesting
             //int curViewScaleInt = GetCurrentViewScale(currentView);
 
             ViewScaleManager viewScaleInfo = new ViewScaleManager(currentView);
-            TaskDialog.Show("Info", $"Revit Scale Value: {viewScaleInfo.ScaleValue} \nCurrent View Scale: {viewScaleInfo.ViewScaleString}");
+            TaskDialog.Show("Info", $"CurrentView Scale Value: {viewScaleInfo.ScaleValue} \n" +
+                                    $"Current View Scale: {viewScaleInfo.ViewScaleString}");
 
 
 
-            //var returnedScopeBoxDistance = Utils.GetViewScaleMultipliedValue(currentView, 5);
+            var returnedScopeBoxDistance = MyUtils.GetViewScaleMultipliedValue(currentView, 48, 5);
             //TaskDialog.Show("Info", $"Returned value based of 1/4 scale = {returnedScopeBoxDistance}");
 
             return Result.Succeeded;

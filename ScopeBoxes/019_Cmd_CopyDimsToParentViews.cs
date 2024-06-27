@@ -46,26 +46,25 @@ namespace RevitAddinTesting
             var viewsTreeNodes = groupedViews
                 .Select(g => new ViewsTreeNode(g.Key, g.ToList()))
                 .ToList();
-            // FORM
+
+            // ViewsTreeSelectionForm FORM <-----------------------------------
             var viewsTreeSelectionForm = new ViewsTreeSelectionForm();
             viewsTreeSelectionForm.InitializeTreeData(viewsTreeNodes);
-            viewsTreeSelectionForm.ShowDialog();
+            viewsTreeSelectionForm.ShowDialog();    // Show the list of parent views for the user to select them
+            if (viewsTreeSelectionForm.DialogResult == false) { return Result.Cancelled; } // if the dialog was canceled
             var selectedTreeData = viewsTreeSelectionForm.TreeData;
 
             List<View> selectedViews = GetSelectedViews(doc, selectedTreeData);
 
 
             // Get all dimensions in BIMSetupView
-            //var dimensionCollector = new FilteredElementCollector(doc, BIMSetupView.Id)
-            //                         .OfClass(typeof(Dimension))
-            //                         .ToElementIds()
-            //                         .ToList();
             var dimensionsElemIdCollector = new FilteredElementCollector(doc, BIMSetupView.Id)
                             .OfClass(typeof(Dimension))
                             .Cast<Dimension>()
                             .Where(d => d.DimensionType.Name == "GRID DIMENSIONS")
                             .Select(d => d.Id)
                             .ToList();
+            // Cancel if No dimensions of type 'GRID DIMENSIONS' found 
             if (!dimensionsElemIdCollector.Any()) { MyUtils.M_MyTaskDialog("Info", $"No dimensions of type 'GRID DIMENSIONS' found in the view: {BIMSetupView.Name}"); return Result.Cancelled; }
 
             // Copy all the dimensions from BIMSetupView to all the selected views

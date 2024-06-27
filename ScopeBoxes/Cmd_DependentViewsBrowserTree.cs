@@ -115,7 +115,7 @@ namespace RevitAddinTesting
             {
                 var viewTypeNode = new TreeNode { Header = group.Key.ToString() };
 
-                // Filter to get only independent views that have dependent views
+                // Filter to get only parent views that have dependent views
                 var independentViewsWithDependents = group
                     .Where(v => v.GetPrimaryViewId().IntegerValue == -1 &&
                                 allViews.Any(dv => dv.GetPrimaryViewId() == v.Id))
