@@ -68,6 +68,9 @@ namespace RevitAddinTesting.Forms
             ViewTemplatesDataGrid.ItemsSource = FilteredViewTemplates;
 
             PopulateFilterComboBox();
+
+            //View Type Dropdown 
+            LoadComboBoxItems();
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -234,6 +237,10 @@ namespace RevitAddinTesting.Forms
             {
                 dataGrid.ItemsSource = FilteredViewTemplates;
             }
+
+
+
+
         }
 
         /// <summary>
@@ -264,7 +271,20 @@ namespace RevitAddinTesting.Forms
             ViewTemplatesDataGrid.ItemsSource = null;
             ViewTemplatesDataGrid.ItemsSource = FilteredViewTemplates;
         }
-    }
+
+
+        private void LoadComboBoxItems()
+        {
+            var items = new Dictionary<string, string>
+            {
+                { "FloorPlan", "Floor Plan" },
+                { "CeilingPlan", "Ceiling Plan" }
+            };
+
+            CmBox_ViewType.ItemsSource = items;
+            CmBox_ViewType.SelectedValue = "FloorPlan"; // Default to "Floor Plan"
+        }
+    }    // --- end of LevelsParentViewsForm
 
     public class LevelSelection
     {

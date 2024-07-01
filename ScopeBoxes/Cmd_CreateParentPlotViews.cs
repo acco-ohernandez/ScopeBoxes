@@ -17,6 +17,7 @@ namespace RevitAddinTesting
     [Transaction(TransactionMode.Manual)]
     public class Cmd_CreateParentPlotViews : IExternalCommand
     {
+        public string ViewTypeSelected { get; set; }
         public int SelectedScale { get; set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -29,13 +30,21 @@ namespace RevitAddinTesting
             // Remove the level named "!CAD Link Template"
             DictionaryRemoveEntryByValueName(levels, "!CAD Link Template");
 
-            // Get all the view family types for Floor Plans
-            var viewFamilyTypes = new FilteredElementCollector(doc)
-                                  .OfClass(typeof(ViewFamilyType))
-                                  .Cast<ViewFamilyType>()
-                                  .Where(vft => vft.ViewFamily == ViewFamily.FloorPlan) // Only FloorPlans View types will be created.
-                                                                                        //.Where(vft => vft.ViewFamily == ViewFamily.FloorPlan || vft.ViewFamily == ViewFamily.CeilingPlan)
-                                  .ToList();
+            //// Get all the view family types for Floor Plans
+            //var floorPlanViewFamilyTypes = new FilteredElementCollector(doc)
+            //                      .OfClass(typeof(ViewFamilyType))
+            //                      .Cast<ViewFamilyType>()
+            //                      .Where(vft => vft.ViewFamily == ViewFamily.FloorPlan) // Only FloorPlans View types will be created.
+            //                                                                            //.Where(vft => vft.ViewFamily == ViewFamily.FloorPlan || vft.ViewFamily == ViewFamily.CeilingPlan)
+            //                      .ToList();
+
+            //var ceilingPlanViewFamilyTypes = new FilteredElementCollector(doc)
+            //                      .OfClass(typeof(ViewFamilyType))
+            //                      .Cast<ViewFamilyType>()
+            //                      .Where(vft => vft.ViewFamily == ViewFamily.CeilingPlan) // Only CeilingPlan View types will be created.
+            //                      .ToList();
+
+
 
             // Get all view templates ViewType.FloorPlan /// Commented out -> And exclude any name with 'RCP' Or 'Ceiling'
             var viewTemplates = new FilteredElementCollector(doc)
@@ -57,6 +66,25 @@ namespace RevitAddinTesting
             var selectedViewTemplates = result.Item1;
             var selectedLevels = result.Item2;
 
+
+
+            //// Get all the view family types for Floor Plans
+            //var floorPlanViewFamilyTypes = new FilteredElementCollector(doc)
+            //                      .OfClass(typeof(ViewFamilyType))
+            //                      .Cast<ViewFamilyType>()
+            //                      .Where(vft => vft.ViewFamily == ViewFamily.FloorPlan) // Only FloorPlans View types will be created.
+            //                                                                            //.Where(vft => vft.ViewFamily == ViewFamily.FloorPlan || vft.ViewFamily == ViewFamily.CeilingPlan)
+            //                      .ToList();
+
+            //var ceilingPlanViewFamilyTypes = new FilteredElementCollector(doc)
+            //                      .OfClass(typeof(ViewFamilyType))
+            //                      .Cast<ViewFamilyType>()
+            //                      .Where(vft => vft.ViewFamily == ViewFamily.CeilingPlan) // Only CeilingPlan View types will be created.
+            //                      .ToList();
+
+            List<ViewFamilyType> ViewFamilyTypes = GetViewFamilyTypes(doc, ViewTypeSelected);
+
+
             // Dictionary to keep track of the number of views created for each template
             var viewCounts = new Dictionary<string, int>();
 
@@ -67,7 +95,8 @@ namespace RevitAddinTesting
 
                 foreach (var level in selectedLevels)
                 {
-                    foreach (var viewFamType in viewFamilyTypes)
+                    //foreach (var viewFamType in floorPlanViewFamilyTypes)
+                    foreach (var viewFamType in ViewFamilyTypes)
                     {
                         foreach (var viewTemplate in selectedViewTemplates)
                         {
@@ -114,6 +143,31 @@ namespace RevitAddinTesting
             taskDialog.Show();
 
             return Result.Succeeded;
+        }
+
+        private List<ViewFamilyType> GetViewFamilyTypes(Document doc, string viewTypeSelected)
+        {
+            List<ViewFamilyType> vftSelected = new List<ViewFamilyType>();
+            // Get all the view family types for Floor Plans
+            if (viewTypeSelected == "Floor Plan")
+            {
+                return new FilteredElementCollector(doc)
+                                      .OfClass(typeof(ViewFamilyType))
+                                      .Cast<ViewFamilyType>()
+                                      .Where(vft => vft.ViewFamily == ViewFamily.FloorPlan) // Only FloorPlans View types will be created.
+
+                                      .ToList();
+            }
+            else if (viewTypeSelected == "Ceiling Plan")
+            {
+                return new FilteredElementCollector(doc)
+                                   .OfClass(typeof(ViewFamilyType))
+                                   .Cast<ViewFamilyType>()
+                                   .Where(vft => vft.ViewFamily == ViewFamily.CeilingPlan) // Only CeilingPlan View types will be created.
+                                   .ToList();
+            }
+            else
+                return null;
         }
 
         private static string GenerateViewName(Dictionary<ElementId, Level> levels, Level level, View viewTemplate)
@@ -227,6 +281,13 @@ namespace RevitAddinTesting
             var form = new LevelsParentViewsForm(levelSelections, viewTemplateSelections);
             if (form.ShowDialog() == true)
             {
+                //ViewTypeSelected = (KeyValuePair<string, string>)form.CmBox_ViewType.SelectedItem;
+
+                //var temp = (KeyValuePair<string, string>)form.CmBox_ViewType.SelectedItem;
+                //ViewTypeSelected = temp.Value;
+                ViewTypeSelected = form.CmBox_ViewType.SelectedItem != null ? ((KeyValuePair<string, string>)form.CmBox_ViewType.SelectedItem).Value : string.Empty;
+
+
                 SelectedScale = form.SelectedScale;
                 // Get the selected levels and view templates
                 var selectedViewTemplates = viewTemplates.Where(vt => form.SelectedViewTemplates.Any(f => f.Id == vt.Id)).ToList();

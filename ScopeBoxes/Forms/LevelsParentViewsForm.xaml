@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Create Level Parent Views" 
         Height="600" 
-        Width="800" 
+        Width="1000" 
         MinHeight="300"
         MinWidth="300"
         WindowStartupLocation="CenterScreen">
@@ -32,6 +32,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <StackPanel x:Name="sp_Left" Orientation="Vertical" HorizontalAlignment="Left" Grid.Column="0">
@@ -39,9 +40,27 @@
                     <CheckBox x:Name="ChkBox_SelectAllLevels" Content="Select All" Margin="10,0,0,5" Checked="ChkBox_SelectAllLevels_Checked" Unchecked="ChkBox_SelectAllLevels_Unchecked" />
                 </StackPanel>
 
-                <StackPanel x:Name="sp_Right" Orientation="Vertical" HorizontalAlignment="Right" Grid.Column="1">
+                <StackPanel x:Name="sp_Center" Orientation="Vertical" HorizontalAlignment="Center"  Grid.Column="1">
+                    <TextBlock Text="View Type" FontWeight="Bold" Margin="0,0,10,5" FontSize="14" />
+                    <ComboBox x:Name="CmBox_ViewType" 
+                              IsEditable="False" 
+                              DisplayMemberPath="Value" 
+                              SelectedValuePath="Key"  
+                              Width="130" 
+                              Margin="0,0,0,5"/>
+                </StackPanel>
+
+                <StackPanel x:Name="sp_Right" Orientation="Vertical" HorizontalAlignment="Right" Grid.Column="2">
                     <TextBlock Text="View Scale" FontWeight="Bold" Margin="0,0,10,5" FontSize="14" />
-                    <ComboBox x:Name="CmBox_ViewScales" IsEditable="False" ItemsSource="{Binding Scales}" DisplayMemberPath="Value" SelectedValuePath="Key" SelectedValue="{Binding SelectedScale}" Width="150" Margin="0,0,0,5"/>
+                    
+                    <ComboBox x:Name="CmBox_ViewScales" 
+                              IsEditable="False" 
+                              ItemsSource="{Binding Scales}" 
+                              DisplayMemberPath="Value" 
+                              SelectedValuePath="Key" 
+                              SelectedValue="{Binding SelectedScale}" 
+                              Width="130" 
+                              Margin="0,0,0,5"/>
                 </StackPanel>
             </Grid>
 
