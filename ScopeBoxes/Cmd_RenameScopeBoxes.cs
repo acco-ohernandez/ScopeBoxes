@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Controls;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
@@ -32,7 +30,7 @@ namespace RevitAddinTesting
 
                 // Lists to store selected and preselected elements
                 var pickedElemsList = new List<Element>();
-                var preselectedElemsList = GetSelectedScopeBoxes(doc);
+                var preselectedElemsList = MyUtils.GetSelectedScopeBoxes(doc);
 
                 // Check if there are preselected elements; if not, allow the user to pick
                 if (preselectedElemsList.Count != 0)
@@ -114,7 +112,7 @@ namespace RevitAddinTesting
                     // Access the element using reference.ElementId
                     Element element = doc.GetElement(reference.ElementId);
 
-                    if (IsScopeBox(element))
+                    if (MyUtils.IsScopeBox(element))
                     {
                         // Check for duplicates using HashSet
                         if (uniqueElementIds.Add(reference.ElementId))
@@ -154,39 +152,14 @@ namespace RevitAddinTesting
             return null;
         }
 
-        public static bool IsScopeBox(Element element)
-        {
-            // Check if the element is a scope box
-            return element != null && element.Category != null && element.Category.Name == "Scope Boxes";
-        }
+
 
         private void ShowWarningDialog(string message)
         {
             TaskDialog.Show("Warning", message);
         }
 
-        public static List<Element> GetSelectedScopeBoxes(Document doc)
-        {
-            List<Element> scopeBoxes = new List<Element>();
 
-            // Get the handle of current document.
-            UIDocument uidoc = new UIDocument(doc);
-
-            // Get the element selection of the current document.
-            ICollection<ElementId> selectedIds = uidoc.Selection.GetElementIds();
-
-            // Iterate through the selected element IDs and add scope boxes to the list
-            foreach (ElementId id in selectedIds)
-            {
-                Element element = doc.GetElement(id);
-                if (IsScopeBox(element))
-                {
-                    scopeBoxes.Add(element);
-                }
-            }
-
-            return scopeBoxes;
-        }
 
 
         internal static PushButtonData GetButtonData()

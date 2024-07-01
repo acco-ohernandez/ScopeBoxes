@@ -1,21 +1,12 @@
 ﻿#region Namespaces
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Security.AccessControl;
-using System.Windows.Annotations;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
-
-using RevitAddinTesting.Forms;
 
 #endregion
 
@@ -61,14 +52,15 @@ namespace RevitAddinTesting
         private Element GetFirstViewReference(Document doc)
         {
             return new FilteredElementCollector(doc, doc.ActiveView.Id)
-                .OfCategory(BuiltInCategory.OST_ReferenceViewer)
-                .WhereElementIsNotElementType()
-                .FirstOrDefault();
+               .OfCategory(BuiltInCategory.OST_ReferenceViewer)
+               .WhereElementIsNotElementType()
+               .FirstOrDefault();
+
         }
 
         private List<Element> GetSelectedScopeBoxes(Document doc)
         {
-            return Cmd_RenameScopeBoxes.GetSelectedScopeBoxes(doc);
+            return MyUtils.GetSelectedScopeBoxes(doc);
         }
 
         private void PlaceViewReferences(Document doc, List<Element> selectedScopeBoxes, Element viewReference)

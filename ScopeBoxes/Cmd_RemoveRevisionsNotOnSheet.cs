@@ -1,22 +1,13 @@
 ﻿#region Namespaces
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Security.AccessControl;
 using System.Text;
-using System.Windows.Annotations;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
-
-using RevitAddinTesting.Forms;
 
 #endregion
 
@@ -520,9 +511,9 @@ namespace RevitAddinTesting
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
-                "Delete unused Revisions.");
+                Properties.Resources.Red_32,
+                Properties.Resources.Red_16,
+                "Delete unused Revisions. This is test addin, no working as intended yet.");
 
             return myButtonData1.Data;
         }

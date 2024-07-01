@@ -1,46 +1,97 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 using Autodesk.Revit.DB;
 
 namespace RevitAddinTesting.Forms
 {
-    public partial class LevelsParentViewsForm : Window
+    public partial class LevelsParentViewsForm : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private int _selectedScale;
+        private Dictionary<int, string> _scales;
+
+
+        private string _filterText;
+        public string FilterText
+        {
+            get => _filterText;
+            set
+            {
+                _filterText = value;
+                OnPropertyChanged();
+                FilterViewTemplates();
+            }
+        }
+
+        private bool _isWildCardEnabled;
+        public bool IsWildCardEnabled
+        {
+            get => _isWildCardEnabled;
+            set
+            {
+                _isWildCardEnabled = value;
+                OnPropertyChanged();
+                FilterViewTemplates();
+            }
+        }
+
         public List<LevelSelection> Levels { get; set; }
         public List<ViewTemplateSelection> ViewTemplates { get; set; }
-        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
+        public List<ViewTemplateSelection> SelectedViewTemplates { get; set; }
         private List<ViewTemplateSelection> FilteredViewTemplates { get; set; }
-        private bool isUpdatingSelection = false;
+        //private bool isUpdatingSelection = false;
 
         public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
         {
             InitializeComponent();
             Levels = levels;
+
+            var viewScalesMappingDictionary = MyUtils.ScalesList();
+            Scales = viewScalesMappingDictionary;
+            SelectedScale = viewScalesMappingDictionary.First(s => s.Value == "1/4\" = 1'-0\"").Key;
+
             ViewTemplates = viewTemplates;
 
             FilteredViewTemplates = new List<ViewTemplateSelection>(ViewTemplates);
 
             DataContext = this;
 
-            LevelsListBox.ItemsSource = Levels;
-            ViewTemplatesListBox.ItemsSource = FilteredViewTemplates;
+            LevelsDataGrid.ItemsSource = Levels;
+            ViewTemplatesDataGrid.ItemsSource = FilteredViewTemplates;
 
             PopulateFilterComboBox();
         }
 
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public Dictionary<int, string> Scales
+        {
+            get => _scales;
+            set
+            {
+                _scales = value;
+                OnPropertyChanged(nameof(Scales));
+            }
+        }
+        public int SelectedScale
+        {
+            get => _selectedScale;
+            set
+            {
+                _selectedScale = value;
+                OnPropertyChanged(nameof(SelectedScale));
+            }
+        }
         private void PopulateFilterComboBox()
         {
             var uniqueFirstWords = ViewTemplates
@@ -58,53 +109,31 @@ namespace RevitAddinTesting.Forms
             FilterComboBox.SelectedIndex = 0;
         }
 
-        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void FilterViewTemplates()
         {
-            string filter = FilterComboBox.SelectedItem as string;
-            if (filter == "All")
+            string filter = FilterText;
+            if (string.IsNullOrEmpty(filter) || filter == "All")
             {
                 FilteredViewTemplates = new List<ViewTemplateSelection>(ViewTemplates);
             }
+            else if (IsWildCardEnabled)
+            {
+                FilteredViewTemplates = ViewTemplates.Where(v => v.Name.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            }
             else
             {
-                FilteredViewTemplates = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
+                FilteredViewTemplates = ViewTemplates.Where(v => v.Name.StartsWith(filter, StringComparison.OrdinalIgnoreCase)).ToList();
             }
-            ViewTemplatesListBox.ItemsSource = null;
-            ViewTemplatesListBox.ItemsSource = FilteredViewTemplates;
-        }
-
-        private void ViewTemplatesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (isUpdatingSelection) return;
-
-            isUpdatingSelection = true;
-
-            ViewTemplateSelection selectedTemplate = null;
-
-            if (ViewTemplatesListBox.SelectedItem is ViewTemplateSelection selectedItem)
-            {
-                foreach (var template in ViewTemplates)
-                {
-                    template.IsSelected = false;
-                }
-
-                selectedTemplate = selectedItem;
-                selectedTemplate.IsSelected = true;
-            }
-
-            // Reset the selected item to avoid infinite loop
-            ViewTemplatesListBox.SelectedItem = null;
-            ViewTemplatesListBox.SelectedItem = selectedTemplate;
-
-            isUpdatingSelection = false;
+            ViewTemplatesDataGrid.ItemsSource = null;
+            ViewTemplatesDataGrid.ItemsSource = FilteredViewTemplates;
         }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-            if (SelectedViewTemplate == null)
+            SelectedViewTemplates = ViewTemplates.Where(v => v.IsSelected).ToList();
+            if (SelectedViewTemplates.Count == 0)
             {
-                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please select at least one view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             DialogResult = true;
@@ -121,8 +150,8 @@ namespace RevitAddinTesting.Forms
             {
                 level.IsSelected = true;
             }
-            LevelsListBox.ItemsSource = null;
-            LevelsListBox.ItemsSource = Levels;
+            LevelsDataGrid.ItemsSource = null;
+            LevelsDataGrid.ItemsSource = Levels;
         }
 
         private void ChkBox_SelectAllLevels_Unchecked(object sender, RoutedEventArgs e)
@@ -131,8 +160,109 @@ namespace RevitAddinTesting.Forms
             {
                 level.IsSelected = false;
             }
-            LevelsListBox.ItemsSource = null;
-            LevelsListBox.ItemsSource = Levels;
+            LevelsDataGrid.ItemsSource = null;
+            LevelsDataGrid.ItemsSource = Levels;
+        }
+
+        private void ChkBox_SelectAllTemplates_Checked(object sender, RoutedEventArgs e) // Not in use. XAML checkbox is commented out.
+        {
+            foreach (var template in ViewTemplates)
+            {
+                template.IsSelected = true;
+            }
+            ViewTemplatesDataGrid.ItemsSource = null;
+            ViewTemplatesDataGrid.ItemsSource = FilteredViewTemplates;
+        }
+
+        private void ChkBox_SelectAllTemplates_Unchecked(object sender, RoutedEventArgs e) // Not in use. XAML checkbox is commented out.
+        {
+            foreach (var template in ViewTemplates)
+            {
+                template.IsSelected = false;
+            }
+            ViewTemplatesDataGrid.ItemsSource = null;
+            ViewTemplatesDataGrid.ItemsSource = FilteredViewTemplates;
+        }
+
+        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            if (checkBox == null) return;
+
+            var dataGridRow = GetParentOfType<DataGridRow>(checkBox);
+            if (dataGridRow == null) return;
+
+            var item = dataGridRow.Item;
+            bool isChecked = checkBox.IsChecked == true;
+
+            var dataGrid = GetParentOfType<DataGrid>(dataGridRow);
+            if (dataGrid == null) return;
+
+            if (dataGrid.SelectedItems.Count > 1 && dataGrid.SelectedItems.Contains(item))
+            {
+                foreach (var selectedItem in dataGrid.SelectedItems)
+                {
+                    if (selectedItem is LevelSelection level)
+                    {
+                        level.IsSelected = isChecked;
+                    }
+                    else if (selectedItem is ViewTemplateSelection template)
+                    {
+                        template.IsSelected = isChecked;
+                    }
+                }
+            }
+            else
+            {
+                if (item is LevelSelection level)
+                {
+                    level.IsSelected = isChecked;
+                }
+                else if (item is ViewTemplateSelection template)
+                {
+                    template.IsSelected = isChecked;
+                }
+            }
+
+            // Refresh the DataGrid to update the UI
+            dataGrid.ItemsSource = null;
+            if (dataGrid == LevelsDataGrid)
+            {
+                dataGrid.ItemsSource = Levels;
+            }
+            else if (dataGrid == ViewTemplatesDataGrid)
+            {
+                dataGrid.ItemsSource = FilteredViewTemplates;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the first parent of the specified type in the visual tree.
+        /// </summary>
+        /// <typeparam name="T">The type of the parent to search for.</typeparam>
+        /// <param name="element">The starting element to begin the search from.</param>
+        /// <returns>The first parent of type T if found; otherwise, null.</returns>
+        private T GetParentOfType<T>(DependencyObject element) where T : DependencyObject
+        {
+            while (element != null)
+            {
+                if (element is T correctlyTyped)
+                {
+                    return correctlyTyped;
+                }
+                element = VisualTreeHelper.GetParent(element);
+            }
+            return null;
+        }
+
+        private void ClearSelectedTemplates_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var template in ViewTemplates)
+            {
+                template.IsSelected = false;
+            }
+            ViewTemplatesDataGrid.ItemsSource = null;
+            ViewTemplatesDataGrid.ItemsSource = FilteredViewTemplates;
         }
     }
 
@@ -150,980 +280,3 @@ namespace RevitAddinTesting.Forms
         public ElementId Id { get; set; }
     }
 }
-
-
-///////////////////////////  10 kinda working
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        private List<ViewTemplateSelection> FilteredViewTemplates { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            FilteredViewTemplates = new List<ViewTemplateSelection>(ViewTemplates);
-
-//            DataContext = this;
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = FilteredViewTemplates;
-
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                FilteredViewTemplates = new List<ViewTemplateSelection>(ViewTemplates);
-//            }
-//            else
-//            {
-//                FilteredViewTemplates = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//            ViewTemplatesListBox.ItemsSource = null;
-//            ViewTemplatesListBox.ItemsSource = FilteredViewTemplates;
-//        }
-
-//        private void ViewTemplatesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            if (ViewTemplatesListBox.SelectedItem is ViewTemplateSelection selectedTemplate)
-//            {
-//                foreach (var template in ViewTemplates)
-//                {
-//                    template.IsSelected = false;
-//                }
-
-//                selectedTemplate.IsSelected = true;
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Checked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = true;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Unchecked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = false;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-///////////////////////////  9 kinda working, checkbox not working
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        private List<ViewTemplateSelection> FilteredViewTemplates { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            FilteredViewTemplates = new List<ViewTemplateSelection>(ViewTemplates);
-
-//            DataContext = this;
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = FilteredViewTemplates;
-
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                FilteredViewTemplates = new List<ViewTemplateSelection>(ViewTemplates);
-//            }
-//            else
-//            {
-//                FilteredViewTemplates = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//            ViewTemplatesListBox.ItemsSource = FilteredViewTemplates;
-//        }
-
-//        private void ViewTemplatesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            if (ViewTemplatesListBox.SelectedItem is ViewTemplateSelection selectedTemplate)
-//            {
-//                foreach (var template in ViewTemplates)
-//                {
-//                    template.IsSelected = false;
-//                }
-
-//                selectedTemplate.IsSelected = true;
-//                ViewTemplatesListBox.ItemsSource = FilteredViewTemplates;
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Checked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = true;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Unchecked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = false;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-///////////////////////////  8 kinda working
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            DataContext = this; // Set the DataContext
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box with unique first words
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void ViewTemplatesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            if (ViewTemplatesListBox.SelectedItem is ViewTemplateSelection selectedTemplate)
-//            {
-//                foreach (var template in ViewTemplates)
-//                {
-//                    template.IsSelected = false;
-//                }
-
-//                selectedTemplate.IsSelected = true;
-//                ViewTemplatesListBox.ItemsSource = null;
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Checked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = true;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Unchecked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = false;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-//    }
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-/////////////////////////// 7 working
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            DataContext = this; // Set the DataContext
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box with unique first words
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Checked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = true;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-
-//        private void ChkBox_SelectAllLevels_Unchecked(object sender, RoutedEventArgs e)
-//        {
-//            foreach (var level in Levels)
-//            {
-//                level.IsSelected = false;
-//            }
-//            LevelsListBox.ItemsSource = null;
-//            LevelsListBox.ItemsSource = Levels;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-/////////////////////////// 6 working
-
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            DataContext = this; // Set the DataContext
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box with unique first words
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-/////////////////////////// 5 not working
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            DataContext = this; // Set the DataContext
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box with unique first words
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-/////////////////////////// 4 works
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            DataContext = this; // Set the DataContext
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box with unique first words
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-/////////////////////////// 3 works
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            DataContext = this; // Set the DataContext
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box with unique first words
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-
-/////////////////////////// 2
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box with unique first words
-//            PopulateFilterComboBox();
-//        }
-
-//        private void PopulateFilterComboBox()
-//        {
-//            var uniqueFirstWords = ViewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Clear();
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-
-
-/////////////////////////// 1
-//namespace RevitAddinTesting.Forms
-//{
-//    public partial class LevelsParentViewsForm : Window
-//    {
-//        public List<LevelSelection> Levels { get; set; }
-//        public List<ViewTemplateSelection> ViewTemplates { get; set; }
-//        public ViewTemplateSelection SelectedViewTemplate { get; set; }
-
-//        public LevelsParentViewsForm(List<LevelSelection> levels, List<ViewTemplateSelection> viewTemplates)
-//        {
-//            InitializeComponent();
-//            Levels = levels;
-//            ViewTemplates = viewTemplates;
-
-//            LevelsListBox.ItemsSource = Levels;
-//            ViewTemplatesListBox.ItemsSource = ViewTemplates;
-
-//            // Populate the filter combo box
-//            var uniqueFirstWords = viewTemplates
-//                .Select(v => v.Name.Split(' ')[0])
-//                .Distinct()
-//                .OrderBy(word => word)
-//                .ToList();
-
-//            FilterComboBox.Items.Add("All");
-//            foreach (var word in uniqueFirstWords)
-//            {
-//                FilterComboBox.Items.Add(word);
-//            }
-//            FilterComboBox.SelectedIndex = 0;
-//        }
-
-//        private void FilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-//        {
-//            string filter = FilterComboBox.SelectedItem as string;
-//            if (filter == "All")
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates;
-//            }
-//            else
-//            {
-//                ViewTemplatesListBox.ItemsSource = ViewTemplates.Where(v => v.Name.StartsWith(filter)).ToList();
-//            }
-//        }
-
-//        private void OKButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            SelectedViewTemplate = ViewTemplates.FirstOrDefault(v => v.IsSelected);
-//            if (SelectedViewTemplate == null)
-//            {
-//                MessageBox.Show("Please select a view template.");
-//                return;
-//            }
-//            DialogResult = true;
-//        }
-
-//        private void CancelButton_Click(object sender, RoutedEventArgs e)
-//        {
-//            DialogResult = false;
-//        }
-//    }
-
-//    public class LevelSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//    }
-
-//    public class ViewTemplateSelection
-//    {
-//        public string Name { get; set; }
-//        public bool IsSelected { get; set; }
-//        public ElementId Id { get; set; }
-//    }
-//}
-

@@ -1,19 +1,12 @@
 #region Namespaces
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Windows.Controls;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 
 using RevitAddinTesting.Forms;
 
@@ -112,8 +105,8 @@ namespace RevitAddinTesting
         {
             var treeNodes = new List<TreeNode>();
 
-            // Collect all views, excluding view templates
-            List<View> allViews = GetAllViews(doc);
+            // Collect all views, excluding view templates and "BIM Set Up View"
+            List<View> allViews = GetAllViews(doc).Where(v => !v.Name.StartsWith("BIM Set Up View")).ToList();
 
             // Group views by their type
             var viewsByType = allViews.GroupBy(v => v.ViewType);
@@ -122,7 +115,7 @@ namespace RevitAddinTesting
             {
                 var viewTypeNode = new TreeNode { Header = group.Key.ToString() };
 
-                // Filter to get only independent views that have dependent views
+                // Filter to get only parent views that have dependent views
                 var independentViewsWithDependents = group
                     .Where(v => v.GetPrimaryViewId().IntegerValue == -1 &&
                                 allViews.Any(dv => dv.GetPrimaryViewId() == v.Id))
@@ -161,12 +154,13 @@ namespace RevitAddinTesting
             return treeNodes;
         }
 
-        private static List<View> GetAllViews(Document doc)
+        public static List<View> GetAllViews(Document doc)
         {
             return new FilteredElementCollector(doc)
                             .OfClass(typeof(View))
                             .Cast<View>()
                             .Where(v => !v.IsTemplate)
+                            .OrderBy(v => v.LookupParameter("Browser Sub-Category")?.AsString())
                             .ToList();
         }
 
@@ -314,6 +308,8 @@ namespace RevitAddinTesting
 
             return myButtonData1.Data;
         }
+
+
     }
 
 
@@ -321,93 +317,154 @@ namespace RevitAddinTesting
     /// Represents a node in the tree structure for a WPF TreeView control.
     /// Each node corresponds to a Revit view or sheet and can have child nodes.
     /// </summary>
-    public class TreeNode : INotifyPropertyChanged
-    {
-        private bool _isSelected;
+    //public class TreeNode : INotifyPropertyChanged
+    //{
+    //    private bool _isSelected;
+    //    private bool _isEnabled = true;
 
-        /// <summary>
-        /// Gets or sets the header text of the tree node.
-        /// </summary>
-        public string Header { get; set; }
+    //    public string Header { get; set; }
+    //    public List<TreeNode> Children { get; set; } = new List<TreeNode>();
+    //    public ElementId ViewId { get; set; }
 
-        /// <summary>
-        /// A list of child nodes under this node. Each child node represents a subordinate view or sheet.
-        /// </summary>
-        public List<TreeNode> Children { get; set; } = new List<TreeNode>();
+    //    public bool IsSelected
+    //    {
+    //        get => _isSelected;
+    //        set
+    //        {
+    //            if (_isSelected != value)
+    //            {
+    //                _isSelected = value;
+    //                OnPropertyChanged(nameof(IsSelected));
+    //                foreach (var child in Children)
+    //                {
+    //                    child.IsSelected = value;
+    //                }
+    //            }
+    //        }
+    //    }
 
-        /// <summary>
-        /// The ElementId of the Revit view or sheet that this node represents.
-        /// </summary>
-        public ElementId ViewId { get; set; }
+    //    public bool IsEnabled
+    //    {
+    //        get => _isEnabled;
+    //        set
+    //        {
+    //            if (_isEnabled != value)
+    //            {
+    //                _isEnabled = value;
+    //                OnPropertyChanged(nameof(IsEnabled));
+    //            }
+    //        }
+    //    }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether this node is selected in the UI.
-        /// This property is bound to the selection state of the corresponding item in the TreeView.
-        /// </summary>
-        public bool IsSelected
-        {
-            get => _isSelected; // Gets the current selection state of the node.
+    //    public event PropertyChangedEventHandler PropertyChanged;
 
-            set
-            {
-                // Check if the incoming selection state is different from the current state.
-                if (_isSelected != value)
-                {
-                    _isSelected = value; // Update the selection state.
+    //    protected virtual void OnPropertyChanged(string propertyName)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    //    }
 
-                    // Notify any listeners (such as the UI) that the property has changed.
-                    // This is crucial for the UI to reflect the change in selection state.
-                    OnPropertyChanged(nameof(IsSelected));
+    //    private bool _isExpanded = true;
 
-                    // Cascade the selection state to children
-                    foreach (var child in Children)
-                    {
-                        child.IsSelected = value;
-                    }
-                }
-            }
-        }
+    //    public bool IsExpanded
+    //    {
+    //        get => _isExpanded;
+    //        set
+    //        {
+    //            if (_isExpanded != value)
+    //            {
+    //                _isExpanded = value;
+    //                OnPropertyChanged(nameof(IsExpanded));
+    //            }
+    //        }
+    //    }
+    //}
+
+    //public class TreeNode : INotifyPropertyChanged
+    //{
+    //    private bool _isSelected;
+
+    //    /// <summary>
+    //    /// Gets or sets the header text of the tree node.
+    //    /// </summary>
+    //    public string Header { get; set; }
+
+    //    /// <summary>
+    //    /// A list of child nodes under this node. Each child node represents a subordinate view or sheet.
+    //    /// </summary>
+    //    public List<TreeNode> Children { get; set; } = new List<TreeNode>();
+
+    //    /// <summary>
+    //    /// The ElementId of the Revit view or sheet that this node represents.
+    //    /// </summary>
+    //    public ElementId ViewId { get; set; }
+
+    //    /// <summary>
+    //    /// Gets or sets a value indicating whether this node is selected in the UI.
+    //    /// This property is bound to the selection state of the corresponding item in the TreeView.
+    //    /// </summary>
+    //    public bool IsSelected
+    //    {
+    //        get => _isSelected; // Gets the current selection state of the node.
+
+    //        set
+    //        {
+    //            // Check if the incoming selection state is different from the current state.
+    //            if (_isSelected != value)
+    //            {
+    //                _isSelected = value; // Update the selection state.
+
+    //                // Notify any listeners (such as the UI) that the property has changed.
+    //                // This is crucial for the UI to reflect the change in selection state.
+    //                OnPropertyChanged(nameof(IsSelected));
+
+    //                // Cascade the selection state to children
+    //                foreach (var child in Children)
+    //                {
+    //                    child.IsSelected = value;
+    //                }
+    //            }
+    //        }
+    //    }
 
 
-        /// <summary>
-        /// Occurs when a property value changes.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+    //    /// <summary>
+    //    /// Occurs when a property value changes.
+    //    /// </summary>
+    //    public event PropertyChangedEventHandler PropertyChanged;
 
-        /// <summary>
-        /// Notifies subscribers about property changes to enable UI updates.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that changed.</param>
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    //    /// <summary>
+    //    /// Notifies subscribers about property changes to enable UI updates.
+    //    /// </summary>
+    //    /// <param name="propertyName">The name of the property that changed.</param>
+    //    protected virtual void OnPropertyChanged(string propertyName)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    //    }
 
-        // This controls the automatic expansion of the treeview
-        private bool _isExpanded = true;
+    //    // This controls the automatic expansion of the treeview
+    //    private bool _isExpanded = true;
 
-        /// <summary>
-        /// Gets or sets a value indicating whether this tree node is expanded in the UI.
-        /// When set to true, the node's children are visible in the TreeView.
-        /// </summary>
-        public bool IsExpanded
-        {
-            get => _isExpanded; // Gets the current expansion state of the node.
+    //    /// <summary>
+    //    /// Gets or sets a value indicating whether this tree node is expanded in the UI.
+    //    /// When set to true, the node's children are visible in the TreeView.
+    //    /// </summary>
+    //    public bool IsExpanded
+    //    {
+    //        get => _isExpanded; // Gets the current expansion state of the node.
 
-            set
-            {
-                // Check if the incoming expansion state is different from the current state.
-                if (_isExpanded != value)
-                {
-                    _isExpanded = value; // Update the expansion state.
+    //        set
+    //        {
+    //            // Check if the incoming expansion state is different from the current state.
+    //            if (_isExpanded != value)
+    //            {
+    //                _isExpanded = value; // Update the expansion state.
 
-                    // Notify any listeners (such as the UI) that the property has changed.
-                    // This update is necessary for the UI to reflect the change in expansion state.
-                    OnPropertyChanged(nameof(IsExpanded));
-                }
-            }
-        }
-
-    }
+    //                // Notify any listeners (such as the UI) that the property has changed.
+    //                // This update is necessary for the UI to reflect the change in expansion state.
+    //                OnPropertyChanged(nameof(IsExpanded));
+    //            }
+    //        }
+    //    }
+    //}
 
 }

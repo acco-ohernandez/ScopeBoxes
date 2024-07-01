@@ -1,19 +1,12 @@
 ﻿#region Namespaces
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
 
 using RevitAddinTesting.Forms;
 #endregion
@@ -39,7 +32,7 @@ namespace RevitAddinTesting
             gridsCollector = GetHorizontalAndVerticalGrids(gridsCollector);
 
             // Get user pre-selected scope boxes
-            var selectedScopeBoxes = Cmd_RenameScopeBoxes.GetSelectedScopeBoxes(doc);
+            var selectedScopeBoxes = MyUtils.GetSelectedScopeBoxes(doc);
 
             using (Transaction t = new Transaction(doc))
             {
@@ -59,7 +52,7 @@ namespace RevitAddinTesting
                     var firstColumnYMax = GetTheFirstColumnOfScopeBoxesMax(selectedScopeBoxes);
 
                     //double? offSet = GetFeetOffSet(); // get the OffSet from the form
-                    offSet = Utils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 2);
+                    offSet = MyUtils.GetViewScaleMultipliedValue(doc.ActiveView, 48, 2);
 
                     double offSetFeet;
                     if (offSet == null)
