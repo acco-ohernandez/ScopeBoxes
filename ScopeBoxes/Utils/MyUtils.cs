@@ -459,7 +459,7 @@ namespace RevitAddinTesting
                 Parameter browserSubCategoryParam = view.LookupParameter("Browser Sub-Category");
                 if (browserCategoryParam != null)
                 {
-                    browserCategoryParam.Set("_BIM Setup");
+                    browserCategoryParam.Set("__BIM Setup__");
                     if (browserSubCategoryParam != null)
                     {
                         browserSubCategoryParam.Set("BIM FloorPlan");
@@ -580,11 +580,11 @@ namespace RevitAddinTesting
         public static Result GetBIMSetupView(Document doc, out View BIMSetupView)
         {
             BIMSetupView = Cmd_DependentViewsBrowserTree.GetAllViews(doc)
-                                                        .Where(v => v.Name.StartsWith("BIM Set Up View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
+                                                        .Where(v => v.Name.StartsWith("BIM Setup View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
                                                         .FirstOrDefault();
             if (BIMSetupView == null)
             {
-                MyUtils.M_MyTaskDialog("INFO", "No 'BIM Set Up View' found");
+                MyUtils.M_MyTaskDialog("INFO", "No 'BIM Setup View' found");
                 return Result.Cancelled;
             }
             return Result.Succeeded;

@@ -38,7 +38,7 @@ namespace RevitAddinTesting
             using (Transaction trans = new Transaction(doc, "Create BIM Setup View"))
             {
                 trans.Start();
-                string viewName = MyUtils.GetUniqueViewName(doc, $"BIM Set Up View - {selectedLevelName}");
+                string viewName = MyUtils.GetUniqueViewName(doc, $"BIM Setup View - {selectedLevelName}");
                 ViewPlan view = MyUtils.CreateFloorPlanView(doc, viewName, selectedLevel);
                 view.Scale = selectedScale;
 
@@ -57,7 +57,7 @@ namespace RevitAddinTesting
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btn_CreateBimSetupView";
-            string buttonTitle = "Create BIM Set up View";
+            string buttonTitle = "Create BIM Setup View";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,

@@ -33,7 +33,10 @@ namespace RevitAddinTesting
 
             // Get all the FloorPlan Parent views except "BIM Set Up View"
             var allParentFloorPlanViewsExceptBIMSetUpView = MyUtils.GetAllParentViews(doc)
-                 .Where(v => v.ViewType == ViewType.FloorPlan && !v.Name.StartsWith("BIM Set Up View") && v.Name != "!CAD Link Template")
+                 .Where(v => (v.ViewType == ViewType.FloorPlan || v.ViewType == ViewType.CeilingPlan) &&
+                            !v.Name.StartsWith("BIM Set Up View") &&
+                             v.Name != "!CAD Link Template" &&
+                             v.Name.Contains("- PARENT"))
                  .OrderBy(v => v.LookupParameter("Browser Sub-Category")?.AsString())
                  .ToList();
 
