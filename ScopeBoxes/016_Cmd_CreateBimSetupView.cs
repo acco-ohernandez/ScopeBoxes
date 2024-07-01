@@ -63,8 +63,8 @@ namespace RevitAddinTesting
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Red_32,
-                Properties.Resources.Red_16,
+                Properties.Resources.Yellow_32,
+                Properties.Resources.Yellow_16,
                 "Create the BIM Setup View.");
 
             return myButtonData1.Data;

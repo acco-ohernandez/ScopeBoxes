@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 using Autodesk.Revit.DB;
@@ -30,6 +31,17 @@ namespace RevitAddinTesting
 
             return null;
         }
+
+        //###########################################################################################
+
+        public static void M_MyTaskDialog(string Title, string MainContent)
+        {
+            TaskDialog _taskScheduleResult = new TaskDialog(Title);
+            _taskScheduleResult.TitleAutoPrefix = false;
+            _taskScheduleResult.MainContent = MainContent;
+            _taskScheduleResult.Show();
+        }
+        //###########################################################################################
 
         /// <summary>
         /// Must pass in a View and the required distance in feet at a known scale.
@@ -89,8 +101,23 @@ namespace RevitAddinTesting
 
             return viewSheet;
         }
-
+        // Get only parent views, no dependent nor templates
         public static List<View> GetAllParentViews(Document doc)
+        {
+            List<View> parentViewsList = new FilteredElementCollector(doc)
+                                            .OfClass(typeof(View))
+                                            .Cast<View>()
+                                            .Where(v => !v.IsTemplate && IsParentView(v))
+                                            .ToList();
+
+            return parentViewsList;
+        }
+        private static bool IsParentView(View view)
+        {
+            return view.GetPrimaryViewId() == ElementId.InvalidElementId;
+        }
+
+        public static List<View> GetAllParentViews2(Document doc)
         {
             List<View> parentViews = new List<View>();
 
@@ -549,7 +576,23 @@ namespace RevitAddinTesting
 
             return dependentViews;
         }
+
+        public static Result GetBIMSetupView(Document doc, out View BIMSetupView)
+        {
+            BIMSetupView = Cmd_DependentViewsBrowserTree.GetAllViews(doc)
+                                                        .Where(v => v.Name.StartsWith("BIM Set Up View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
+                                                        .FirstOrDefault();
+            if (BIMSetupView == null)
+            {
+                MyUtils.M_MyTaskDialog("INFO", "No 'BIM Set Up View' found");
+                return Result.Cancelled;
+            }
+            return Result.Succeeded;
+        }
+
     } // EndOf MyUtils
+
+
 
     public class GetLeftRightTopBottomCenters
     {
@@ -652,4 +695,150 @@ namespace RevitAddinTesting
             throw new ArgumentException("Unsupported view scale.");
         }
     }
+
+
+
+    //// Usage example:
+    //var allParentFloorPlanViewsExceptBIMSetUpView = MyUtils.GetAllParentViews(doc)
+    //    .Where(v => v.ViewType == ViewType.FloorPlan && !v.Name.StartsWith("BIM Set Up View"))
+    //    .ToList();
+
+    //List<ViewsTreeNode> viewsTreeNodes = new ViewsTreeNode(allParentFloorPlanViewsExceptBIMSetUpView);
+    public class TreeNode : INotifyPropertyChanged
+    {
+        private bool _isSelected;
+        private bool _isEnabled = true;
+        private bool _isExpanded = true;
+
+        public string Header { get; set; }
+        public List<TreeNode> Children { get; set; } = new List<TreeNode>();
+        public ElementId ViewId { get; set; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                    foreach (var child in Children)
+                    {
+                        child.IsSelected = value;
+                    }
+                }
+            }
+        }
+
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set
+            {
+                if (_isEnabled != value)
+                {
+                    _isEnabled = value;
+                    OnPropertyChanged(nameof(IsEnabled));
+                }
+            }
+        }
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                if (_isExpanded != value)
+                {
+                    _isExpanded = value;
+                    OnPropertyChanged(nameof(IsExpanded));
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class ViewsTreeNode : TreeNode
+    {
+        public ViewsTreeNode(string viewType, List<View> views)
+        {
+            Header = viewType;
+            foreach (var view in views)
+            {
+                var viewNode = new TreeNode
+                {
+                    Header = view.Name,
+                    ViewId = view.Id
+                };
+                Children.Add(viewNode);
+            }
+        }
+    }
+    //public class ViewsTreeNode : TreeNode
+    //{
+    //    public ViewsTreeNode(View view)
+    //    {
+    //        Header = view.Name;
+    //        ViewId = view.Id;
+    //        Children = GetChildNodes(view);
+    //    }
+
+    //    private List<TreeNode> GetChildNodes(View parentView)
+    //    {
+    //        var childNodes = new List<TreeNode>();
+
+    //        var viewTypeNode = new TreeNode
+    //        {
+    //            Header = parentView.ViewType.ToString(),
+    //            ViewId = parentView.Id
+    //        };
+
+    //        childNodes.Add(viewTypeNode);
+
+    //        return childNodes;
+    //    }
+    //}
+
+    //public class ViewsTreeNode : TreeNode
+    //{
+    //    public ViewsTreeNode(List<View> parentViews)
+    //    {
+    //        foreach (var view in parentViews)
+    //        {
+    //            var viewNode = new TreeNode
+    //            {
+    //                Header = view.Name,
+    //                ViewId = view.Id,
+    //                Children = GetChildNodes(view)
+    //            };
+
+    //            this.Children.Add(viewNode);
+    //        }
+    //    }
+
+    //    private List<TreeNode> GetChildNodes(View parentView)
+    //    {
+    //        var childNodes = new List<TreeNode>();
+
+    //        var viewTypeNode = new TreeNode
+    //        {
+    //            Header = parentView.ViewType.ToString(),
+    //            ViewId = parentView.Id
+    //        };
+
+    //        childNodes.Add(viewTypeNode);
+
+    //        return childNodes;
+    //    }
+    //}
+
+
+
 } //EndOf namespace RevitAddinTesting

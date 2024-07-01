@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media;
 
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
@@ -29,15 +30,14 @@ namespace RevitAddinTesting
             Document doc = uiapp.ActiveUIDocument.Document;
 
             // Check if the 'BIM Set Up View' exists, exclude dependent views with the same name
-            var BIMSetupView = Cmd_DependentViewsBrowserTree.GetAllViews(doc)
-                                                            .Where(v => v.Name.StartsWith("BIM Set Up View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
-                                                            .FirstOrDefault();
-
-            if (BIMSetupView == null)
-            {
-                TaskDialog.Show("INFO", "No 'BIM Setup View' found");
-                return Result.Cancelled;
-            }
+            // Declare a variable to hold the 'BIM Set Up View'
+            View BIMSetupView;
+            // Call a utility method to get the 'BIM Set Up View' from the document
+            // This method sets the BIMSetupView variable if found and returns a Result indicating success or failure
+            Result result = MyUtils.GetBIMSetupView(doc, out BIMSetupView);
+            // Check if the result indicates that the 'BIM Set Up View' was successfully found
+            // If the view was not found, return the result indicating failure
+            if (result != Result.Succeeded) { return result; }
 
             // Retrieve dependent views of 'BIM Set Up View'
             List<View> BIMSetupViewDependentViews = MyUtils.GetDependentViewsFromParentView(BIMSetupView);
@@ -47,7 +47,6 @@ namespace RevitAddinTesting
                 TaskDialog.Show("INFO", "'BIM Set Up View' has no dependent views");
                 return Result.Cancelled;
             }
-
             // Get the dependent views assigned Scope Boxes
             var dependentViewsWithScopeBoxParams = new List<Parameter>();
             foreach (View dependentView in BIMSetupViewDependentViews)
@@ -60,7 +59,7 @@ namespace RevitAddinTesting
             var dependentViews = Cmd_DependentViewsBrowserTree.GetOnlyDependentViews(doc);
             if (dependentViews.Count == 0)
             {
-                TaskDialog.Show("Info:", "There are no dependent views.");
+                MyUtils.M_MyTaskDialog("Info:", "There are no dependent views.");
                 return Result.Cancelled;
             }
 
@@ -74,7 +73,7 @@ namespace RevitAddinTesting
 
             // All dependenet views selected by the user from the UpdateAppliedDependentViewsForm
             List<View> selectedDependentViews = GetAllDependentViesFromViewsTreeForm(doc);
-            if (selectedDependentViews == null) { return Result.Cancelled; } // Cancel if user closes or cancels the form
+            if (selectedDependentViews == null || selectedDependentViews.Count == 0) { return Result.Cancelled; } // Cancel if user closes or cancels the form
 
             var listOfListsOfViews = GroupViewsByPrimaryViewId(selectedDependentViews);
 
@@ -83,7 +82,7 @@ namespace RevitAddinTesting
 
             if (DependentViewsMatchBIMSetupViews == false)
             {
-                TaskDialog.Show("Info", $"The number of dependent views does not match the number of scope boxes.");
+                MyUtils.M_MyTaskDialog("Info", $"The number of dependent views does not match the number of scope boxes.");
                 return Result.Cancelled;
             }
 
@@ -144,6 +143,18 @@ namespace RevitAddinTesting
             return Result.Succeeded;
         }
 
+        //public static Result GetBIMSetupView(Document doc, out View BIMSetupView)
+        //{
+        //    BIMSetupView = Cmd_DependentViewsBrowserTree.GetAllViews(doc)
+        //                                                .Where(v => v.Name.StartsWith("BIM Set Up View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
+        //                                                .FirstOrDefault();
+        //    if (BIMSetupView == null)
+        //    {
+        //        MyUtils.M_MyTaskDialog("INFO", "No 'BIM Set Up View' found");
+        //        return Result.Cancelled;
+        //    }
+        //    return Result.Succeeded;
+        //}
 
         private List<Dictionary<View, Element>> GetListOfDependentViewsDictionaries(Document doc, List<List<View>> listOfListsOfViews, List<Parameter> dependentViewsWithScopeBoxParams)
         {
@@ -228,8 +239,30 @@ namespace RevitAddinTesting
             // Populate the tree data
             var treeData = Cmd_DependentViewsBrowserTree.PopulateTreeView(doc);
 
+            //using LINQ to check if any TreeNode in the list has children.
+            bool treeDataHasChildren = treeData.Any(node => node.Children != null && node.Children.Any());
+            //bool treeDataHasChildren = false;
+            //foreach (var node in treeData)
+            //{
+            //    if (node.Children != null && node.Children.Any())
+            //    {
+            //        treeDataHasChildren = true;
+            //        break;
+            //    }
+            //}
+
             //// Create and show the WPF form
             var form = new UpdateAppliedDependentViewsForm();
+
+
+            if (!treeDataHasChildren)
+            {
+                form.lbl_info.Content = "No dependen views to update were found.";
+                form.lbl_info.Background = Brushes.Red; // Set the background color to red
+                form.lbl_info.Foreground = Brushes.White; // Set the background color to red
+                form.lbl_info.FontSize = 20;
+            }
+
             form.InitializeTreeData(treeData);
             bool? dialogResult = form.ShowDialog();
 
@@ -298,8 +331,8 @@ namespace RevitAddinTesting
                 buttonInternalName,
                 buttonTitle,
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
-                Properties.Resources.Blue_32,
-                Properties.Resources.Blue_16,
+                Properties.Resources.Yellow_32,
+                Properties.Resources.Yellow_16,
                 "This button will use as source the 'BIM Set Up View' to update the dependent views of the selected parent view.");
 
             return myButtonData1.Data;

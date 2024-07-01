@@ -1,7 +1,6 @@
 #region Namespaces
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
@@ -106,8 +105,8 @@ namespace RevitAddinTesting
         {
             var treeNodes = new List<TreeNode>();
 
-            // Collect all views, excluding view templates
-            List<View> allViews = GetAllViews(doc);
+            // Collect all views, excluding view templates and "BIM Set Up View"
+            List<View> allViews = GetAllViews(doc).Where(v => !v.Name.StartsWith("BIM Set Up View")).ToList();
 
             // Group views by their type
             var viewsByType = allViews.GroupBy(v => v.ViewType);
@@ -116,7 +115,7 @@ namespace RevitAddinTesting
             {
                 var viewTypeNode = new TreeNode { Header = group.Key.ToString() };
 
-                // Filter to get only independent views that have dependent views
+                // Filter to get only parent views that have dependent views
                 var independentViewsWithDependents = group
                     .Where(v => v.GetPrimaryViewId().IntegerValue == -1 &&
                                 allViews.Any(dv => dv.GetPrimaryViewId() == v.Id))
@@ -161,6 +160,7 @@ namespace RevitAddinTesting
                             .OfClass(typeof(View))
                             .Cast<View>()
                             .Where(v => !v.IsTemplate)
+                            .OrderBy(v => v.LookupParameter("Browser Sub-Category")?.AsString())
                             .ToList();
         }
 
@@ -317,67 +317,67 @@ namespace RevitAddinTesting
     /// Represents a node in the tree structure for a WPF TreeView control.
     /// Each node corresponds to a Revit view or sheet and can have child nodes.
     /// </summary>
-    public class TreeNode : INotifyPropertyChanged
-    {
-        private bool _isSelected;
-        private bool _isEnabled = true;
+    //public class TreeNode : INotifyPropertyChanged
+    //{
+    //    private bool _isSelected;
+    //    private bool _isEnabled = true;
 
-        public string Header { get; set; }
-        public List<TreeNode> Children { get; set; } = new List<TreeNode>();
-        public ElementId ViewId { get; set; }
+    //    public string Header { get; set; }
+    //    public List<TreeNode> Children { get; set; } = new List<TreeNode>();
+    //    public ElementId ViewId { get; set; }
 
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged(nameof(IsSelected));
-                    foreach (var child in Children)
-                    {
-                        child.IsSelected = value;
-                    }
-                }
-            }
-        }
+    //    public bool IsSelected
+    //    {
+    //        get => _isSelected;
+    //        set
+    //        {
+    //            if (_isSelected != value)
+    //            {
+    //                _isSelected = value;
+    //                OnPropertyChanged(nameof(IsSelected));
+    //                foreach (var child in Children)
+    //                {
+    //                    child.IsSelected = value;
+    //                }
+    //            }
+    //        }
+    //    }
 
-        public bool IsEnabled
-        {
-            get => _isEnabled;
-            set
-            {
-                if (_isEnabled != value)
-                {
-                    _isEnabled = value;
-                    OnPropertyChanged(nameof(IsEnabled));
-                }
-            }
-        }
+    //    public bool IsEnabled
+    //    {
+    //        get => _isEnabled;
+    //        set
+    //        {
+    //            if (_isEnabled != value)
+    //            {
+    //                _isEnabled = value;
+    //                OnPropertyChanged(nameof(IsEnabled));
+    //            }
+    //        }
+    //    }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+    //    public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    //    protected virtual void OnPropertyChanged(string propertyName)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    //    }
 
-        private bool _isExpanded = true;
+    //    private bool _isExpanded = true;
 
-        public bool IsExpanded
-        {
-            get => _isExpanded;
-            set
-            {
-                if (_isExpanded != value)
-                {
-                    _isExpanded = value;
-                    OnPropertyChanged(nameof(IsExpanded));
-                }
-            }
-        }
-    }
+    //    public bool IsExpanded
+    //    {
+    //        get => _isExpanded;
+    //        set
+    //        {
+    //            if (_isExpanded != value)
+    //            {
+    //                _isExpanded = value;
+    //                OnPropertyChanged(nameof(IsExpanded));
+    //            }
+    //        }
+    //    }
+    //}
 
     //public class TreeNode : INotifyPropertyChanged
     //{

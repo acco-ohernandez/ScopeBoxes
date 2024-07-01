@@ -247,6 +247,9 @@
     <Compile Include="Forms\ViewsTreeForm.xaml.cs">
       <DependentUpon>ViewsTreeForm.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ViewsTreeSelectionForm.xaml.cs">
+      <DependentUpon>ViewsTreeSelectionForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\ButtonDataClass.cs" />
     <Compile Include="Cmd_RenameScopeBoxes.cs" />
     <Compile Include="Cmd_ScopeBoxGrid.cs" />
@@ -312,6 +315,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Forms\ViewsTreeForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Forms\ViewsTreeSelectionForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
