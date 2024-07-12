@@ -276,7 +276,9 @@ namespace RevitAddinTesting
             // Check if the view can have dependent views
             if (!parentView.CanViewBeDuplicated(ViewDuplicateOption.AsDependent))
             {
-                throw new InvalidOperationException("The specified view cannot have dependent views.");
+                M_MyTaskDialog("Cannot Proceed", "The specified view cannot have Dependent views.", "Error");
+                return null;
+                //throw new InvalidOperationException("The specified view cannot have dependent views.");
             }
 
             var parentViewName = parentView.Name;
@@ -285,7 +287,16 @@ namespace RevitAddinTesting
             // Create the dependent view
             ElementId dependentViewId = parentView.Duplicate(ViewDuplicateOption.AsDependent);
             View dependentView = doc.GetElement(dependentViewId) as View;
-            dependentView.Name = $"{parentViewName} - {scopeBoxName}";
+            //dependentView.Name = $"{parentViewName} - {scopeBoxName}";
+            try
+            {
+                dependentView.Name = $"{parentViewName} - {scopeBoxName}";
+            }
+            catch (Exception ex)
+            {
+                M_MyTaskDialog("Cannot Proceed", "Dependent views already exist for this view.", "Error");
+                return null;
+            }
 
             // assign the scopeBox to the DependentView
             //dependentView.get_Parameter(BuiltInParameter.VIEWER_VOLUME_OF_INTEREST_CROP).Set(scopeBox.Id);

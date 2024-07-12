@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
 namespace RevitAddinTesting.Forms
@@ -53,6 +54,15 @@ namespace RevitAddinTesting.Forms
 
         private void btn_OK_Click(object sender, RoutedEventArgs e)
         {
+
+            var selectedViewsCount = TreeData.SelectMany(v => v.Children).Count(v => v.IsSelected);
+            // IF NO VIEW IS SELECTED
+            if (selectedViewsCount == 0)
+            {
+                MessageBox.Show("Please select at least one view before proceeding.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             this.DialogResult = true;
             this.Close();
         }

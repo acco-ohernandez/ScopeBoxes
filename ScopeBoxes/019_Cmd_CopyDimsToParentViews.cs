@@ -84,6 +84,7 @@ namespace RevitAddinTesting
             //// Cancel if No dimensions of type 'GRID DIMENSIONS' found 
             //if (!dimensionsElemIdCollector.Any()) { MyUtils.M_MyTaskDialog("Info", $"No dimensions of type 'GRID DIMENSIONS' found in the view: {BIMSetupView.Name}"); return Result.Cancelled; }
 
+            List<View> UpdatedViews = new List<View>();
             // Copy all the dimensions from BIMSetupView to all the selected views
             using (Transaction tx = new Transaction(doc, "Copy Dimensions To Parent Views"))
             {
@@ -93,11 +94,15 @@ namespace RevitAddinTesting
                 foreach (var targetView in selectedViews)
                 {
                     CopyElements(BIMSetupView, dimensionsElemIdCollector, targetView);
+                    UpdatedViews.Add(targetView);
                 }
 
                 tx.Commit();
             }
 
+            // Show a TaskDialog to inform the user that the dimensions have been copied
+            //MyUtils.M_MyTaskDialog("Copy Dimensions to Parent Views", $"Dimensions have been copied to the following views:\n{string.Join("\n", UpdatedViews.Select(v => v.Name))}", "Information");
+            MyUtils.M_MyTaskDialog("Copy Dimensions to Parent Views", $"'GRID DIMENSIONS' copied to\n {UpdatedViews.Count} Parent views.", false);
             return Result.Succeeded;
         }
 

@@ -1,5 +1,6 @@
 ﻿#region Namespaces
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 using Autodesk.Revit.Attributes;
@@ -22,7 +23,11 @@ namespace RevitAddinTesting
             //var allParentViews = MyUtils.GetAllParentViews(doc).Where(v => v.Id == doc.ActiveView.Id).ToList();
             //var allFloorPlanViews = allParentViews.Where(v => v.ViewType == ViewType.FloorPlan); 
             List<View> allFloorPlanViews = new List<View> { doc.ActiveView as View }; // This will only do the current active view
-
+            if (allFloorPlanViews.First().ViewType == ViewType.ProjectBrowser)
+            {
+                MyUtils.M_MyTaskDialog("Action Required", "Please double click your view in the Project Browser before proceeding.", "Warning");
+                return Result.Cancelled;
+            }
 
             // Form would load Parent views
             // No form currently created
@@ -41,13 +46,16 @@ namespace RevitAddinTesting
 
                     if (scopeBoxesOnCurrentView.Count == 0)
                     {
-                        TaskDialog.Show("INFO", "No scope boxes found, you may need to turn them ON in the Visibility Graphic settings.");
+                        MyUtils.M_MyTaskDialog("Action Required", "There are no visible Scope Boxes in your view.", "Warning");
                         return Result.Cancelled;
                     }
 
                     foreach (var box in scopeBoxesOnCurrentView)
                     {
                         var CreatedView = MyUtils.CreateDependentViewByScopeBox(doc, view, box);
+                        if (CreatedView == null)
+                            return Result.Cancelled;
+
                         CreatedViews.Add(CreatedView);
                     }
                 }
@@ -55,7 +63,7 @@ namespace RevitAddinTesting
             }
 
             if (CreatedViews.Count > 0)
-                TaskDialog.Show("INFO", $"{CreatedViews.Count} Dependent Views Created");
+                MyUtils.M_MyTaskDialog("Create Dependent Views", $"{CreatedViews.Count} Dependent views created.", false);
 
             return Result.Succeeded;
         }
@@ -65,7 +73,7 @@ namespace RevitAddinTesting
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btn_CreateDependentScopeView";
-            string buttonTitle = "Create\nDependent Views\nFor Current View";
+            string buttonTitle = "Create\nDependent Views";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -73,7 +81,7 @@ namespace RevitAddinTesting
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Yellow_32,
                 Properties.Resources.Yellow_16,
-                "This button will create dependent views of the Current Active view based on the number of scope boxes.");
+                "This button will create dependent views of the Current Active view based on the number of Scope Boxes shown.");
 
             return myButtonData1.Data;
         }

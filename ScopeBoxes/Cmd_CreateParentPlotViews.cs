@@ -146,8 +146,8 @@ namespace RevitAddinTesting
             string viewTemplateApplied = "View Template Applied";
             // Create a task dialog to show the results
             string mainContent = $"View Scale: {scaleString}\n\n";
-            mainContent += $"Views Created  |    {viewTemplateApplied}\n";
-            mainContent += string.Join(Environment.NewLine, viewCounts.Select(kvp => $"                  {kvp.Value}       |    {kvp.Key}"));
+            mainContent += $"Views Created:      {viewTemplateApplied}:\n";
+            mainContent += string.Join(Environment.NewLine, viewCounts.Select(kvp => $"                  {kvp.Value}            {kvp.Key}"));
 
             TaskDialog taskDialog = new TaskDialog(viewsCreated)
             {
