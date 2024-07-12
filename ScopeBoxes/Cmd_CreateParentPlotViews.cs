@@ -17,7 +17,7 @@ namespace RevitAddinTesting
     [Transaction(TransactionMode.Manual)]
     public class Cmd_CreateParentPlotViews : IExternalCommand
     {
-        public string ViewTypeSelected { get; set; }
+        public static string ViewTypeSelected { get; set; }
         public int SelectedScale { get; set; }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -193,7 +193,15 @@ namespace RevitAddinTesting
 
             // Set view names
             string baseName = "N/A";
-            if (viewTemplate.Name.IndexOf("WORKING", StringComparison.OrdinalIgnoreCase) >= 0)
+
+            if (viewTemplate.Name.IndexOf("WORKING", StringComparison.OrdinalIgnoreCase) >= 0 && ViewTypeSelected == "Ceiling Plan")
+            {
+                // This Naming convention is only applied to views where the template name contains the word "Working"
+                // Set view names based on Level number starting at 00 and Level Name.
+                var levelNum = GetLevelNumber(level.Id, levels);
+                baseName = $"{FormatLevelNumber(levelNum)} - {ToTitleCase(level.Name)} RCP";
+            }
+            else if (viewTemplate.Name.IndexOf("WORKING", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 // This Naming convention is only applied to views where the template name contains the word "Working"
                 // Set view names based on Level number starting at 00 and Level Name.
