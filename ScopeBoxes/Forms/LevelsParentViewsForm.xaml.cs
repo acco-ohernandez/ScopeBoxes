@@ -134,13 +134,22 @@ namespace RevitAddinTesting.Forms
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             SelectedViewTemplates = ViewTemplates.Where(v => v.IsSelected).ToList();
-            if (SelectedViewTemplates.Count == 0)
+            var SelectedLevels = Levels.Where(v => v.IsSelected).ToList();
+
+            if (SelectedViewTemplates.Count == 0 || SelectedLevels.Count == 0)
             {
-                MessageBox.Show("Please select at least one view template.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+                // using the MessageBox allows the dialog to open on top of the form, but I I use a TaskDialog, it opens  and the form gets sent to the back of the Revit window.
+                MessageBox.Show("Please select at least one view template and one level before proceeding.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+
                 return;
             }
+
+
             DialogResult = true;
         }
+
+
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

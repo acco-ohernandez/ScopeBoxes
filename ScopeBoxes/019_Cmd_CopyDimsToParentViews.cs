@@ -21,24 +21,27 @@ namespace RevitAddinTesting
             UIApplication uiapp = commandData.Application;
             Document doc = uiapp.ActiveUIDocument.Document;
 
-            // Check if the 'BIM Set Up View' exists, exclude dependent views with the same name
-            // Declare a variable to hold the 'BIM Set Up View'
+
+            // Check if the 'BIM Setup View' exists, exclude dependent views with the same name
+            // Declare a variable to hold the 'BIM Setup View'
             View BIMSetupView;
-            // Call a utility method to get the 'BIM Set Up View' from the document
+            // Call a utility method to get the 'BIM Setup View' from the document
             // This method sets the BIMSetupView variable if found and returns a Result indicating success or failure
             Result result = MyUtils.GetBIMSetupView(doc, out BIMSetupView);
-            // Check if the result indicates that the 'BIM Set Up View' was successfully found
+            // Check if the result indicates that the 'BIM Setup View' was successfully found
             // If the view was not found, return the result indicating failure
             if (result != Result.Succeeded) { return result; }
 
-            // Get all the FloorPlan Parent views except "BIM Set Up View"
+            // Get all the FloorPlan Parent views except "BIM Setup View"
             var allParentFloorPlanViewsExceptBIMSetUpView = MyUtils.GetAllParentViews(doc)
                  .Where(v => (v.ViewType == ViewType.FloorPlan || v.ViewType == ViewType.CeilingPlan) &&
-                            !v.Name.StartsWith("BIM Set Up View") &&
+                            !v.Name.StartsWith("BIM Setup View") &&
                              v.Name != "!CAD Link Template" &&
                              v.Name.Contains("- PARENT"))
                  .OrderBy(v => v.LookupParameter("Browser Sub-Category")?.AsString())
                  .ToList();
+
+            if (!allParentFloorPlanViewsExceptBIMSetUpView.Any()) { MyUtils.M_MyTaskDialog("Action Required", "Please create Parent views before proceeding.", "Warning"); return Result.Cancelled; }
 
             // Group views by ViewType
             var groupedViews = allParentFloorPlanViewsExceptBIMSetUpView
@@ -50,6 +53,17 @@ namespace RevitAddinTesting
                 .Select(g => new ViewsTreeNode(g.Key, g.ToList()))
                 .ToList();
 
+
+            // Get all dimensions in BIMSetupView
+            var dimensionsElemIdCollector = new FilteredElementCollector(doc, BIMSetupView.Id)
+                            .OfClass(typeof(Dimension))
+                            .Cast<Dimension>()
+                            .Where(d => d.DimensionType.Name == "GRID DIMENSIONS")
+                            .Select(d => d.Id)
+                            .ToList();
+            // Cancel if No dimensions of type 'GRID DIMENSIONS' found 
+            if (!dimensionsElemIdCollector.Any()) { MyUtils.M_MyTaskDialog("Action Required", "Please add 'GRID DIMENSIONS' to the\n'BIM Setup View' before proceeding.", "Warning"); return Result.Cancelled; }
+
             // ViewsTreeSelectionForm FORM <-----------------------------------
             var viewsTreeSelectionForm = new ViewsTreeSelectionForm();
             viewsTreeSelectionForm.InitializeTreeData(viewsTreeNodes);
@@ -60,15 +74,15 @@ namespace RevitAddinTesting
             List<View> selectedViews = GetSelectedViews(doc, selectedTreeData);
 
 
-            // Get all dimensions in BIMSetupView
-            var dimensionsElemIdCollector = new FilteredElementCollector(doc, BIMSetupView.Id)
-                            .OfClass(typeof(Dimension))
-                            .Cast<Dimension>()
-                            .Where(d => d.DimensionType.Name == "GRID DIMENSIONS")
-                            .Select(d => d.Id)
-                            .ToList();
-            // Cancel if No dimensions of type 'GRID DIMENSIONS' found 
-            if (!dimensionsElemIdCollector.Any()) { MyUtils.M_MyTaskDialog("Info", $"No dimensions of type 'GRID DIMENSIONS' found in the view: {BIMSetupView.Name}"); return Result.Cancelled; }
+            //// Get all dimensions in BIMSetupView
+            //var dimensionsElemIdCollector = new FilteredElementCollector(doc, BIMSetupView.Id)
+            //                .OfClass(typeof(Dimension))
+            //                .Cast<Dimension>()
+            //                .Where(d => d.DimensionType.Name == "GRID DIMENSIONS")
+            //                .Select(d => d.Id)
+            //                .ToList();
+            //// Cancel if No dimensions of type 'GRID DIMENSIONS' found 
+            //if (!dimensionsElemIdCollector.Any()) { MyUtils.M_MyTaskDialog("Info", $"No dimensions of type 'GRID DIMENSIONS' found in the view: {BIMSetupView.Name}"); return Result.Cancelled; }
 
             // Copy all the dimensions from BIMSetupView to all the selected views
             using (Transaction tx = new Transaction(doc, "Copy Dimensions To Parent Views"))
@@ -86,6 +100,247 @@ namespace RevitAddinTesting
 
             return Result.Succeeded;
         }
+
+        //public void ShowTaskDialog()
+        //{
+        //    // Initialize the TaskDialog properties
+        //    string m_title = "Sample TaskDialog";
+        //    string m_mainInstruction = "Main Instruction Text";
+        //    string m_id = "TaskDialogID";
+        //    TaskDialogIcon m_mainIcon = TaskDialogIcon.TaskDialogIconInformation;
+        //    string m_mainContent = "This is the main content of the TaskDialog.";
+        //    string m_expandedContent = "This is the expanded content of the TaskDialog.";
+        //    string m_verificationText = "Verification text.";
+        //    string m_extraCheckBoxText = "Extra checkbox text.";
+        //    bool? m_verificationChecked = false;
+        //    bool? m_extraCheckBoxChecked = true;
+        //    string m_footerText = "Footer text.";
+        //    TaskDialogCommonButtons m_commonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel;
+        //    TaskDialogResult m_defaultButton = TaskDialogResult.Ok;
+        //    bool m_allowCancellation = true;
+        //    bool m_titleAutoPrefix = true;
+        //    bool m_enableMarqueeProgressBar = true; // Enable the MarqueeProgressBar
+
+        //    // Create command links
+        //    SortedDictionary<int, string> m_commandLinks = new SortedDictionary<int, string>
+        //{
+        //    { 1, "Command Link 1" },
+        //    { 2, "Command Link 2" }
+        //};
+
+        //    // Initialize and configure the TaskDialog
+        //    TaskDialog td = new TaskDialog(m_title)
+        //    {
+        //        MainInstruction = m_mainInstruction,
+        //        Id = m_id,
+        //        MainIcon = m_mainIcon,
+        //        MainContent = m_mainContent,
+        //        ExpandedContent = m_expandedContent,
+        //        VerificationText = m_verificationText,
+        //        FooterText = m_footerText,
+        //        CommonButtons = m_commonButtons,
+        //        DefaultButton = m_defaultButton,
+        //        AllowCancellation = m_allowCancellation,
+        //        TitleAutoPrefix = m_titleAutoPrefix,
+        //        EnableMarqueeProgressBar = m_enableMarqueeProgressBar
+        //    };
+
+        //    // Add extra checkbox text
+        //    td.AddCommandLink(TaskDialogCommandLinkId.CommandLink1, m_extraCheckBoxText);
+
+        //    // Add command links
+        //    foreach (var commandLink in m_commandLinks)
+        //    {
+        //        td.AddCommandLink((TaskDialogCommandLinkId)commandLink.Key, commandLink.Value);
+        //    }
+
+        //    // Display the TaskDialog in a separate task
+        //    Task.Run(() =>
+        //    {
+        //        // Simulate a process that takes 10 seconds
+        //        for (int i = 0; i < 10; i++)
+        //        {
+        //            Thread.Sleep(1000); // Sleep for 1 second
+        //        }
+
+        //        // Close the TaskDialog after the process completes
+        //        td.Close(TaskDialogResult.Ok);
+        //    });
+
+        //    // Show the TaskDialog
+        //    TaskDialogResult result = td.Show();
+
+        //    // Handle the result
+        //    if (result == TaskDialogResult.CommandLink1)
+        //    {
+        //        // Handle Command Link 1
+        //    }
+        //    else if (result == TaskDialogResult.CommandLink2)
+        //    {
+        //        // Handle Command Link 2
+        //    }
+        //    else if (result == TaskDialogResult.Ok)
+        //    {
+        //        // Handle Ok button
+        //    }
+        //    else if (result == TaskDialogResult.Cancel)
+        //    {
+        //        // Handle Cancel button
+        //    }
+        //}
+
+
+        public void ShowTaskDialog()
+        {
+            // Initialize the TaskDialog properties
+            string m_title = "Sample TaskDialog";
+            string m_mainInstruction = "Main Instruction Text";
+            string m_id = "TaskDialogID";
+            //TaskDialogIcon m_mainIcon = TaskDialogIcon.TaskDialogIconInformation;
+            TaskDialogIcon m_mainIcon = TaskDialogIcon.TaskDialogIconInformation;
+            string m_mainContent = "This is the main content of the TaskDialog.";
+            string m_expandedContent = "This is the expanded content of the TaskDialog.";
+            string m_verificationText = "Verification text.";
+            string m_extraCheckBoxText = "Extra checkbox text.";
+            bool? m_verificationChecked = false;
+            bool? m_extraCheckBoxChecked = true;
+            string m_footerText = "Footer text.";
+            TaskDialogCommonButtons m_commonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel;
+            TaskDialogResult m_defaultButton = TaskDialogResult.Ok;
+            bool m_allowCancellation = true;
+            bool m_titleAutoPrefix = false;
+            bool m_enableMarqueeProgressBar = false;
+
+            // Create command links
+            SortedDictionary<int, string> m_commandLinks = new SortedDictionary<int, string>
+        {
+            { 1, "Command Link 1" },
+            { 2, "Command Link 2" }
+        };
+
+            // Initialize and configure the TaskDialog
+            TaskDialog td = new TaskDialog(m_title)
+            {
+                MainInstruction = m_mainInstruction,
+                Id = m_id,
+                MainIcon = m_mainIcon,
+                MainContent = m_mainContent,
+                ExpandedContent = m_expandedContent,
+                VerificationText = m_verificationText,
+                FooterText = m_footerText,
+                CommonButtons = m_commonButtons,
+                DefaultButton = m_defaultButton,
+                AllowCancellation = m_allowCancellation,
+                TitleAutoPrefix = m_titleAutoPrefix,
+                EnableMarqueeProgressBar = m_enableMarqueeProgressBar
+            };
+
+            // Add extra checkbox text
+            td.AddCommandLink(TaskDialogCommandLinkId.CommandLink1, m_extraCheckBoxText);
+
+            // Add command links
+            foreach (var commandLink in m_commandLinks)
+            {
+                td.AddCommandLink((TaskDialogCommandLinkId)commandLink.Key, commandLink.Value);
+            }
+
+            // Show the TaskDialog
+            TaskDialogResult result = td.Show();
+
+            // Handle the result
+            if (result == TaskDialogResult.CommandLink1)
+            {
+                // Handle Command Link 1
+            }
+            else if (result == TaskDialogResult.CommandLink2)
+            {
+                // Handle Command Link 2
+            }
+            else if (result == TaskDialogResult.Ok)
+            {
+                // Handle Ok button
+            }
+            else if (result == TaskDialogResult.Cancel)
+            {
+                // Handle Cancel button
+            }
+        }
+
+        //--------
+        //public void ShowTaskDialog()
+        //{
+        //    // Initialize the TaskDialog properties
+        //    string m_title = "Sample TaskDialog";
+        //    string m_mainInstruction = "Main Instruction Text";
+        //    string m_id = "TaskDialogID";
+        //    TaskDialogIcon m_mainIcon = TaskDialogIcon.TaskDialogIconInformation;
+        //    string m_mainContent = "This is the main content of the TaskDialog.";
+        //    string m_expandedContent = "This is the expanded content of the TaskDialog.";
+        //    string m_verificationText = "Verification text.";
+        //    string m_extraCheckBoxText = "Extra checkbox text.";
+        //    bool? m_verificationChecked = false;
+        //    bool? m_extraCheckBoxChecked = true;
+        //    string m_footerText = "Footer text.";
+        //    TaskDialogCommonButtons m_commonButtons = TaskDialogCommonButtons.Ok | TaskDialogCommonButtons.Cancel;
+        //    TaskDialogResult m_defaultButton = TaskDialogResult.Ok;
+        //    bool m_allowCancellation = true;
+        //    bool m_titleAutoPrefix = true;
+        //    bool m_enableMarqueeProgressBar = false;
+        //    bool m_enableDoNotShowAgain = true;
+
+        //    // Create command links
+        //    SortedDictionary<int, string> m_commandLinks = new SortedDictionary<int, string>
+        //            {
+        //                { 1, "Command Link 1" },
+        //                { 2, "Command Link 2" }
+        //            };
+
+        //    // Initialize and configure the TaskDialog
+        //    TaskDialog td = new TaskDialog(m_title)
+        //    {
+        //        MainInstruction = m_mainInstruction,
+        //        Id = m_id,
+        //        MainIcon = m_mainIcon,
+        //        MainContent = m_mainContent,
+        //        ExpandedContent = m_expandedContent,
+        //        VerificationText = m_verificationText,
+        //        FooterText = m_footerText,
+        //        CommonButtons = m_commonButtons,
+        //        DefaultButton = m_defaultButton,
+        //        AllowCancellation = m_allowCancellation,
+        //        TitleAutoPrefix = m_titleAutoPrefix,
+        //        EnableMarqueeProgressBar = m_enableMarqueeProgressBar,
+        //        EnableDoNotShowAgain = m_enableDoNotShowAgain
+        //    };
+
+        //    // Add command links
+        //    foreach (var commandLink in m_commandLinks)
+        //    {
+        //        td.AddCommandLink((TaskDialogCommandLinkId)commandLink.Key, commandLink.Value);
+        //    }
+
+        //    // Show the TaskDialog
+        //    TaskDialogResult result = td.Show();
+
+        //    // Handle the result
+        //    if (result == TaskDialogResult.CommandLink1)
+        //    {
+        //        // Handle Command Link 1
+        //    }
+        //    else if (result == TaskDialogResult.CommandLink2)
+        //    {
+        //        // Handle Command Link 2
+        //    }
+        //    else if (result == TaskDialogResult.Ok)
+        //    {
+        //        // Handle Ok button
+        //    }
+        //    else if (result == TaskDialogResult.Cancel)
+        //    {
+        //        // Handle Cancel button
+        //    }
+        //}
+
         private void CopyElements(View sourceView, List<ElementId> elementIds, View targetView)
         {
             // Use ElementTransformUtils to copy elements to the target view
@@ -150,7 +405,7 @@ namespace RevitAddinTesting
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btn_Cmd_CopyDimsToParentViews";
-            string buttonTitle = "Copy Dims To\nParent Views";
+            string buttonTitle = "Copy Dims to\nParent Views";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,

@@ -24,27 +24,30 @@ namespace RevitAddinTesting
     public class Cmd_UpdateAppliedDependentViews : IExternalCommand
     {
         public bool DependentViewsMatchBIMSetupViews { get; set; } = true;
+        public bool NoDependentViewsForTheForm { get; private set; }
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             UIApplication uiapp = commandData.Application;
             Document doc = uiapp.ActiveUIDocument.Document;
 
-            // Check if the 'BIM Set Up View' exists, exclude dependent views with the same name
-            // Declare a variable to hold the 'BIM Set Up View'
+            // Check if the 'BIM Setup View' exists, exclude dependent views with the same name
+            // Declare a variable to hold the 'BIM Setup View'
             View BIMSetupView;
-            // Call a utility method to get the 'BIM Set Up View' from the document
+            // Call a utility method to get the 'BIM Setup View' from the document
             // This method sets the BIMSetupView variable if found and returns a Result indicating success or failure
             Result result = MyUtils.GetBIMSetupView(doc, out BIMSetupView);
-            // Check if the result indicates that the 'BIM Set Up View' was successfully found
+            // Check if the result indicates that the 'BIM Setup View' was successfully found
             // If the view was not found, return the result indicating failure
             if (result != Result.Succeeded) { return result; }
 
-            // Retrieve dependent views of 'BIM Set Up View'
+            // Retrieve dependent views of 'BIM Setup View'
             List<View> BIMSetupViewDependentViews = MyUtils.GetDependentViewsFromParentView(BIMSetupView);
 
             if (BIMSetupViewDependentViews.Count == 0)
             {
-                TaskDialog.Show("INFO", "'BIM Set Up View' has no dependent views");
+                //TaskDialog.Show("INFO", "'BIM Setup View' has no dependent views");
+                MyUtils.M_MyTaskDialog("Action Required", "Please create dependent views on the\r\n'BIM Setup View' before proceeding.", "Warning");
                 return Result.Cancelled;
             }
             // Get the dependent views assigned Scope Boxes
@@ -73,6 +76,11 @@ namespace RevitAddinTesting
 
             // All dependenet views selected by the user from the UpdateAppliedDependentViewsForm
             List<View> selectedDependentViews = GetAllDependentViesFromViewsTreeForm(doc);
+            if (NoDependentViewsForTheForm)  // This property is set in the GetAllDependentViesFromViewsTreeForm method
+            {
+                MyUtils.M_MyTaskDialog("Action Required", "Please \"Apply Dependent Views...\" from the\n'BIM Setup View' to Parent views before proceeding.", "Warning");
+                return Result.Cancelled; // Cancel if there are no dependent views to update
+            }
             if (selectedDependentViews == null || selectedDependentViews.Count == 0) { return Result.Cancelled; } // Cancel if user closes or cancels the form
 
             var listOfListsOfViews = GroupViewsByPrimaryViewId(selectedDependentViews);
@@ -146,11 +154,11 @@ namespace RevitAddinTesting
         //public static Result GetBIMSetupView(Document doc, out View BIMSetupView)
         //{
         //    BIMSetupView = Cmd_DependentViewsBrowserTree.GetAllViews(doc)
-        //                                                .Where(v => v.Name.StartsWith("BIM Set Up View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
+        //                                                .Where(v => v.Name.StartsWith("BIM Setup View") && !v.IsTemplate && v.GetPrimaryViewId() == ElementId.InvalidElementId)
         //                                                .FirstOrDefault();
         //    if (BIMSetupView == null)
         //    {
-        //        MyUtils.M_MyTaskDialog("INFO", "No 'BIM Set Up View' found");
+        //        MyUtils.M_MyTaskDialog("INFO", "No 'BIM Setup View' found");
         //        return Result.Cancelled;
         //    }
         //    return Result.Succeeded;
@@ -251,6 +259,12 @@ namespace RevitAddinTesting
             //    }
             //}
 
+            if (!treeDataHasChildren)
+            {
+                NoDependentViewsForTheForm = true;
+                return null;
+            }
+
             //// Create and show the WPF form
             var form = new UpdateAppliedDependentViewsForm();
 
@@ -333,7 +347,7 @@ namespace RevitAddinTesting
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Yellow_32,
                 Properties.Resources.Yellow_16,
-                "This button will use as source the 'BIM Set Up View' to update the dependent views of the selected parent view.");
+                "This button will update applied dependent views selected by the user by adding the appropriate Scope Box and renaming each view accordingly.");
 
             return myButtonData1.Data;
         }
@@ -371,7 +385,7 @@ namespace RevitAddinTesting
         public RenameReportWindow(List<ViewsRenameReport> reports)
         {
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            this.Title = "Rename Report";
+            this.Title = "Update Applied Dependent Views Summary";
             this.Width = 700;
             this.Height = 500;
 
@@ -384,7 +398,7 @@ namespace RevitAddinTesting
 
             DataGridTextColumn previousNameColumn = new DataGridTextColumn
             {
-                Header = "Previous Name",
+                Header = "Previous View Name",
                 Binding = new WinData.Binding("PreviousName"),
                 CellStyle = GetCenteredCellStyle()
             };
@@ -400,7 +414,7 @@ namespace RevitAddinTesting
 
             DataGridTextColumn newNameColumn = new DataGridTextColumn
             {
-                Header = "New Name",
+                Header = "New View Name",
                 Binding = new WinData.Binding("NewName"),
                 CellStyle = GetCenteredCellStyle()
             };

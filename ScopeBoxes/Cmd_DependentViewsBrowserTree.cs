@@ -105,8 +105,8 @@ namespace RevitAddinTesting
         {
             var treeNodes = new List<TreeNode>();
 
-            // Collect all views, excluding view templates and "BIM Set Up View"
-            List<View> allViews = GetAllViews(doc).Where(v => !v.Name.StartsWith("BIM Set Up View")).ToList();
+            // Collect all views, excluding view templates and "BIM Setup View"
+            List<View> allViews = GetAllViews(doc).Where(v => !v.Name.StartsWith("BIM Setup View")).ToList();
 
             // Group views by their type
             var viewsByType = allViews.GroupBy(v => v.ViewType);

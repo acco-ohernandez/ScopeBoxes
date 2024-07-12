@@ -57,7 +57,7 @@ namespace RevitAddinTesting
         {
             // use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "btn_CreateBimSetupView";
-            string buttonTitle = "Create BIM Setup View";
+            string buttonTitle = "Create\nBIM Setup View";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,

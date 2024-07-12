@@ -107,6 +107,22 @@ namespace RevitAddinTesting
                             string baseName = GenerateViewName(levels, level, viewTemplate);
                             viewPlan.Name = MyUtils.GetUniqueViewName(doc, baseName);
 
+                            if (viewPlan.Name.EndsWith(")"))
+                            //if (MyUtils.isViewNameDuplicate(doc, viewPlan.Name))
+                            {
+                                var showDialog = new TaskDialog("Cannot Proceed")
+                                {
+                                    TitleAutoPrefix = false,
+                                    MainIcon = TaskDialogIcon.TaskDialogIconError,
+                                    MainContent = "You've chosen a level and view template that already contains Parent views.\n\nPlease reselect levels and view templates before proceeding."
+                                };
+
+                                showDialog.Show();
+                                trans.RollBack();
+                                return Result.Failed;
+                            }
+
+
                             // Apply the selected view template
                             viewPlan.ViewTemplateId = viewTemplate.Id;
 
@@ -126,18 +142,20 @@ namespace RevitAddinTesting
             // Get the string value of the SelectedScale
             string scaleString = MyUtils.ScalesList().First(s => s.Key == SelectedScale).Value;
 
-            string viewsCreated = "Views Created";
+            string viewsCreated = "Create Parent Views";
             string viewTemplateApplied = "View Template Applied";
             // Create a task dialog to show the results
             string mainContent = $"View Scale: {scaleString}\n\n";
-            mainContent += $"{viewsCreated}  |    {viewTemplateApplied}\n";
+            mainContent += $"Views Created  |    {viewTemplateApplied}\n";
             mainContent += string.Join(Environment.NewLine, viewCounts.Select(kvp => $"                  {kvp.Value}       |    {kvp.Key}"));
 
-            TaskDialog taskDialog = new TaskDialog("Views Created")
+            TaskDialog taskDialog = new TaskDialog(viewsCreated)
             {
-                MainInstruction = "Views Created Summary",
+                Title = viewsCreated,
+                TitleAutoPrefix = false,
+                MainInstruction = "Create Parent Views Summary:",
                 MainContent = mainContent,
-                ExpandedContent = mainContent // Ensure the dialog expands to fit the content
+                //ExpandedContent = mainContent // Ensure the dialog expands to fit the content
             };
 
             taskDialog.Show();
@@ -301,7 +319,7 @@ namespace RevitAddinTesting
         {
             // Use this method to define the properties for this command in the Revit ribbon
             string buttonInternalName = "Cmd_CreateParentPlotViews";
-            string buttonTitle = "Create Parent\nPlot Views";
+            string buttonTitle = "Create\nParent Views";
 
             ButtonDataClass myButtonData1 = new ButtonDataClass(
                 buttonInternalName,
@@ -309,7 +327,7 @@ namespace RevitAddinTesting
                 MethodBase.GetCurrentMethod().DeclaringType?.FullName,
                 Properties.Resources.Yellow_32,
                 Properties.Resources.Yellow_16,
-                "This will create parent plot views...");
+                "This will create parent views based on the level and view template selected by the user.");
 
             return myButtonData1.Data;
         }

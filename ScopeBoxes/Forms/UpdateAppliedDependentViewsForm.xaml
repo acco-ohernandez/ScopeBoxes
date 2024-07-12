@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:RevitAddinTesting.Forms"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="UpdateAppliedDependentViewsForm" Height="450" Width="800">
+        Title="" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="70"/>
@@ -14,8 +14,13 @@
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
 
+        <!--<StackPanel Orientation="Vertical" Grid.Row="0" Margin="2" >
+            <Label x:Name="lbl_info" Content="Update Applied Dependent Views" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="15"/>
+            <Label Content="Select the parent views with applied dependent views that you want to update." HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
+        </StackPanel>-->
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="2" >
-            <Label x:Name="lbl_info" Content="Select the parent view for which you want to update its dependent views" HorizontalAlignment="Center" FontSize="12" FontWeight="Bold" Margin="15"/>
+            <Label x:Name="lbl_info" Content="Update Applied Dependent Views" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" />
+            <Label Content="Select the parent views with applied dependent views that you want to update." HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
         </StackPanel>
 
         <TreeView x:Name="viewsTreeView" Grid.Row="1" ItemsSource="{Binding}" Margin="5,0,5,0">
@@ -35,8 +40,8 @@
         </TreeView>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" Margin="10">
-            <Button x:Name="btn_OK" Content="OK" Width="60" Height="20" HorizontalAlignment="Center" Click="btn_OK_Click"/>
-            <Button x:Name="btn_Cancel" Content="Cancel" Width="60" Height="20" HorizontalAlignment="Center" Click="btn_Cancel_Click"/>
+            <Button x:Name="btn_OK" Content="OK" Width="60" Height="20" HorizontalAlignment="Center" Margin="5" Click="btn_OK_Click"/>
+            <Button x:Name="btn_Cancel" Content="Cancel" Width="60" Height="20" HorizontalAlignment="Center"  Margin="5" Click="btn_Cancel_Click"/>
         </StackPanel>
 
     </Grid>

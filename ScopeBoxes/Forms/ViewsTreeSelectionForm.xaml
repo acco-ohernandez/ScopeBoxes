@@ -37,8 +37,8 @@
         </TreeView>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" Margin="10">
-            <Button x:Name="btn_OK" Content="OK" Width="60" Height="20" HorizontalAlignment="Center" Click="btn_OK_Click"/>
-            <Button x:Name="btn_Cancel" Content="Cancel" Width="60" Height="20" HorizontalAlignment="Center" Click="btn_Cancel_Click"/>
+            <Button x:Name="btn_OK" Content="OK" Width="60" Height="20" HorizontalAlignment="Center" Margin="5" Click="btn_OK_Click"/>
+            <Button x:Name="btn_Cancel" Content="Cancel" Width="60" Height="20" HorizontalAlignment="Center" Margin="5" Click="btn_Cancel_Click"/>
         </StackPanel>
 
     </Grid>

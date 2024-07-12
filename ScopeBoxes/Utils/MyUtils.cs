@@ -41,6 +41,42 @@ namespace RevitAddinTesting
             _taskScheduleResult.MainContent = MainContent;
             _taskScheduleResult.Show();
         }
+        public static void M_MyTaskDialog(string Title, string MainContent, string icon)
+        {
+            TaskDialog _taskScheduleResult = new TaskDialog(Title);
+            _taskScheduleResult.TitleAutoPrefix = false;
+            _taskScheduleResult.MainContent = MainContent;
+            if (icon == "Error")
+            { _taskScheduleResult.MainIcon = TaskDialogIcon.TaskDialogIconError; }
+            else if (icon == "Warning")
+            { _taskScheduleResult.MainIcon = TaskDialogIcon.TaskDialogIconWarning; }
+            else if (icon == "Information")
+            { _taskScheduleResult.MainIcon = TaskDialogIcon.TaskDialogIconInformation; }
+            else if (icon == "Shield")
+            {
+                _taskScheduleResult.MainIcon = TaskDialogIcon.TaskDialogIconShield;
+            }
+            _taskScheduleResult.Show();
+        }
+        public static void M_MyTaskDialog(string Title, string MainInstructions, bool mainContentIsOn, string mainContentString = "")
+        {
+            if (mainContentIsOn)
+            {
+                TaskDialog _taskScheduleResult1 = new TaskDialog(Title);
+                _taskScheduleResult1.TitleAutoPrefix = false;
+                _taskScheduleResult1.MainInstruction = MainInstructions;
+                _taskScheduleResult1.MainContent = mainContentString;
+
+                _taskScheduleResult1.Show();
+            }
+            else
+            {
+                TaskDialog _taskScheduleResult2 = new TaskDialog(Title);
+                _taskScheduleResult2.TitleAutoPrefix = false;
+                _taskScheduleResult2.MainInstruction = MainInstructions;
+                _taskScheduleResult2.Show();
+            }
+        }
         //###########################################################################################
 
         /// <summary>
@@ -422,6 +458,16 @@ namespace RevitAddinTesting
                          .OrderBy(l => l.Elevation)
                          .ToList();
         }
+
+        public static bool isViewNameDuplicate(Document doc, string baseName)
+        {
+            if (ViewNameExists(doc, baseName))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public static string GetUniqueViewName(Document doc, string baseName)
         {
             if (!ViewNameExists(doc, baseName))
@@ -584,7 +630,7 @@ namespace RevitAddinTesting
                                                         .FirstOrDefault();
             if (BIMSetupView == null)
             {
-                MyUtils.M_MyTaskDialog("INFO", "No 'BIM Setup View' found");
+                MyUtils.M_MyTaskDialog("Action Required", "Please create the 'BIM Setup View' before proceeding.", "Warning");
                 return Result.Cancelled;
             }
             return Result.Succeeded;
@@ -700,7 +746,7 @@ namespace RevitAddinTesting
 
     //// Usage example:
     //var allParentFloorPlanViewsExceptBIMSetUpView = MyUtils.GetAllParentViews(doc)
-    //    .Where(v => v.ViewType == ViewType.FloorPlan && !v.Name.StartsWith("BIM Set Up View"))
+    //    .Where(v => v.ViewType == ViewType.FloorPlan && !v.Name.StartsWith("BIM Setup View"))
     //    .ToList();
 
     //List<ViewsTreeNode> viewsTreeNodes = new ViewsTreeNode(allParentFloorPlanViewsExceptBIMSetUpView);

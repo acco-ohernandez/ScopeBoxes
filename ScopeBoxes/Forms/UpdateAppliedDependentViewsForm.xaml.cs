@@ -21,7 +21,7 @@ namespace RevitAddinTesting.Forms
         {
             void DisableLastChildrenCheckboxes(TreeNode node)
             {
-                if (node.Header.StartsWith("BIM Set Up View"))
+                if (node.Header.StartsWith("BIM Setup View"))
                 {
                     node.IsEnabled = false; // This property will be used to disable the checkbox
                 }
