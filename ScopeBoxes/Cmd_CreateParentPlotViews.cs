@@ -19,6 +19,8 @@ namespace RevitAddinTesting
     {
         public static string ViewTypeSelected { get; set; }
         public int SelectedScale { get; set; }
+        public bool CreateDuplicatesFlag { get; private set; } = true;
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             // Obtain the Revit application and document objects
@@ -110,16 +112,54 @@ namespace RevitAddinTesting
                             if (viewPlan.Name.EndsWith(")"))
                             //if (MyUtils.isViewNameDuplicate(doc, viewPlan.Name))
                             {
-                                var showDialog = new TaskDialog("Cannot Proceed")
+                                if (CreateDuplicatesFlag)
                                 {
-                                    TitleAutoPrefix = false,
-                                    MainIcon = TaskDialogIcon.TaskDialogIconError,
-                                    MainContent = "You've chosen a level and view template that already contains Parent views.\n\nPlease reselect levels and view templates before proceeding."
-                                };
+                                    SortedDictionary<int, string> m_commandLinks = new SortedDictionary<int, string>
+                                    {
+                                        { 1, "Create duplicate Parent views" },
+                                        { 2, "Cancel and try again" }
+                                    };
+                                    // show TaskDialog with command links: 1- allow the user to cancel the operation 2- create duplicate views
+                                    var showDialog = new TaskDialog("Action Required")
+                                    {
 
-                                showDialog.Show();
-                                trans.RollBack();
-                                return Result.Failed;
+
+                                        TitleAutoPrefix = false,
+                                        MainIcon = TaskDialogIcon.TaskDialogIconError,
+                                        MainInstruction = "You've chosen a level and view template that already contains Parent views.\nHow do you want to proceed?",
+                                        MainContent = "Creating duplicate Parent views will add a (#)\nsuffix to the end of the view name.",
+
+                                        AllowCancellation = true
+                                    };
+                                    // Add command links to the TaskDialog
+                                    foreach (var commandLink in m_commandLinks)
+                                    {
+                                        showDialog.AddCommandLink((TaskDialogCommandLinkId)commandLink.Key, commandLink.Value);
+                                    }
+
+                                    var dialogResult = showDialog.Show();
+
+                                    if (dialogResult == TaskDialogResult.Ok)
+                                    {
+                                        CreateDuplicatesFlag = false;
+                                    }
+                                    else if (dialogResult == TaskDialogResult.Cancel)
+                                    {
+                                        trans.RollBack();
+                                        return Result.Failed;
+                                    }
+                                }
+
+                                //var showDialog = new TaskDialog("Cannot Proceed")
+                                //{
+                                //    TitleAutoPrefix = false,
+                                //    MainIcon = TaskDialogIcon.TaskDialogIconError,
+                                //    MainContent = "You've chosen a level and view template that already contains Parent views.\n\nPlease reselect levels and view templates before proceeding."
+                                //};
+
+                                //showDialog.Show();
+                                //trans.RollBack();
+                                //return Result.Failed;
                             }
 
 

@@ -55,9 +55,12 @@ namespace RevitAddinTesting.Forms
         private void btn_OK_Click(object sender, RoutedEventArgs e)
         {
 
-            var selectedViewsCount = TreeData.SelectMany(v => v.Children).Count(v => v.IsSelected);
+            //var selectedViewsCount = TreeData.SelectMany(v => v.Children).Count(v => v.IsSelected);
+            //var selectedViewsCount = TreeData.SelectMany(v => v.Children).Where(vc => vc.IsSelected).ToList();
+            var selectedViewsCount = TreeData.SelectMany(v => v.Children).SelectMany(v => v.Children).Where(v => v.IsSelected).ToList();
+            //var selectedViewsCount = TreeData.Where(v => v.IsSelected).ToList();
             // IF NO VIEW IS SELECTED
-            if (selectedViewsCount == 0)
+            if (selectedViewsCount.Count == 0)
             {
                 MessageBox.Show("Please select at least one view before proceeding.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
