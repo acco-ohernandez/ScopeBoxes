@@ -38,8 +38,8 @@ namespace RevitAddinTesting
                                 .Cast<View>()
                                 //.Where(v => v.IsTemplate && v.ViewType == ViewType.FloorPlan && !v.Name.Contains("RCP") && !v.Name.Contains("Ceiling"))
                                 .Where(v => v.IsTemplate &&
-                                            v.ViewType == ViewType.FloorPlan &&
-                                            v.ViewType == ViewType.CeilingPlan)
+                                            (v.ViewType == ViewType.FloorPlan ||
+                                            v.ViewType == ViewType.CeilingPlan))
                                 .OrderBy(v => v.Name)
                                 .ToList();
 

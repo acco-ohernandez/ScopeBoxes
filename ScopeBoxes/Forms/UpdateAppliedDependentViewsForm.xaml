@@ -20,7 +20,7 @@
         </StackPanel>-->
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="2" >
             <Label x:Name="lbl_info" Content="Update Applied Dependent Views" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" />
-            <Label Content="Select the parent views with applied dependent views that you want to update." HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
+            <Label Content="Select the Parent views with applied Dependent views that you want to update." HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
         </StackPanel>
 
         <TreeView x:Name="viewsTreeView" Grid.Row="1" ItemsSource="{Binding}" Margin="5,0,5,0">

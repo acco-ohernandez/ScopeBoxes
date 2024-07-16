@@ -17,7 +17,7 @@
 
         <StackPanel Orientation="Vertical" Grid.Row="0" Margin="2" >
             <Label Content="Copy Dimensions to Parent Views" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" />
-            <Label Content="Select the parent views you want to copy dimensions to." HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
+            <Label Content="Select the Parent views you want to copy dimensions to." HorizontalAlignment="Left" FontSize="12" FontWeight="Bold"/>
         </StackPanel>
 
         <TreeView x:Name="viewsTreeView" Grid.Row="1" ItemsSource="{Binding}" Margin="5,0,5,0">
