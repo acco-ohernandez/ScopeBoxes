@@ -32,28 +32,14 @@ namespace RevitAddinTesting
             // Remove the level named "!CAD Link Template"
             DictionaryRemoveEntryByValueName(levels, "!CAD Link Template");
 
-            //// Get all the view family types for Floor Plans
-            //var floorPlanViewFamilyTypes = new FilteredElementCollector(doc)
-            //                      .OfClass(typeof(ViewFamilyType))
-            //                      .Cast<ViewFamilyType>()
-            //                      .Where(vft => vft.ViewFamily == ViewFamily.FloorPlan) // Only FloorPlans View types will be created.
-            //                                                                            //.Where(vft => vft.ViewFamily == ViewFamily.FloorPlan || vft.ViewFamily == ViewFamily.CeilingPlan)
-            //                      .ToList();
-
-            //var ceilingPlanViewFamilyTypes = new FilteredElementCollector(doc)
-            //                      .OfClass(typeof(ViewFamilyType))
-            //                      .Cast<ViewFamilyType>()
-            //                      .Where(vft => vft.ViewFamily == ViewFamily.CeilingPlan) // Only CeilingPlan View types will be created.
-            //                      .ToList();
-
-
-
             // Get all view templates ViewType.FloorPlan /// Commented out -> And exclude any name with 'RCP' Or 'Ceiling'
             var viewTemplates = new FilteredElementCollector(doc)
                                 .OfClass(typeof(View))
                                 .Cast<View>()
                                 //.Where(v => v.IsTemplate && v.ViewType == ViewType.FloorPlan && !v.Name.Contains("RCP") && !v.Name.Contains("Ceiling"))
-                                .Where(v => v.IsTemplate && v.ViewType == ViewType.FloorPlan)
+                                .Where(v => v.IsTemplate &&
+                                            v.ViewType == ViewType.FloorPlan &&
+                                            v.ViewType == ViewType.CeilingPlan)
                                 .OrderBy(v => v.Name)
                                 .ToList();
 
@@ -67,22 +53,6 @@ namespace RevitAddinTesting
 
             var selectedViewTemplates = result.Item1;
             var selectedLevels = result.Item2;
-
-
-
-            //// Get all the view family types for Floor Plans
-            //var floorPlanViewFamilyTypes = new FilteredElementCollector(doc)
-            //                      .OfClass(typeof(ViewFamilyType))
-            //                      .Cast<ViewFamilyType>()
-            //                      .Where(vft => vft.ViewFamily == ViewFamily.FloorPlan) // Only FloorPlans View types will be created.
-            //                                                                            //.Where(vft => vft.ViewFamily == ViewFamily.FloorPlan || vft.ViewFamily == ViewFamily.CeilingPlan)
-            //                      .ToList();
-
-            //var ceilingPlanViewFamilyTypes = new FilteredElementCollector(doc)
-            //                      .OfClass(typeof(ViewFamilyType))
-            //                      .Cast<ViewFamilyType>()
-            //                      .Where(vft => vft.ViewFamily == ViewFamily.CeilingPlan) // Only CeilingPlan View types will be created.
-            //                      .ToList();
 
             List<ViewFamilyType> ViewFamilyTypes = GetViewFamilyTypes(doc, ViewTypeSelected);
 
@@ -109,16 +79,12 @@ namespace RevitAddinTesting
                             string baseName = GenerateViewName(levels, level, viewTemplate);
                             viewPlan.Name = MyUtils.GetUniqueViewName(doc, baseName);
 
-                            if (viewPlan.Name.EndsWith(")"))
                             //if (MyUtils.isViewNameDuplicate(doc, viewPlan.Name))
+                            if (viewPlan.Name.EndsWith(")"))
                             {
                                 if (CreateDuplicatesFlag)
                                 {
-                                    SortedDictionary<int, string> m_commandLinks = new SortedDictionary<int, string>
-                                    {
-                                        { 1, "Create duplicate Parent views" },
-                                        { 2, "Cancel and try again" }
-                                    };
+
                                     // show TaskDialog with command links: 1- allow the user to cancel the operation 2- create duplicate views
                                     var showDialog = new TaskDialog("Action Required")
                                     {
@@ -129,37 +95,25 @@ namespace RevitAddinTesting
                                         MainInstruction = "You've chosen a level and view template that already contains Parent views.\nHow do you want to proceed?",
                                         MainContent = "Creating duplicate Parent views will add a (#)\nsuffix to the end of the view name.",
 
-                                        AllowCancellation = true
+                                        AllowCancellation = false
+
                                     };
                                     // Add command links to the TaskDialog
-                                    foreach (var commandLink in m_commandLinks)
-                                    {
-                                        showDialog.AddCommandLink((TaskDialogCommandLinkId)commandLink.Key, commandLink.Value);
-                                    }
+                                    showDialog.AddCommandLink(TaskDialogCommandLinkId.CommandLink1, "Cancel and try again");
+                                    showDialog.AddCommandLink(TaskDialogCommandLinkId.CommandLink2, "Create duplicate Parent views");
 
                                     var dialogResult = showDialog.Show();
 
-                                    if (dialogResult == TaskDialogResult.Ok)
-                                    {
-                                        CreateDuplicatesFlag = false;
-                                    }
-                                    else if (dialogResult == TaskDialogResult.Cancel)
+                                    if (dialogResult == TaskDialogResult.CommandLink1)
                                     {
                                         trans.RollBack();
                                         return Result.Failed;
                                     }
+                                    else if (dialogResult == TaskDialogResult.CommandLink2)
+                                    {
+                                        CreateDuplicatesFlag = false;
+                                    }
                                 }
-
-                                //var showDialog = new TaskDialog("Cannot Proceed")
-                                //{
-                                //    TitleAutoPrefix = false,
-                                //    MainIcon = TaskDialogIcon.TaskDialogIconError,
-                                //    MainContent = "You've chosen a level and view template that already contains Parent views.\n\nPlease reselect levels and view templates before proceeding."
-                                //};
-
-                                //showDialog.Show();
-                                //trans.RollBack();
-                                //return Result.Failed;
                             }
 
 
@@ -255,20 +209,36 @@ namespace RevitAddinTesting
                 Parameter tradeParameter = GetViewParameterByName(viewTemplate, "Trade");
                 Parameter Sheet_SeriesParameter = GetViewParameterByName(viewTemplate, "Sheet Series");
 
-                string trade = "TRADE";
+                string trade = "";
                 if (tradeParameter != null && tradeParameter.AsString() != null)
-                { trade = tradeParameter.AsString(); }
+                { trade = $"{tradeParameter.AsString()} "; }
 
-                string Sheet_Series = "SHEET SERIES";
+                string Sheet_Series = "";
                 if (Sheet_SeriesParameter != null && Sheet_SeriesParameter.AsString() != null)
-                { Sheet_Series = Sheet_SeriesParameter.AsString(); }
+                { Sheet_Series = $" {Sheet_SeriesParameter.AsString()}"; }
 
                 string levelName = MyUtils.ConvertSpaceToAlt255(level.Name);
 
-                baseName = $"{trade} {levelName} {Sheet_Series} - PARENT";
-                //baseName = $"{trade} {level.Name} {Sheet_Series} - PARENT";
-                //baseName = $"{tradeParameter.AsString()} {level.Name} {Sheet_SeriesParameter.AsString()} - PARENT";
+                baseName = $"{trade}{levelName}{Sheet_Series} - PARENT";
             }
+            //{
+            //    // Set view name based on ViewFamilyType and level
+            //    //baseName = $"{viewFamType.Name} - {level.Name} - {viewTemplate.Name}";
+            //    Parameter tradeParameter = GetViewParameterByName(viewTemplate, "Trade");
+            //    Parameter Sheet_SeriesParameter = GetViewParameterByName(viewTemplate, "Sheet Series");
+
+            //    string trade = "";
+            //    if (tradeParameter != null && tradeParameter.AsString() != null)
+            //    { trade = tradeParameter.AsString(); }
+
+            //    string Sheet_Series = "SHEET SERIES";
+            //    if (Sheet_SeriesParameter != null && Sheet_SeriesParameter.AsString() != null)
+            //    { Sheet_Series = Sheet_SeriesParameter.AsString(); }
+
+            //    string levelName = MyUtils.ConvertSpaceToAlt255(level.Name);
+
+            //    baseName = $"{trade} {levelName} {Sheet_Series} - PARENT";
+            //}
 
             return baseName;
         }

@@ -47,7 +47,7 @@ namespace RevitAddinTesting
             if (BIMSetupViewDependentViews.Count == 0)
             {
                 //TaskDialog.Show("INFO", "'BIM Setup View' has no dependent views");
-                MyUtils.M_MyTaskDialog("Action Required", "Please create dependent views on the\r\n'BIM Setup View' before proceeding.", "Warning");
+                MyUtils.M_MyTaskDialog("Action Required", "Please create Dependent views on the\r\n'BIM Setup View' before proceeding.", "Warning");
                 return Result.Cancelled;
             }
             // Get the dependent views assigned Scope Boxes
@@ -90,26 +90,11 @@ namespace RevitAddinTesting
 
             if (DependentViewsMatchBIMSetupViews == false)
             {
-                MyUtils.M_MyTaskDialog("Info", $"The number of dependent views does not match the number of scope boxes.");
+                MyUtils.M_MyTaskDialog("Cannot Proceed",
+                                        $"The number of Dependent views on the Parent view does not match the number of Dependent views on the 'BIM Setup View'.",
+                                        "Error");
                 return Result.Cancelled;
             }
-
-
-            //// Create a dictionary to map views to scope boxes
-            //Dictionary<View, Element> viewsAndScopeBoxes = new Dictionary<View, Element>();
-            //if (selectedDependentViews == null) { return Result.Cancelled; }
-            //if (selectedDependentViews.Count == dependentViewsWithScopeBoxParams.Count)
-            //{
-            //    for (int i = 0; i < selectedDependentViews.Count; i++)
-            //    {
-            //        viewsAndScopeBoxes.Add(selectedDependentViews[i], doc.GetElement(dependentViewsWithScopeBoxParams[i].AsElementId()));
-            //    }
-            //}
-            //else
-            //{
-            //    TaskDialog.Show("Info", $"The number of dependent views does not match the number of scope boxes. \n\n{selectedDependentViews.Count} - Dependent Views\n{dependentViewsWithScopeBoxParams.Count} - Scope Boxes");
-            //    return Result.Cancelled;
-            //}
 
             List<ViewsRenameReport> NamesResult = new List<ViewsRenameReport>();
             // Start a transaction to rename the view
@@ -128,15 +113,23 @@ namespace RevitAddinTesting
                         var previousName = view.Name;
                         var scopeBoxName = scopeBox.Name;
 
-                        RenameViewWithScopeBoxName(view, scopeBoxName);
-                        var newName = view.Name;
+                        // Generate new view name that includes the scope box name and remove anything from "PARENT" onwards
+                        var viewWithScopeboxName = RenameViewWithScopeBoxName(view, scopeBoxName);
+                        //var uniqueName = MyUtils.GetUniqueViewName(doc, view.Name);
+
+                        // Check if the view name already exists in the document
+                        if (MyUtils.ViewNameExists(doc, viewWithScopeboxName))
+                        {
+                            viewWithScopeboxName = MyUtils.GetUniqueViewName(doc, viewWithScopeboxName);
+                        }
+                        view.Name = viewWithScopeboxName;
 
                         // Add the NamesResult to the ViewsRenameReport list
                         NamesResult.Add(new ViewsRenameReport
                         {
                             PreviousName = previousName,
                             ScopeBoxName = scopeBoxName,
-                            NewName = newName
+                            NewName = viewWithScopeboxName
                         });
                     }
 
@@ -213,13 +206,14 @@ namespace RevitAddinTesting
             return listOfListsOfViews;
         }
 
-        private void RenameViewWithScopeBoxName(View view, string scopeBoxName)
+        private string RenameViewWithScopeBoxName(View view, string scopeBoxName)
         {
             // Get the original view name
             string viewName = view.Name;
 
             // Split the view name at "PARENT"
             string[] splitName = viewName.Split(new string[] { "PARENT" }, StringSplitOptions.None);
+            //string[] splitName = viewName.Split(new string[] { "PARENT - Dependent" }, StringSplitOptions.None);
 
             // If the split results in more than one part, use the first part
             string newViewName = splitName.Length > 0 ? splitName[0].Trim() : viewName;
@@ -227,14 +221,31 @@ namespace RevitAddinTesting
             // Append the scope box name to the first part of the original name
             newViewName = $"{newViewName} {scopeBoxName}";
 
-            //// Start a transaction to rename the view
-            //using (Transaction trans = new Transaction(view.Document, "Rename View"))
-            //{
-            //    trans.Start();
-            view.Name = newViewName;
-            //    trans.Commit();
-            //}
+            return newViewName;
         }
+        //private void RenameViewWithScopeBoxName(View view, string scopeBoxName)
+        //{
+        //    // Get the original view name
+        //    string viewName = view.Name;
+
+        //    // Split the view name at "PARENT"
+        //    string[] splitName = viewName.Split(new string[] { "PARENT" }, StringSplitOptions.None);
+        //    //string[] splitName = viewName.Split(new string[] { "PARENT - Dependent" }, StringSplitOptions.None);
+
+        //    // If the split results in more than one part, use the first part
+        //    string newViewName = splitName.Length > 0 ? splitName[0].Trim() : viewName;
+
+        //    // Append the scope box name to the first part of the original name
+        //    newViewName = $"{newViewName} {scopeBoxName}";
+
+        //    //// Start a transaction to rename the view
+        //    //using (Transaction trans = new Transaction(view.Document, "Rename View"))
+        //    //{
+        //    //    trans.Start();
+        //    view.Name = newViewName;
+        //    //    trans.Commit();
+        //    //}
+        //}
 
 
         private bool AreBoundingBoxesEqual(BoundingBoxXYZ box1, BoundingBoxXYZ box2)
@@ -271,7 +282,7 @@ namespace RevitAddinTesting
 
             if (!treeDataHasChildren)
             {
-                form.lbl_info.Content = "No dependen views to update were found.";
+                form.lbl_info.Content = "No dependent views to update were found.";
                 form.lbl_info.Background = Brushes.Red; // Set the background color to red
                 form.lbl_info.Foreground = Brushes.White; // Set the background color to red
                 form.lbl_info.FontSize = 20;
